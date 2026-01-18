@@ -2,7 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "devstack-learning-platform"
+  },
   "license": "ISC",
   "author": "Anjali Chauhan",
   "type": "module",

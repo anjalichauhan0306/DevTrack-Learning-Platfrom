@@ -1,9 +1,12 @@
 import React from 'react';
+import Nav from '../component/Nav.jsx';
 
 const Home = () => {
     return (
-        <div className='caret-red-100 text-blue-900 bg-gray-200 p-6 rounded-lg shadow-md'>
-            Hello From Home Page
+        <div>
+            <div>
+                <Nav />
+            </div>
         </div>
     );
 }

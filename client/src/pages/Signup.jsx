@@ -138,9 +138,9 @@ const Signup = () => {
                         </button>
 
                         <div className='flex items-center gap-4 py-2'>
-                            <div className='h-[1px] bg-gray-200 flex-1'></div>
+                            <div className='h-px bg-gray-200 flex-1'></div>
                             <span className='text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em]'>Or</span>
-                            <div className='h-[1px] bg-gray-200 flex-1'></div>
+                            <div className='h-px bg-gray-200 flex-1'></div>
                         </div>
 
                         <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm'>
@@ -166,7 +166,7 @@ const Signup = () => {
                             Dev<span className='text-blue-500'>Track</span>
                         </h2>
                         <div className='w-12 h-1 bg-blue-500 rounded-full mb-6'></div>
-                        <p className='text-gray-300 text-lg font-medium max-w-[280px] leading-relaxed opacity-80'>
+                        <p className='text-gray-300 text-lg font-medium max-w-70 leading-relaxed opacity-80'>
                             Level up your workflow with real-time analytics.
                         </p>
                     </div>

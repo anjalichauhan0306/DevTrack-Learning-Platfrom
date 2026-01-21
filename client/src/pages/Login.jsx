@@ -4,6 +4,7 @@ import { ClipLoader } from 'react-spinners';
 import { IoEye, IoEyeOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useState } from 'react';
 import axios from 'axios';
 import { serverURL } from '../App';
 import { useDispatch } from 'react-redux';
@@ -155,7 +156,7 @@ const Login = () => {
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>{`
                 @keyframes bounce-slow {
                     0%, 100% { transform: translateY(0); }
                     50% { transform: translateY(-15px); }

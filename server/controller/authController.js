@@ -1,8 +1,7 @@
-
-import User from '../models/userModel.js';
+import User from '../model/userModel.js';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
-import { genToken } from '../utils/genToken.js';
+import { genToken } from '../config/token.js';
 
 
 export const signUp = async (req , res) => {

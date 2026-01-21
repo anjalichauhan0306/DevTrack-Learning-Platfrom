@@ -2,10 +2,38 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.png';
 import google from '../assets/google.jpg';
 import { IoEye, IoEyeOutline, IoSchoolOutline, IoTerminalOutline } from 'react-icons/io5';
+import { ClipLoader } from 'react-spinners';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { serverURL } from '../App';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice';
 
 const Signup = () => {
     const [show, setShow] = useState(false);
     const [role, setRole] = useState('Student');
+    const navigate = useNavigate();
+    const [name , setName]= useState('');
+    const [email , setEmail]= useState('');
+    const [password , setPassword]= useState('');
+    const [loading , setLoading]= useState(false);
+    const dispatch = useDispatch()
+    const handleSignUp = async () => {
+        setLoading(true);
+        try {
+            
+            const result = await axios.post(serverURL + "/auth/signup" , {name,email,password,role},{withCredentials:true});
+            setLoading(false);
+            navigate('/');
+            dispatch(setUserData(result.data))
+            toast.success("Signup Successful"); 
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+            toast.error(error.response.data.message);
+        }
+    }
 
     return (
         // Added h-screen and overflow-hidden to stop page scroll
@@ -37,7 +65,7 @@ const Signup = () => {
                             <label className='block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1 transition-colors group-focus-within:text-blue-600'>
                                 Full Name
                             </label>
-                            <input 
+                            <input onChange={(e)=>setName(e.target.value)} value={name}
                                 type="text" 
                                 className='w-full h-11 px-5 rounded-2xl border-2 border-gray-100 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50/50' 
                                 placeholder='John Doe' 
@@ -50,6 +78,7 @@ const Signup = () => {
                                 Email Address
                             </label>
                             <input 
+                                onChange={(e)=>setEmail(e.target.value)} value={email}
                                 type="email" 
                                 className='w-full h-11 px-5 rounded-2xl border-2 border-gray-100 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50/50' 
                                 placeholder='name@example.com' 
@@ -90,6 +119,7 @@ const Signup = () => {
                             </label>
                             <div className='relative'>
                                 <input 
+                                onChange={(e)=>setPassword(e.target.value)} value={password}
                                     type={show ? "text" : "password"} 
                                     className='w-full h-11 px-5 rounded-2xl border-2 border-gray-100 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50/50' 
                                     placeholder='••••••••' 
@@ -104,8 +134,7 @@ const Signup = () => {
                             </div>
                         </div>
 
-                        <button className='w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl mt-2 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.97]'>
-                            Sign Up
+                        <button className='w-full h-12 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl mt-2 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.97]' onClick={handleSignUp} disabled={loading}>{loading ? <ClipLoader size={30} color='#ffffff' /> : "Sign Up"}
                         </button>
 
                         <div className='flex items-center gap-4 py-2'>
@@ -121,13 +150,13 @@ const Signup = () => {
                     </form>
 
                     <p className='text-center mt-6 text-sm text-gray-500 font-medium'>
-                        Already have an account? <a href="#" className='text-blue-600 font-bold hover:underline'>Sign In</a>
+                        Already have an account? <a href="/login" onClick={() => navigate('/login')} className='text-blue-600 font-bold hover:underline'>Sign In</a>
                     </p>
                 </div>
 
                 {/* Right Side: Visuals - No changes to maintain exact login look */}
                 <div className='hidden md:flex md:w-[45%] bg-[#020617] relative flex-col items-center justify-center p-12 overflow-hidden'>
-                    <div className='absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20'></div>
+                    <div className='absolute inset-0 bg-linear-to-br from-blue-600/20 via-transparent to-purple-600/20'></div>
                     
                     <div className='relative z-10 flex flex-col items-center text-center'>
                         <div className='bg-white/5 p-6 rounded-[2.5rem] backdrop-blur-2xl mb-8 border border-white/10 shadow-2xl animate-bounce-slow'>

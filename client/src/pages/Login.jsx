@@ -1,10 +1,34 @@
-import React, { useState } from 'react';
 import logo from '../assets/logo.png';
 import google from '../assets/google.jpg';
+import { ClipLoader } from 'react-spinners';
 import { IoEye, IoEyeOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { serverURL } from '../App';
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
     const [show, setShow] = useState(false);
+    const navigate = useNavigate();
+    const [email , setEmail]= useState('');
+    const [password , setPassword]= useState('');
+    const [loading , setLoading]= useState(false);
+    const dispatch =useDispatch()
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            const result= await axios.post(serverURL + "/api/auth/" ,{email,password} ,{withCredentials:true})
+            dispatch(setUserData(result.data))
+            setLoading(false);
+            toast.success("Login Successfully")
+        } catch (error) {
+            setLoading(false)
+            console.log(error);
+            toast.error(error.response.data.message);
+        }
+    }
+
 
     return (
         <div className='bg-[#0f172a] h-screen w-full flex items-center justify-center font-sans p-4 relative overflow-hidden'>
@@ -40,6 +64,7 @@ const Login = () => {
                                     Email Address
                                 </label>
                                 <input
+                                    onChange={(e)=>setEmail(e.target.value)} value={email}
                                     type="email"
                                     placeholder="name@example.com"
                                     className='w-full h-11 px-5 rounded-2xl border-2 border-gray-100 bg-gray-50/50 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all'
@@ -53,6 +78,7 @@ const Login = () => {
                                 </label>
                                 <div className='relative'>
                                     <input
+                                     onChange={(e)=>setPassword(e.target.value)} value={password}
                                         type={show ? 'text' : 'password'}
                                         placeholder="••••••••"
                                         className='w-full h-11 px-5 rounded-2xl border-2 border-gray-100 bg-gray-50/50 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all'
@@ -73,16 +99,16 @@ const Login = () => {
                                 </a>
                             </div>
 
-                            <button className='w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.97]'>
-                                Sign In
+                            <button className='w-full h-12 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.97]'onClick={handleLogin}>
+                                {loading ? <ClipLoader size={30} color='#ffffff' /> : "Sign In"}
                             </button>
 
                             <div className='flex items-center gap-4'>
-                                <div className='h-[1px] bg-gray-200 flex-1' />
+                                <div className='h-px bg-gray-200 flex-1' />
                                 <span className='text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em]'>
                                     Or
                                 </span>
-                                <div className='h-[1px] bg-gray-200 flex-1' />
+                                <div className='h-px bg-gray-200 flex-1' />
                             </div>
 
                             <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm'>
@@ -96,7 +122,7 @@ const Login = () => {
                     <div className='pt-10'>
                         <p className='text-center text-sm text-gray-500 font-medium'>
                             Don’t have an account?{' '}
-                            <a href="#" className='text-blue-600 font-bold hover:underline'>
+                            <a href="/signup"  onClick={()=>navigate("/signup")}className='text-blue-600 font-bold hover:underline'>
                                 Sign Up
                             </a>
                         </p>
@@ -105,7 +131,7 @@ const Login = () => {
 
                 {/* Right Side */}
                 <div className='hidden md:flex md:w-[45%] bg-[#020617] relative flex-col items-center justify-center p-12 overflow-hidden'>
-                    <div className='absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20' />
+                    <div className='absolute inset-0 bg-linear-to-br from-blue-600/20 via-transparent to-purple-600/20' />
 
                     <div className='relative z-10 flex flex-col items-center text-center'>
                         <div className='bg-white/5 p-6 rounded-[2.5rem] backdrop-blur-2xl mb-8 border border-white/10 shadow-2xl animate-bounce-slow'>
@@ -118,7 +144,7 @@ const Login = () => {
 
                         <div className='w-12 h-1 bg-blue-500 rounded-full mb-6' />
 
-                        <p className='text-gray-300 text-lg font-medium max-w-[280px] leading-relaxed opacity-80'>
+                        <p className='text-gray-300 text-lg font-medium max-w-70 leading-relaxed opacity-80'>
                             Track progress. Learn faster. Build smarter.
                         </p>
                     </div>

@@ -26,7 +26,6 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const dropdownRef = useRef(null);
-  const mobileMenuRef = useRef(null);
 
   const isLoggedIn = !!userData;
   const role = userData?.role || "Student";
@@ -60,23 +59,23 @@ const Navbar = () => {
     <>
       {!isLoggedIn ? (
         <>
-          <Link onClick={() => navigate("/")} className="hover:text-indigo-600 transition" href="/">Home</Link>
-          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" href="/courses">Explore</Link>
-          <Link onClick={() => navigate("/about")} className="hover:text-indigo-600 transition" href="/about">About</Link>
-          <Link onClick={() => navigate("/contact")} className="hover:text-indigo-600 transition" href="/contact">Contact</Link>
+          <Link onClick={() => navigate("/")} className="hover:text-indigo-600 transition" to="/">Home</Link>
+          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" to="/courses">Explore</Link>
+          <Link onClick={() => navigate("/about")} className="hover:text-indigo-600 transition" to="/about">About</Link>
+          <Link onClick={() => navigate("/contact")} className="hover:text-indigo-600 transition" to="/contact">Contact</Link>
         </>
       ) : role === "Student" ? (
         <>
-          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" href="/courses">Courses</Link>
-          <Link onClick={() => navigate("/mentors")} className="hover:text-indigo-600 transition" href="/mentors">Mentors</Link>
-          <Link onClick={() => navigate("/dashboard")} className="hover:text-indigo-600 transition" href="/dashboard">My Learning</Link>
-          <Link onClick={() => navigate("/resources")} className="hover:text-indigo-600 transition" href="/resources">Resources</Link>
+          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" to="/courses">Courses</Link>
+          <Link onClick={() => navigate("/mentors")} className="hover:text-indigo-600 transition" to="/mentors">Mentors</Link>
+          <Link onClick={() => navigate("/dashboard")} className="hover:text-indigo-600 transition" to="/dashboard">My Learning</Link>
+          <Link onClick={() => navigate("/resources")} className="hover:text-indigo-600 transition" to="/resources">Resources</Link>
         </>
       ) : (
         <>
-          <Link onClick={() => navigate("/teacher/courses")} className="hover:text-indigo-600 transition" href="/teacher/courses">My Courses</Link>
-          <Link onClick={() => navigate("/teacher/students")} className="hover:text-indigo-600 transition" href="/teacher/students">Students</Link>
-          <Link onClick={() => navigate("/teacher/analytics")} className="hover:text-indigo-600 transition" href="/teacher/analytics">Analytics</Link>
+          <Link onClick={() => navigate("/teacher/courses")} className="hover:text-indigo-600 transition" to="/teacher/courses">My Courses</Link>
+          <Link onClick={() => navigate("/teacher/students")} className="hover:text-indigo-600 transition" to="/teacher/students">Students</Link>
+          <Link onClick={() => navigate("/teacher/analytics")} className="hover:text-indigo-600 transition" to="/teacher/analytics">Analytics</Link>
         </>
       )}
     </>
@@ -87,7 +86,7 @@ const Navbar = () => {
       <header className="fixed top-4 left-0 right-0 z-50 mx-auto w-[92%] lg:w-[83%] max-w-7xl bg-white border border-slate-200 rounded-full px-4 lg:px-8 py-2.5 shadow-md flex items-center justify-between">
         
         {/* Logo */}
-        <Link onClick={() => navigate("/")} href="/" className="flex items-center gap-2 shrink-0">
+        <Link onClick={() => navigate("/")} to="/" className="flex items-center gap-2 shrink-0">
           <img src={logo} alt="logo" className="w-6 h-6 lg:w-7 lg:h-7" />
           <span className="font-bold text-lg lg:text-xl tracking-tight text-slate-900">
             Dev<span className="text-indigo-600">Track</span>
@@ -103,8 +102,8 @@ const Navbar = () => {
         <div className="flex items-center gap-2 lg:gap-4">
           {!isLoggedIn ? (
             <Link
+            to="/signup"
               onClick={() => navigate ("/signup")}
-              href="/signup"
               className="bg-indigo-600 text-white px-4 lg:px-6 py-2 rounded-full text-xs lg:text-sm font-semibold hover:bg-indigo-700 transition shadow-sm"
             >
               Get Started
@@ -137,10 +136,10 @@ const Navbar = () => {
                 {/* Dropdown Menu */}
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-3 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 z-50 overflow-hidden anim-fade-in">
-                    <Link onClick={(e) => navigate("/profile")} href="/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 transition">
+                    <Link onClick={(e) => navigate("/profile")} to="/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 transition">
                       <UserCircle size={18} /> Profile
                     </Link>
-                    <Link onClick={() =>navigate("/settings")} href="/settings" className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 transition">
+                    <Link onClick={() =>navigate("/settings")}  className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 transition">
                       <Settings size={18} /> Settings
                     </Link>
                     <hr className="my-1 border-slate-100" />
@@ -178,7 +177,7 @@ const Navbar = () => {
             {!isLoggedIn && (
                <Link
                onClick={(e) =>navigate("/signup")}
-               href="/signup"
+               to="/signup"
                className="bg-indigo-600 text-white text-center py-3 rounded-2xl font-bold shadow-lg shadow-indigo-200"
              >
                Get Started

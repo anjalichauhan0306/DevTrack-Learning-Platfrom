@@ -28,7 +28,7 @@ const Login = () => {
         } catch (error) {
             setLoading(false)
             console.log(error);
-            toast.error(error.response.data.message);
+            toast.error("Login Failed Please Try Again");
         }
     }
 
@@ -97,7 +97,7 @@ const Login = () => {
                             </div>
 
                             <div className='text-right'>
-                                <a href="#" className='text-sm font-semibold text-blue-600 hover:underline'>
+                                <a href="/forgot" onClick={()=>navigate("/forgot")}className='text-sm font-semibold text-blue-600 hover:underline'>
                                     Forgot password?
                                 </a>
                             </div>

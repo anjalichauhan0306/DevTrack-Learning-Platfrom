@@ -1,6 +1,7 @@
+
 import jwt from 'jsonwebtoken';
 
-const isAuth = async (re1,res,next) => {
+const isAuth = async (req,res,next) => {
     try {
         let {token} = req.cookies;
 
@@ -28,3 +29,5 @@ const isAuth = async (re1,res,next) => {
         });
     }
 }
+
+export default isAuth;

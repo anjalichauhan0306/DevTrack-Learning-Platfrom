@@ -8,7 +8,7 @@ import axios from 'axios';
 import { serverURL } from '../App';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
-import { setUserData } from '../redux/userSlice';
+import { setUserData } from '../redux/userSlice.js';
 
 const Signup = () => {
     const [show, setShow] = useState(false);
@@ -23,7 +23,7 @@ const Signup = () => {
         setLoading(true);
         try {
             
-            const result = await axios.post(serverURL + "/auth/signup" , {name,email,password,role},{withCredentials:true});
+            const result = await axios.post(serverURL + "/api/auth/signup" , {name,email,password,role},{withCredentials:true});
             setLoading(false);
             navigate('/');
             dispatch(setUserData(result.data))
@@ -177,7 +177,7 @@ const Signup = () => {
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>{`
                 @keyframes bounce-slow {
                     0%, 100% { transform: translateY(0); }
                     50% { transform: translateY(-15px); }

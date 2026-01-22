@@ -8,6 +8,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { serverURL } from '../App';
 import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice.js';
 
 const Login = () => {
     const [show, setShow] = useState(false);
@@ -19,10 +20,11 @@ const Login = () => {
     const handleLogin = async () => {
         setLoading(true);
         try {
-            const result= await axios.post(serverURL + "/api/auth/" ,{email,password} ,{withCredentials:true})
+            const result= await axios.post(serverURL + "/api/auth/login" ,{email,password} ,{withCredentials:true})
             dispatch(setUserData(result.data))
             setLoading(false);
             toast.success("Login Successfully")
+            navigate('/');
         } catch (error) {
             setLoading(false)
             console.log(error);

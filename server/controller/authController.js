@@ -22,7 +22,7 @@ export const signUp = async (req , res) => {
             })
         }
 
-        if (validator.isEmail(email)) {
+        if (!validator.isEmail(email)) {
             return res.status(400).json({
                 message : "Please enter a valid email"
             })
@@ -37,7 +37,7 @@ export const signUp = async (req , res) => {
         });
 
         let token = await genToken(user._id);
-        res.cokie("token" , token , {
+        res.cookie("token" , token , {
             httpOnly : true,
             secure : false,
             //process.env.NODE_ENV === "production",
@@ -79,7 +79,7 @@ export const login = async (req , res) => { {
         }
 
         let token = await genToken(user._id);
-        res.cokie("token" , token , {
+        res.cookie("token" , token , {
             httpOnly : true,
             secure : false,
             //process.env.NODE_ENV === "production",

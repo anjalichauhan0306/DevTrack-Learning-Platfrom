@@ -1,3 +1,10 @@
+
+# devstack-learning-platform
+DevStack is a role-based learning platform built using the MERN stack, focused on clean backend architecture and real-world workflows.
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

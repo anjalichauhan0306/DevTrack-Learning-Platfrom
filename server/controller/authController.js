@@ -2,6 +2,7 @@ import User from '../model/userModel.js';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import { genToken } from '../config/token.js';
+import sendMail from '../config/sendMail.js';
 
 
 export const signUp = async (req , res) => {
@@ -59,7 +60,7 @@ export const signUp = async (req , res) => {
     }
 }
 
-export const login = async (req , res) => { {
+export const login = async (req , res) => { 
     try {
         const {email , password} = req.body;
         const user = await User.findOne({email});
@@ -97,7 +98,6 @@ export const login = async (req , res) => { {
         return res.status(500).json({
             message : `Login Error ${error.message}`
         });
-    }
     }
 }
 
@@ -152,7 +152,7 @@ export const verifyOtp = async (req , res) => {
         const {email , otp} = req.body;
         const user = await User.findOne({email});
 
-        if(!user || !user.resetPasswordOTP != otp || user.otpExpiryTime < Date.now()){
+        if (!user ||user.resetPasswordOTP !== otp ||user.otpExpiryTime < Date.now()) {
             return res.status(400).json({
                 message : "Invalid OTP or expired"
             });
@@ -176,7 +176,7 @@ export const verifyOtp = async (req , res) => {
 }
 export const resetPassword = async (req , res) => {
     try {
-        const {email , Password} = req.body;
+        const {email , password} = req.body;
         const user = await User.findOne({email});
 
         if(!user || !user.isOTPVerified){
@@ -184,12 +184,25 @@ export const resetPassword = async (req , res) => {
                 message : "verify OTP before resetting password"
             });
         }
-        const hashedPassword = await bcrypt.hash(Password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         
+        if(!password || password.length < 6){
+            return res.status(400).json({
+                message : "Password must be at least 6 characters"
+            });
+        }
+
+        //  const isSamePassword = await bcrypt.compare(password, user.password);
+        
+        //  if (isSamePassword) {
+        //     return res.status(400).json({
+        //     message: "New password must be different from old password"
+        //     });
+        // }
+
         user.password = hashedPassword;
-        user.resetPasswordOTP = null;
-        user.otpExpiryTime = null;
         user.isOTPVerified = false;
+        
         await user.save();
         return res.status(200).json({
             message : "Password reset successfully"

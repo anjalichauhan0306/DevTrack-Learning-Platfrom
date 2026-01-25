@@ -8,7 +8,9 @@ import axios from 'axios';
 import { serverURL } from '../App';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
+import { signInWithPopup } from 'firebase/auth';
 import { setUserData } from '../redux/userSlice.js';
+import { auth, provider } from '../utils/firebase.js';
 
 const Signup = () => {
     const [show, setShow] = useState(false);
@@ -32,6 +34,24 @@ const Signup = () => {
             setLoading(false);
             console.log(error);
             toast.error(error.response.data.message);
+        }
+    }
+
+    const googleSignUp = async () => {
+        try {
+            const response = await signInWithPopup(auth, provider);
+            let user = response.user;
+            let name = user.displayName;
+            let email = user.email;
+
+            const result = await axios.post(serverURL + "/api/auth/googleauth" , {name,email,role},{withCredentials:true});
+
+            dispatch(setUserData(result.data))
+            navigate('/');
+            toast.success("Google Signup Successful");
+        } catch (error) {
+            console.log(error);
+            toast.error("Google Signup Failed");
         }
     }
 
@@ -143,7 +163,7 @@ const Signup = () => {
                             <div className='h-px bg-gray-200 flex-1'></div>
                         </div>
 
-                        <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm'>
+                        <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm' onClick={googleSignUp}>
                             <img src={google} alt="google" className='w-5' />
                             Google
                         </button>

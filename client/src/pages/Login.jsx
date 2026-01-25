@@ -9,6 +9,9 @@ import axios from 'axios';
 import { serverURL } from '../App';
 import { useDispatch } from 'react-redux';
 import { setUserData } from '../redux/userSlice.js';
+import { auth, provider } from '../utils/firebase.js';
+import { signInWithPopup } from 'firebase/auth';
+
 
 const Login = () => {
     const [show, setShow] = useState(false);
@@ -32,6 +35,25 @@ const Login = () => {
         }
     }
 
+    const googleSignUp = async () => {
+            try {
+                const response = await signInWithPopup(auth, provider);
+                let user = response.user;
+                let name = user.displayName;
+                let email = user.email;
+                let role = "";
+    
+                const result = await axios.post(serverURL + "/api/auth/googleauth" , {name,email,role},{withCredentials:true});
+    
+                dispatch(setUserData(result.data))
+                navigate('/');
+                toast.success("Google login Successful");
+            } catch (error) {
+                console.log(error);
+                toast.error("Google login Failed");
+            }
+        }
+    
 
     return (
         <div className='bg-[#0f172a] h-screen w-full flex items-center justify-center font-sans p-4 relative overflow-hidden'>
@@ -114,7 +136,7 @@ const Login = () => {
                                 <div className='h-px bg-gray-200 flex-1' />
                             </div>
 
-                            <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm'>
+                            <button className='w-full h-12 border-2 border-gray-100 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all font-bold text-gray-700 text-sm' onClick={googleSignUp}>
                                 <img src={google} alt="google" className='w-5' />
                                 Continue with Google
                             </button>

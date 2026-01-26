@@ -83,28 +83,28 @@ const Navbar = () => {
 
   return (
     <div className="relative">
-      <header className="fixed top-4 left-0 right-0 z-50 mx-auto w-[92%] lg:w-[83%] max-w-7xl bg-white border border-slate-200 rounded-full px-4 lg:px-8 py-2.5 shadow-md flex items-center justify-between">
+      <header className="fixed top-6 left-0 right-0 z-50 mx-auto w-[94%] lg:w-[83%] max-w-7xl bg-white border border-slate-200 rounded-full px-8 lg:px-12 py-2.5 shadow-md flex items-center justify-between">
         
         {/* Logo */}
         <Link onClick={() => navigate("/")} to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="logo" className="w-6 h-6 lg:w-7 lg:h-7" />
-          <span className="font-bold text-lg lg:text-xl tracking-tight text-slate-900">
+          <img src={logo} alt="logo" className="w-7 h-7 lg:w-8 lg:h-8" />
+          <span className="font-bold text-xl lg:text-2xl tracking-tight text-slate-900">
             Dev<span className="text-indigo-600">Track</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8 text-[14.5px] font-semibold text-slate-600">
+        <nav className="hidden lg:flex items-center gap-12 text-[15px] font-bold text-slate-600 tracking-wide">
           <NavLinks />
         </nav>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex items-center gap-4 lg:gap-6">
           {!isLoggedIn ? (
             <Link
             to="/signup"
               onClick={() => navigate ("/signup")}
-              className="bg-indigo-600 text-white px-4 lg:px-6 py-2 rounded-full text-xs lg:text-sm font-semibold hover:bg-indigo-700 transition shadow-sm"
+              className="bg-indigo-600 text-white px-8 lg:px-6 py-2.5 rounded-full text-sm lg:text-sm font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100"
             >
               Get Started
             </Link>
@@ -123,7 +123,7 @@ const Navbar = () => {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-2 p-0.5 pr-2 hover:bg-slate-50 rounded-full transition group"
                 >
-                  <div className="bg-slate-900 text-white size-8 lg:size-9 rounded-full flex items-center justify-center font-bold text-sm group-hover:bg-indigo-600 transition">
+                  <div className="bg-slate-900 text-white size-9 lg:size-10 rounded-full flex items-center justify-center font-bold text-sm group-hover:bg-indigo-600 transition">
                     {firstLetter}
                   </div>
                   <div className="hidden md:flex flex-col items-start">

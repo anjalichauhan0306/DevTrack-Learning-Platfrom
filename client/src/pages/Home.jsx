@@ -1,130 +1,121 @@
+'use client'
 import React from 'react';
 import Nav from '../component/Nav.jsx';
-import { Code, Terminal, Database, Binary, SearchIcon } from 'lucide-react';
+import { CheckIcon, ChevronRightIcon, SearchIcon, PlayCircle, Star } from "lucide-react";
+import { motion } from "framer-motion"; // Make sure to install framer-motion
 
 const Home = () => {
-  return (
-    <div className="w-full overflow-hidden bg-white">
-      {/* <style>
-        {`
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
-          }
-          .animate-float {
-            animation: float 4s ease-in-out infinite;
-          }
-          .animate-float-delayed {
-            animation: float 4s ease-in-out infinite;
-            animation-delay: 2s;
-          }
-        `}
-      </style> */}
+    const specialFeatures = [
+        "Expert-Led Courses",
+        "AI-Powered Learning",
+        "Lifetime Access",
+    ];
 
-      <div className="w-full relative min-h-screen flex flex-col">
-        {/* Navbar */}
-        <div className="absolute top-0 left-0 w-full z-50">
-          <Nav />
-        </div>
+    return (
+        <div className="w-full min-h-screen bg-[#0a0a20] overflow-hidden">
+            <Nav />
 
-        {/* HERO SECTION - Reduced height and padding for better balance */}
-        <section className="relative bg-[#1a1a40] text-white pt-20 md:pt-36 pb-20 overflow-hidden min-h-[85vh] flex items-center">
-          
-          <div className='absolute inset-0 z-0 pointer-events-none'>
-            {/* Main Gradient Glows */}
-            <div className='absolute top-[-10%] left-[-10%] w-100 h-100 bg-blue-600/15 rounded-full blur-[100px] animate-pulse' />
-            <div className='absolute bottom-[-10%] right-[-10%] w-100 h-100 bg-purple-600/15 rounded-full blur-[100px] animate-pulse' />
-            
-            {/* Subtle Grid Pattern */}
-            <div className="absolute inset-0 opacity-[0.04]" 
-                 style={{ backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`, backgroundSize: '45px 45px' }}>
-            </div>
-
-            {/* Floating Icons */}
-            <div className='absolute top-[20%] left-[8%] text-blue-400/20 animate-float'>
-              <Code size={38} strokeWidth={1} />
-            </div>
-            <div className='absolute top-[12%] right-[12%] text-purple-400/20 animate-float-delayed'>
-              <Terminal size={35} strokeWidth={1} />
-            </div>
-          </div>
-
-          <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center relative z-10 gap-12 lg:gap-8">
-            
-            {/* LEFT CONTENT - Adjusted font sizes for hierarchy */}
-            <div className="lg:w-1/2 space-y-6 text-center lg:text-left">
-              <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold leading-[1.2] tracking-tight">
-                Unlock Your Potential, <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
-                  Grow Your Future
-                </span>
-              </h1>
-
-              <p className="text-indigo-100/70 text-base md:text-lg max-w-md mx-auto lg:mx-0 leading-relaxed font-light">
-                Smarter education starts here. Join <span className="text-white font-medium underline decoration-indigo-500/50 underline-offset-4">thousands of students</span> learning from industry experts.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
-                <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-full transition-all duration-300 shadow-lg hover:-translate-y-1 active:scale-95 text-sm md:text-base">
-                  View All Courses
-                </button>
-
-                <button className="flex items-center justify-center gap-3 group border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 py-3.5 px-7 rounded-full transition-all duration-300">
-                  <div className="bg-indigo-600 h-8 w-8 flex items-center justify-center rounded-full shadow-md">
-                    <SearchIcon size={14} strokeWidth={3} className="text-white" />
-                  </div>
-                  <span className="font-semibold text-white text-sm md:text-base">Search With AI</span>
-                </button>
-              </div>
-            </div>
-
-            {/* RIGHT IMAGE - Scaled down for balance */}
-            <div className="lg:w-1/2 mt-12 lg:mt-0 relative flex justify-center">
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px]">
+            {/* Main Hero Container */}
+            <div className="relative flex flex-col items-center justify-center px-6 pt-32 md:pt-44 pb-20">
                 
-                {/* Rotating Border */}
-                <div className="absolute inset-0 border border-dashed border-indigo-400/20 rounded-full animate-[spin_80s_linear_infinite]"></div>
+                {/* Background Glows (Tumhare code jaisa logic) */}
+                <div className="absolute top-20 -z-10 left-1/2 -translate-x-1/2 size-[500px] bg-indigo-600/20 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-0 -z-10 right-0 size-[400px] bg-blue-600/10 blur-[100px] rounded-full"></div>
 
-                {/* Image Container */}
-                <div className="absolute inset-4 lg:inset-10 rounded-full p-1 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 backdrop-blur-sm overflow-hidden shadow-2xl">
-                  <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800"
-                    alt="Students collaborating"
-                    className="w-full h-full object-cover rounded-full grayscale-[20%] hover:grayscale-0 hover:scale-105 transition-all duration-700"
-                  />
+                {/* Badge: "NEW" (Inspired by your code) */}
+                <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                    className="group flex items-center gap-2 rounded-full p-1 pr-4 mb-8 text-indigo-100 bg-indigo-500/10 border border-indigo-500/20"
+                >
+                    <span className="bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">
+                        New
+                    </span>
+                    <p className="flex items-center gap-1 text-sm">
+                        <span>Join the 2026 Batch for Free</span>
+                        <ChevronRightIcon size={14} className="group-hover:translate-x-1 transition duration-300" />
+                    </p>
+                </motion.div>
+
+                {/* Main Heading */}
+                <motion.h1 
+                    className="text-5xl md:text-7xl font-black text-center text-white max-w-4xl leading-[1.1] tracking-tight"
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    Unlock Your Potential, <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-blue-500">
+                        Grow Your Future
+                    </span>
+                </motion.h1>
+
+                {/* Subtext */}
+                <motion.p 
+                    className="text-lg md:text-xl text-center text-slate-400 max-w-2xl mt-8 leading-relaxed font-light"
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                >
+                    Stop searching, start learning. Get industry-ready skills with our advanced AI-integrated curriculum designed for modern developers.
+                </motion.p>
+
+                {/* Action Buttons */}
+                <motion.div 
+                    className="flex flex-col sm:flex-row items-center gap-5 mt-10"
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                    <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-full px-10 h-14 text-lg transition-all shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] hover:-translate-y-1">
+                        Get Started Now
+                    </button>
+                    
+                    <button className="flex items-center gap-3 border border-slate-800 hover:bg-white/5 transition rounded-full px-8 h-14 text-white font-semibold">
+                        <PlayCircle size={20} className="text-indigo-400" />
+                        <span>Watch Demo</span>
+                    </button>
+                </motion.div>
+
+                {/* Features Checklist */}
+                <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 mt-16">
+                    {specialFeatures.map((feature, index) => (
+                        <motion.div 
+                            key={index}
+                            className="flex items-center gap-2.5"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + (index * 0.1) }}
+                        >
+                            <div className="bg-indigo-500/20 p-1 rounded-full">
+                                <CheckIcon className="size-4 text-indigo-400" />
+                            </div>
+                            <span className="text-slate-300 font-medium text-sm md:text-base">{feature}</span>
+                        </motion.div>
+                    ))}
                 </div>
 
-                {/* Floating Badge - Made slightly smaller */}
-                <div className="absolute -top-2 right-0 lg:top-16 lg:-right-4 bg-white/95 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-float border border-white/20">
-                  <div className="bg-indigo-600 h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-lg">
-                    🎓
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Community</p>
-                    <p className="text-base font-extrabold text-indigo-950 leading-tight">25k+ Students</p>
-                  </div>
-                </div>
-              </div>
+                {/* Hero Image / Mockup Area (Like TiltedImage) */}
+                <motion.div 
+                    className="mt-20 w-full max-w-5xl px-4"
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                    <div className="relative rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-3xl">
+                        <img 
+                            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600" 
+                            alt="Dashboard Preview" 
+                            className="rounded-xl w-full shadow-inner opacity-90"
+                        />
+                        {/* Overlay Gradient to blend bottom */}
+                        <div className="absolute inset-0 bg-linear-to-t from-[#0a0a20] via-transparent to-transparent"></div>
+                    </div>
+                </motion.div>
             </div>
-          </div>
-
-          {/* WAVE TRANSITION */}
-          <div className="absolute -bottom-px left-0 w-full overflow-hidden">
-            <svg 
-              viewBox="0 0 1440 120" 
-              fill="white" 
-              xmlns="http://www.w3.org/2000/svg"
-              className="relative block w-full h-12 md:h-20"
-              preserveAspectRatio="none"
-            >
-              <path d="M0,84L30,81.3C60,79,120,73,180,72C240,71,300,75,360,78.2C420,81,480,84,540,80.8C600,78,660,68,720,60.8C780,53,840,48,900,52.2C960,56,1020,69,1080,73.8C1140,78,1200,74,1260,69.5C1320,65,1380,61,1410,58.7L1440,56V120H0V84Z"></path>
-            </svg>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-};
+        </div>
+    );
+}
 
 export default Home;

@@ -103,7 +103,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <img src={logo} alt="logo" className="w-8 h-8 group-hover:scale-110 transition-transform" />
-          <span className="font-bold text-2xl tracking-tight text-white">
+          <span className="font-bold text-2xl  tracking-tight text-white">
             Dev<span className="text-indigo-500">Track</span>
           </span>
         </Link>

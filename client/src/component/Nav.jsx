@@ -134,9 +134,8 @@ const Navbar = () => {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-3 pl-1 pr-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition"
                 >
-                  <div className="bg-indigo-600 text-white size-8 rounded-full flex items-center justify-center font-bold text-xs uppercase">
-                    {firstLetter}
-                  </div>
+                  {userData?.photoUrl ? <Img src={userData?.photoUrl} className="bg-indigo-600 text-white size-8 rounded-full flex items-center justify-center font-bold text-xs uppercase" /> : <div className="bg-indigo-600 text-white size-8 rounded-full flex items-center justify-center font-bold text-xs uppercase">{firstLetter}
+                  </div>}
                   <ChevronDown size={14} className={`text-slate-400 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
                 </button>
 

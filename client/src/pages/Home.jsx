@@ -2,6 +2,7 @@ import React from 'react';
 import Nav from '../component/Nav.jsx';
 import { SearchIcon, BookOpen, Award, Users, Code, Terminal } from 'lucide-react';
 import Logos from '../component/logos.jsx';
+import ExploreCourses from '../component/ExploreCourses.jsx';
 
 const Home = () => {
   return (
@@ -123,7 +124,7 @@ const Home = () => {
           ))}
         </div>
       </section>
-
+      <ExploreCourses />
     </div>
   );
 };

@@ -7,7 +7,7 @@ const courseRouter =express.Router()
 
 courseRouter.post("/create",isAuth,upload.single("thumbnail"),createCourse);
 courseRouter.get("/getpublished",getPublished);
-courseRouter.post("/getcreator",isAuth , getCreatorCourses);
+courseRouter.get("/getcreator",isAuth , getCreatorCourses);
 courseRouter.post("/editcourse/:courseId",isAuth,editCourse,upload.single("thumbnail"));
 courseRouter.get("/getcourse/:courseId",isAuth,getCourseById)
 courseRouter.get("/delete/:courseId",isAuth,removeCourse)

@@ -4,6 +4,7 @@ import {
   Users, Star, BarChart3, Edit3, 
   CheckCircle, FileText, Layout
 } from 'lucide-react';
+import placeholder from '../../assets/placeholder.jpg'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -12,29 +13,6 @@ const MyCourses = () => {
     const navigate = useNavigate()
     const {creatorCourseData} = useSelector(state=>state.course) 
     
-
-  const courses = [
-    {
-      id: 1,
-      title: "Full Stack Web Development with React",
-      status: "Published",
-      students: 450,
-      rating: 4.9,
-      completion: 72,
-      revenue: "₹45,000",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80"
-    },
-    {
-      id: 2,
-      title: "Advanced System Design for Startups",
-      status: "Draft",
-      students: 0,
-      rating: 0,
-      completion: 0,
-      revenue: "₹0",
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?w=400&q=80"
-    }
-  ];
 
   return (
     <div className="p-8 bg-slate-50 min-h-screen font-inter">
@@ -72,7 +50,8 @@ const MyCourses = () => {
           <div key={index} className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow">
             {/* Thumbnail */}
             <div className="w-full md:w-48 h-48 md:h-auto relative">
-              <img src={course.image} alt="" className="w-full h-full object-cover" />
+             { course.thumbnail ? <img src={course.thumbnail} alt="" className="w-full h-full object-cover" /> : <img src={placeholder} alt="" className="w-full h-full object-cover" />
+              }
               <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm ${
                 course.status === 'Published' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'
               }`}>

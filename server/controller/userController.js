@@ -1,4 +1,5 @@
 import User from "../model/userModel.js"
+import uploadOnCloudinary from "../config/cloudnary.js";
 
 export const getCurrentUser = async (req,res) => {
     try {
@@ -34,9 +35,9 @@ export const updateProfile = async (req,res) => {
         if(!user) { 
             return res.status(404).json({message:"User Not Found"})
         }
-
+          await user.save()
         return res.status(200).json(user);
-        await user.save()
+      
     } catch (error) {
         return res.status(500).json({message:`UpdateProfile Error ${error}`})
     }

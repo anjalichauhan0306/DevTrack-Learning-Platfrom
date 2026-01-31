@@ -7,16 +7,20 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
-
 import GetCurrentUser from "./customHooks/getCurrentUser";
-
+import Analytics from "./pages/Educator/Analytics";
+import Students from "./pages/Educator/Students";
+import CreateCourse from "./pages/Educator/CreateCourse";
+import MyCourses from "./pages/Educator/Mycourses";
+import GetCreatorCourse from "./customHooks/getCreatorCourse";
 export const serverURL = "http://localhost:5000";
 
 const App = () => {
   GetCurrentUser(); 
-  const { userData } = useSelector((state) => state.user);
+  GetCreatorCourse();
+  const { userData } = useSelector(state => state.user);
 
-  return (
+  return ( 
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
@@ -36,12 +40,30 @@ const App = () => {
 
         <Route
           path="/profile"
-          //element={<Profile/>}
           element={!userData ?  <Navigate to="/login" /> : <Profile />}
         />
-        
-      </Routes>
 
+        <Route 
+        path="/analytics"
+        element={userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
+        />
+
+        
+        <Route 
+        path="/courses"
+        element={userData?.role === "educator" ? <Navigate to="/signup"/> : <MyCourses /> }
+        />
+
+        <Route 
+        path="/students"
+        element={userData?.role === "educator" ? <Students/> : <Navigate to="/signup" /> }
+        />
+
+        <Route 
+        path="/createcourse"
+        element={userData?.role === "educator" ? <Navigate to="/signup" /> : <CreateCourse/>  }
+        />
+      </Routes>
     </>
   );
 };

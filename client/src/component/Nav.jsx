@@ -16,7 +16,7 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
+
   const dropdownRef = useRef(null);
   const isLoggedIn = !!userData;
   const role = userData?.role || "Student";
@@ -69,23 +69,25 @@ const Navbar = () => {
 
           <Link onClick={() => navigate("/dashboard")} className="hover:text-indigo-600 transition" to="/dashboard">My Learning</Link>
 
-          <Link onClick={() => navigate("/resources")} className="hover:text-indigo-600 transition" to="/resources">Resources</Link>
+          <Link onClick={() => navigate("/resources")} className="hover:text-indigo-600 transition" to="/contact">Contact</Link>
 
         </>
 
-      ) : (
+      ) : role === "Educator" ? (
 
         <>
 
-          <Link onClick={() => navigate("/teacher/courses")} className="hover:text-indigo-600 transition" to="/teacher/courses">My Courses</Link>
+           <Link onClick={() => navigate("/")} className="hover:text-indigo-600 transition" to="/">Home</Link>
 
-          <Link onClick={() => navigate("/teacher/students")} className="hover:text-indigo-600 transition" to="/teacher/students">Students</Link>
+          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" to="/courses">My Courses</Link>
 
-          <Link onClick={() => navigate("/teacher/analytics")} className="hover:text-indigo-600 transition" to="/teacher/analytics">Analytics</Link>
+          <Link onClick={() => navigate("/students")} className="hover:text-indigo-600 transition" to="/students">Students</Link>
+
+          <Link onClick={() => navigate("/analytics")} className="hover:text-indigo-600 transition" to="/analytics">Analytics</Link>
 
         </>
 
-      )}
+      ) : null }
 
     </>
 

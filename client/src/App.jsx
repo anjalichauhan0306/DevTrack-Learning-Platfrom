@@ -13,6 +13,7 @@ import Students from "./pages/Educator/Students";
 import CreateCourse from "./pages/Educator/CreateCourse";
 import MyCourses from "./pages/Educator/Mycourses";
 import GetCreatorCourse from "./customHooks/getCreatorCourse";
+import EditCourse from "./pages/Educator/EditCourse";
 export const serverURL = "http://localhost:5000";
 
 const App = () => {
@@ -63,6 +64,14 @@ const App = () => {
         path="/createcourse"
         element={userData?.role === "educator" ? <Navigate to="/signup" /> : <CreateCourse/>  }
         />
+
+        <Route 
+        path="/editcourse/:courseId"
+        element={userData?.role === "educator" ? <Navigate to="/signup" /> : <EditCourse/>  }
+        />
+
+
+
       </Routes>
     </>
   );

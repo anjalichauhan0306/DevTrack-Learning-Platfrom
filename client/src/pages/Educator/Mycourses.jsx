@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Plus, Search, Filter, MoreVertical, 
   Users, Star, BarChart3, Edit3, 
@@ -7,12 +7,13 @@ import {
 import placeholder from '../../assets/placeholder.jpg'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import GetCreatorCourse from '../../customHooks/getCreatorCourse.js';
 
 const MyCourses = () => {
+    GetCreatorCourse();
 
     const navigate = useNavigate()
     const {creatorCourseData} = useSelector(state=>state.course) 
-    
 
   return (
     <div className="p-8 bg-slate-50 min-h-screen font-inter">
@@ -53,9 +54,9 @@ const MyCourses = () => {
              { course.thumbnail ? <img src={course.thumbnail} alt="" className="w-full h-full object-cover" /> : <img src={placeholder} alt="" className="w-full h-full object-cover" />
               }
               <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm ${
-                course.status === 'Published' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'
+                course.isPublished === 'Published' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'
               }`}>
-                {course.status}
+                {course.isPublished ? "Published" : "Draft"}
               </div>
             </div>
 
@@ -67,15 +68,15 @@ const MyCourses = () => {
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-4">
-                <Stat icon={<Users size={14}/>} label="Students" value={course.students} />
-                <Stat icon={<Star size={14}/>} label="Rating" value={course.rating} />
-                <Stat icon={<CheckCircle size={14}/>} label="Done" value={`${course.completion}%`} />
-                <Stat icon={<Layout size={14}/>} label="Revenue" value={course.revenue} />
+                <Stat icon={<Users size={14}/>} label="Students" value={course.enrolledStudents?.length || 0} />
+                <Stat icon={<Star size={14}/>} label="Rating" value={course.rating || 0} />
+                <Stat icon={<CheckCircle size={14}/>} label="Access" value={course.isPaid ? `₹${course.Price}` : <span className="text-green-600 font-bold">Free</span>} />
+                <Stat icon={<Layout size={14}/>} label="Category" value={course.category} />
               </div>
 
               {/* ⚡ Quick Actions (The "Meat" of the Page) */}
               <div className="mt-auto pt-4 border-t border-slate-50 flex flex-wrap gap-2">
-                <ActionButton icon={<Edit3 size={16}/>} label="Edit" color="text-blue-600 bg-blue-50" />
+                <ActionButton icon={<Edit3 size={16}/>} label="Edit" color="text-blue-600 bg-blue-50" onClick={()=>navigate(`/editcourse/${course._id}`)}/>
                 <ActionButton icon={<BarChart3 size={16}/>} label="Analytics" color="text-indigo-600 bg-indigo-50" />
                 <ActionButton icon={<FileText size={16}/>} label="Curriculum" color="text-slate-600 bg-slate-100" />
               </div>
@@ -97,8 +98,8 @@ const Stat = ({ icon, label, value }) => (
   </div>
 );
 
-const ActionButton = ({ icon, label, color }) => (
-  <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-opacity hover:opacity-80 ${color}`}>
+const ActionButton = ({ icon, label, color ,onClick}) => (
+  <button onClick={onClick} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-opacity hover:opacity-80 ${color}`}>
     {icon} {label}
   </button>
 );

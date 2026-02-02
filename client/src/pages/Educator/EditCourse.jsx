@@ -77,11 +77,11 @@ const EditCourse = () => {
     formData.append("title", title);
     formData.append("subtitle", subTitle);
     formData.append("description", description);
-    formData.append("Level", Level);
+    formData.append("Level", level);
     formData.append("category", category);
     formData.append("isPaid", isPaid);
     formData.append("isPublished", isPublished);
-    formData.append("price", Price);
+    formData.append("Price", Price);
     formData.append("thumbnail", BackendImage);
 
     try {

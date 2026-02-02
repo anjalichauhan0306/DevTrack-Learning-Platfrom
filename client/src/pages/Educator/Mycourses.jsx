@@ -9,11 +9,26 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import GetCreatorCourse from '../../customHooks/getCreatorCourse.js';
 
-const MyCourses = () => {
-    GetCreatorCourse();
 
+const MyCourses = () => {
+    GetCreatorCourse()
     const navigate = useNavigate()
     const {creatorCourseData} = useSelector(state=>state.course) 
+
+     useEffect(()=>{
+            const creatorCourses = async () => {
+                try {
+                    const result = await axios.get(serverURL + "/api/course/getcreator",{withCredentials:true})
+
+                    console.log(result.data);
+                    dispatch(setCreatorCourseData(result.data))
+                    
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            creatorCourses()
+        },[userData])
 
   return (
     <div className="p-8 bg-slate-50 min-h-screen font-inter">

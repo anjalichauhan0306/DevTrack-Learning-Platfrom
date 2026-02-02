@@ -16,8 +16,6 @@ const CreateCourse = () => {
     const [preview, setPreview] = useState(null);
     const navigate = useNavigate()
 
-
-
     const handleCreateCourse = async () => {
         setLoading(true)
         try {

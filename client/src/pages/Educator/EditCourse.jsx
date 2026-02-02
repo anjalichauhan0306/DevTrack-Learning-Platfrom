@@ -8,6 +8,7 @@ import {
   IndianRupee,
   Layers,
   Info,
+  CameraIcon,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -58,7 +59,7 @@ const EditCourse = () => {
       setTitle(selectCourseData.title || "");
       setSubTitle(selectCourseData.subTitle || "");
       setDescription(selectCourseData.description || "");
-      setLevel(selectCourseData.Level || "");
+      setLevel(selectCourseData.level || "");
       setCategory(selectCourseData.category || "");
       setPrice(selectCourseData.Price || "");
       setIsPaid(selectCourseData.isPaid);
@@ -75,13 +76,14 @@ const EditCourse = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("subtitle", subTitle);
+    formData.append("subTitle", subTitle);
+    formData.append("level", level);
     formData.append("description", description);
-    formData.append("Level", level);
     formData.append("category", category);
     formData.append("isPaid", isPaid);
     formData.append("isPublished", isPublished);
-    formData.append("Price", Price);
+
+    formData.append("Price", isPaid ? Price : 0);
     formData.append("thumbnail", BackendImage);
 
     try {
@@ -97,8 +99,24 @@ const EditCourse = () => {
     } catch (error) {
       setLoading(false);
       console.log(error);
+      toast.error(error.response?.data?.message || "Failed to update course");
     }
   };
+
+  const handleDeleteCourse = async () => {
+    if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
+    
+    try {
+      await axios.delete(`${serverURL}/api/course/delete/${courseId}`, {
+        withCredentials: true,
+      });
+      toast.success("Course deleted!");
+      navigate("/courses");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Delete failed");
+    }
+  };
+
   const categories = [
     "Web Development",
     "Mobile App Development",
@@ -308,7 +326,7 @@ const EditCourse = () => {
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="bg-white p-2 rounded-lg shadow-xl">
-                    <Edit3Icon className="w-5 h-5 text-indigo-600" />
+                    <CameraIcon className="w-5 h-5 text-indigo-600" />
                   </div>
                 </div>
                 <input
@@ -336,7 +354,7 @@ const EditCourse = () => {
               >
                 {isPublished ? "Unpublish Course" : "Publish Course"}
               </button>
-              <button className="w-full py-3 rounded-xl font-bold bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+              <button onClick={handleDeleteCourse} className="w-full py-3 rounded-xl font-bold bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all flex items-center justify-center gap-2">
                 <Trash2 className="w-4 h-4" />
                 Delete Course
               </button>
@@ -345,6 +363,7 @@ const EditCourse = () => {
             <div className="flex flex-col gap-3 pt-4">
               <button
                 onClick={handleEditCourse}
+                disabled = {loading}
                 className="w-full py-3.5 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-2"
               >
                 <Save className="w-4 h-4" />

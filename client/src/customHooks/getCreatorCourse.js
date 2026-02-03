@@ -6,9 +6,9 @@ import { setCreatorCourseData } from '../redux/courseSliec';
 import { serverURL } from '../App';
 
 const GetCreatorCourse = () => {
-    const dispatch = useDispatch()
+            const dispatch = useDispatch()
             const {userData} = useSelector(state=>state.user);
-    return (
+
         useEffect(()=>{
             const creatorCourses = async () => {
                 try {
@@ -23,7 +23,6 @@ const GetCreatorCourse = () => {
             }
             creatorCourses()
         },[userData])
-    );
 }
 
 export default GetCreatorCourse;

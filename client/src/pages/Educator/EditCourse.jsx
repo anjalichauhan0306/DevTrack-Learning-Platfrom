@@ -17,6 +17,9 @@ import axios from "axios";
 import { serverURL } from "../../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
+import { setCourseData } from "../../redux/courseSliec";
+import { useSelector } from "react-redux";
 
 const EditCourse = () => {
   const thumbRef = useRef();
@@ -25,6 +28,8 @@ const EditCourse = () => {
   const [isPaid, setIsPaid] = useState(false);
   const { courseId } = useParams();
   const [selectCourseData, setSelectedCourseData] = useState(null);
+  const dispatch = useDispatch()
+  const {courseData} = useSelector(state=>state.course)
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -93,8 +98,24 @@ const EditCourse = () => {
         { withCredentials: true },
       );
       console.log(result.data);
+
       setLoading(false);
       navigate("/courses");
+
+      const updateData = result.data
+      if(updateData.isPublished){
+        const updateCourse = courseData.map(c =>c._id === courseId ? updateData : c)
+        
+        if(!courseData.some(c=>c._id === courseId)){
+          updateCourse.push(updateData)
+        }
+      dispatch(setCourseData(updateCourse))
+      }
+      else{
+       const filterCourse = courseData.filter(c =>c._id !== courseId)
+       dispatch(filterCourse)
+      }
+      
       toast.success("course Updated successfully");
     } catch (error) {
       setLoading(false);
@@ -107,11 +128,13 @@ const EditCourse = () => {
     if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
     
     try {
-      await axios.delete(`${serverURL}/api/course/delete/${courseId}`, {
+      await axios.get(serverURL +`/api/course/delete/${courseId}`, {
         withCredentials: true,
       });
       toast.success("Course deleted!");
       navigate("/courses");
+      const filterCourse = courseData.filter(c =>c._id !== courseId)
+      dispatch(setCourseData(filterCourse))
     } catch (error) {
       toast.error(error.response?.data?.message || "Delete failed");
     }

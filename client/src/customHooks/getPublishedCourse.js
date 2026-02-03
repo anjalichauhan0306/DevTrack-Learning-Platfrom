@@ -19,7 +19,7 @@ const GetPublishedCourse = () => {
                 console.log(error);
             }
         }
-
+        getCourseData()
     })
 }
 

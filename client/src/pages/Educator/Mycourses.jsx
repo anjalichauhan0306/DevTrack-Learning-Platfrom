@@ -15,17 +15,15 @@ import {
 import placeholder from "../../assets/placeholder.jpg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import GetCreatorCourse from "../../customHooks/getCreatorCourse.js";
 import axios from "axios";
 import { serverURL } from "../../App.jsx";
 import { setCreatorCourseData } from "../../redux/courseSliec.js";
 
 const MyCourses = () => {
-  GetCreatorCourse();
   const navigate = useNavigate();
   const { creatorCourseData } = useSelector((state) => state.course);
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
+  const { userData } = useSelector(state => state.user);
 
   useEffect(() => {
     const creatorCourses = async () => {
@@ -52,6 +50,7 @@ const MyCourses = () => {
           <p className="text-slate-500 text-sm">
             Create and manage your educational content
           </p>
+
         </div>
         <button
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all active:scale-95"
@@ -60,6 +59,7 @@ const MyCourses = () => {
           <Plus size={18} />
           Create New Course
         </button>
+
       </div>
 
       {/* 2. Search & Filter Bar */}
@@ -85,7 +85,7 @@ const MyCourses = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {creatorCourseData.map((course, index) => (
           <div
-            key={index}
+            key={course._id || index}
             className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow"
           >
             {/* Thumbnail */}

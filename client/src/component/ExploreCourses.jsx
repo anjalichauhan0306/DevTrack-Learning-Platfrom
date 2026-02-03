@@ -8,9 +8,10 @@ import {
   Cpu,
   ArrowRight,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ExploreCourses = () => {
+  const navigate = useNavigate()
   const categories = [
     { name: "Web Development", icon: Monitor },
     { name: "Mobile Apps", icon: Smartphone },
@@ -45,6 +46,7 @@ const ExploreCourses = () => {
 
             <Link
               to="/courses"
+              onClick={()=>navigate("/allcourses")}
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl
               bg-linear-to-r from-indigo-600 to-purple-600
               text-white font-bold text-lg shadow-xl hover:scale-105 transition-transform"

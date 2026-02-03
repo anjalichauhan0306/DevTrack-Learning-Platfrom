@@ -15,6 +15,9 @@ import MyCourses from "./pages/Educator/Mycourses";
 import GetCreatorCourse from "./customHooks/getCreatorCourse";
 import EditCourse from "./pages/Educator/EditCourse";
 import GetPublishedCourse from "./customHooks/getPublishedCourse";
+import CourseCard from "./component/Card";
+import CardPage from "./component/CardPage";
+import AllCourses from "./pages/AllCourses";
 export const serverURL = "http://localhost:5000";
 
 const App = () => {
@@ -46,10 +49,16 @@ const App = () => {
           element={!userData ?  <Navigate to="/login" /> : <Profile />}
         />
 
+         <Route
+          path="/allcourses"
+          element={!userData ?  <Navigate to="/login" /> : <AllCourses />}
+        />
+
         <Route 
         path="/analytics"
         element={userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
         />
+
 
         
         <Route 

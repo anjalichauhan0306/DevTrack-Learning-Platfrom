@@ -174,7 +174,7 @@ const EditCourse = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm">
+            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm" onClick={()=>navigate(`/createlecture/${selectCourseData?._id}`)}>
               <Rocket className="w-4 h-4" />
               Go to Lectures
             </button>

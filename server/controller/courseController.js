@@ -150,33 +150,46 @@ export const removeCourse = async (req, res) => {
   }
 }
 
-export const createLecture = async (req,res) => {
+export const createLecture = async (req, res) => {
   try {
-   const {lectureTitle} = req.body
-   const {courseId} = req.params
+    const { lectureTitle } = req.body;
+    const { courseId } = req.params;
 
-   if(lectureTitle || courseId){
-    return res.status(400).json({message:
-      "lectureTitle is required"
+    if (!lectureTitle || !courseId) {
+      return res.status(400).json({
+        message: "Lecture Title and Course ID are required",
+      });
+    }
+
+    const course = await Courses.findById(courseId);
+    const lecture = await Lecture.create({ lectureTitle });
+
+    if (!course) {
+      return res.status(404).json({ message: "Course Not Found" });
+    }
+
+      if (course) {
+        course.lectures.push(lecture._id)
+      }
+      
+    await course.populate("lectures")
+    await course.save();
+
+    const updatedCourse = await Courses.findById(courseId).populate("lectures");
+
+    return res.status(201).json({
+      lecture,
+      course: updatedCourse,
     });
-    }
-    
-    const lecture = await Lecture.create({lectureTitle})
-    const course = await Courses.findById(courseId)
 
-    if(course){
-      course.lectures.push(lecture._id)
-    }
-    course.populate("lectures")
-    course.save()
-    return res.status(201).json({lecture,course})
-
-   } catch (error) {
-     return res
-      .status(500)
-      .json({ message: `failed to Course  lecture By ID: ${error.message}` });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Failed to create lecture: ${error.message}`,
+    });
   }
-}
+};
+
+
 
 export const getCourseLecture = async (req,res) => {
   try {

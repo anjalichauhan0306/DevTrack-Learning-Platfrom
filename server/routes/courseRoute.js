@@ -29,6 +29,6 @@ courseRouter.get("/delete/:courseId", isAuth, removeCourse);
 
 courseRouter.post("/createlecture/:courseId",isAuth,createLecture)
 courseRouter.get("/courselecture/:courseId",isAuth,getCourseLecture)
-courseRouter.post("/editlecture/:lectureId",isAuth,upload.single("videourl"),editCourse)
+courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videourl"),editCourse)
 courseRouter.get("/delete/:lectureId", isAuth, removeLecture);
 export default courseRouter;

@@ -218,8 +218,7 @@ const CreateLecture = () => {
           </div>
         </section>
       </main>
-
-      {/* Global Smooth Scroll Support - Error Fixed */}
+      
       <style>
         {`
     html {

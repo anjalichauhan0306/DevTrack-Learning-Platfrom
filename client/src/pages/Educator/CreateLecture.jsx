@@ -31,9 +31,12 @@ const CreateLecture = () => {
 
     try {
       const result = await axios.post(
-        `${serverURL}/api/course/createlecture/${courseId}`,{ lectureTitle },{ withCredentials: true });
+        `${serverURL}/api/course/createlecture/${courseId}`,
+        { lectureTitle },
+        { withCredentials: true },
+      );
       console.log(result.data);
-      dispatch(setLectureData([...lectureData , result.data.lecture]))
+      dispatch(setLectureData([...lectureData, result.data.lectures]));
       toast.success("Lecture added! 🎉");
       setLectureTitle("");
     } catch (error) {
@@ -43,11 +46,28 @@ const CreateLecture = () => {
     }
   };
 
+  const removeLecture = async (lectureId) => {
+    setLoading(true)
+    try {
+      const result = await axios.delete(serverURL + `/api/course/deletelecture/${lectureId}`,{withCredentials:true});
+      console.log(result.data);
+      setLoading(false)
+      const filterCourse = lectureData.filter(c =>c._id !== lectureId)
+            dispatch(setLectureData(filterCourse))
+       toast.success("Lecture deleted successfully!");
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Delete failed");
+        console.log(error);
+        setLoading(false)
+    }
+  }
   useEffect(() => {
     const getCourseLecture = async () => {
       try {
         const result = await axios.get(
-          `${serverURL}/api/course/courselecture/${courseId}`,{ withCredentials: true });
+          `${serverURL}/api/course/courselecture/${courseId}`,
+          { withCredentials: true },
+        );
         dispatch(setLectureData(result.data.lectures));
       } catch (error) {
         console.log(error);
@@ -58,7 +78,6 @@ const CreateLecture = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      {/* --- TOP NAVIGATION BAR --- */}
       <header className="h-20 bg-white/70 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 px-8 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button
@@ -164,7 +183,7 @@ const CreateLecture = () => {
               {lectureData && lectureData.length > 0 ? (
                 lectureData.map((lecture, index) => (
                   <div
-                    key={lecture._id}
+                    key={lecture._id || index}
                     className="group flex items-center gap-6 p-6 rounded-3xl bg-white border border-slate-100 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100/50 transition-all duration-500 cursor-default"
                   >
                     <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-lg font-black text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
@@ -180,14 +199,24 @@ const CreateLecture = () => {
                           <FiVideo className="text-blue-500" /> Video Module
                         </span>
                         <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                          Pending Upload
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-widest ${
+                            lecture.videoUrl
+                              ? "text-emerald-500"
+                              : "text-amber-500"
+                          }`}
+                        >
+                          {lecture.videoUrl
+                            ? "Content Ready"
+                            : "Pending Upload"}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <button className="p-3 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors text-slate-400">
+                      <button
+                       onClick={() => removeLecture(lecture._id)}
+                       className="p-3 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors text-slate-400">
                         <FiTrash2 size={20} />
                       </button>
                       <button
@@ -196,7 +225,7 @@ const CreateLecture = () => {
                         }
                         className="p-3 hover:bg-indigo-50 hover:text-indigo-500 rounded-xl transition-colors text-slate-400"
                       >
-                        <FiEdit size={20}  />
+                        <FiEdit size={20} />
                       </button>
                     </div>
                   </div>
@@ -218,7 +247,7 @@ const CreateLecture = () => {
           </div>
         </section>
       </main>
-      
+
       <style>
         {`
     html {

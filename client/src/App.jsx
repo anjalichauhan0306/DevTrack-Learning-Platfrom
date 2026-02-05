@@ -18,6 +18,7 @@ import GetPublishedCourse from "./customHooks/getPublishedCourse";
 import AllCourses from "./pages/AllCourses";
 import CreateLecture from "./pages/Educator/CreateLecture";
 import EditLecture from "./pages/Educator/EditLecture";
+import ViewCourse from "./pages/ViewCourse";
 export const serverURL = "http://localhost:5000";
 
 const App = () => {
@@ -58,8 +59,6 @@ const App = () => {
         path="/analytics"
         element={userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
         />
-
-
         
         <Route 
         path="/courses"
@@ -89,6 +88,12 @@ const App = () => {
         <Route 
         path="/editlecture/:courseId/:lectureId"
         element={userData?.role === "educator" ? <Navigate to="/signup" /> : <EditLecture/>  }
+        />
+
+         
+        <Route 
+        path="/viewcourse/:courseId"
+        element={userData?.role === "educator" ? <Navigate to="/signup" /> : <ViewCourse/>  }
         />
 
       </Routes>

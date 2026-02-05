@@ -1,9 +1,11 @@
 import { Star, Clock, BarChart3, Users, MoveRight } from 'lucide-react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Card = ({ thumbnail, title, category, price, level = "Beginner" }) => {
+const Card = ({ thumbnail, title, category, price, level , id = "Beginner" }) => {
+    const navigate = useNavigate()
     return (
-        <div className='group bg-white rounded-2xl border border-slate-200/60 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500'>
+        <div className='group bg-white rounded-2xl border border-slate-200/60 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500' onClick={()=>navigate(`/viewcourse/${id}`)}>
             {/* Image Section */}
             <div className='relative aspect-16/10 overflow-hidden rounded-t-2xl'>
                 <img 

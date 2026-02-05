@@ -128,7 +128,7 @@ const EditCourse = () => {
     if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
     
     try {
-      await axios.get(serverURL +`/api/course/delete/${courseId}`, {
+      await axios.delete(serverURL +`/api/course/delete/${courseId}`, {
         withCredentials: true,
       });
       toast.success("Course deleted!");

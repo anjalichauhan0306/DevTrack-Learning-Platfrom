@@ -37,7 +37,7 @@ export const createCourse = async (req, res) => {
 
 export const getPublished = async (req, res) => {
   try {
-    const courses = await Courses.find({ isPublished: true });
+    const courses = await Courses.find({ isPublished: true }).populate("lectures");
 
     if (!courses) {
       return res.status(404).json({ message: "Courses Not Found" });
@@ -215,7 +215,7 @@ export const getCourseLecture = async (req,res) => {
 export const editLecture = async (req,res) => {
   try {
     const {lectureId} = req.params;
-    const {isPreviewFree, lectureTitle} =req.body
+    const {isPreviewFree, lectureTitle,description} =req.body
     const lecture = await Lecture.findById(lectureId)
     if(!lecture){
       return res.status(400).json({message:
@@ -232,6 +232,11 @@ export const editLecture = async (req,res) => {
       lecture.lectureTitle = lectureTitle
     }
 
+    if(description){
+      lecture.description = description
+    }
+
+      
     lecture.isPreviewFree = isPreviewFree
     await lecture.save()
     
@@ -258,9 +263,10 @@ export const removeLecture = async (req,res) => {
       {lectures : lectureId},
       {$pull:{lectures:lectureId}}
     )
-      return res.status(400).json({message:
-      "Lecture Removed !"
-    });
+      return res.status(200).json({
+  message: "Lecture Removed!"
+});
+
   } catch (error) {
     return res.status(400).json({message:
       `try again ${error} !`

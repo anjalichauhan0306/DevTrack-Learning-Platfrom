@@ -3,6 +3,7 @@ import {
   createCourse,
   createLecture,
   editCourse,
+  editLecture,
   getCourseById,
   getCourseLecture,
   getCreatorCourses,
@@ -22,13 +23,13 @@ courseRouter.get("/getcreator", isAuth, getCreatorCourses);
 courseRouter.post("/editcourse/:courseId",isAuth,upload.single("thumbnail"),editCourse,);
 
 courseRouter.get("/getcourse/:courseId", isAuth, getCourseById);
-courseRouter.get("/delete/:courseId", isAuth, removeCourse);
+courseRouter.delete("/delete/:courseId", isAuth, removeCourse);
 
 
 // For Lecture
 
 courseRouter.post("/createlecture/:courseId",isAuth,createLecture)
 courseRouter.get("/courselecture/:courseId",isAuth,getCourseLecture)
-courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videourl"),editCourse)
-courseRouter.get("/delete/:lectureId", isAuth, removeLecture);
+courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videoUrl"),editLecture)
+courseRouter.delete("/deletelecture/:lectureId", isAuth, removeLecture);
 export default courseRouter;

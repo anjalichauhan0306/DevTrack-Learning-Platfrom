@@ -192,7 +192,7 @@ const CreateLecture = () => {
 
                     <div className="flex-1">
                       <h4 className="text-lg font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
-                        {lecture.lectureTitle}
+                        {lectureData.lectureTitle}
                       </h4>
                       <div className="flex items-center gap-4 mt-2">
                         <span className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">

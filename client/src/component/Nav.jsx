@@ -63,7 +63,7 @@ const Navbar = () => {
 
         <>
 
-          <Link onClick={() => navigate("/courses")} className="hover:text-indigo-600 transition" to="/courses">Explore Courses</Link>
+          <Link onClick={() => navigate("/allcourses")} className="hover:text-indigo-600 transition" to="/allcourses">Explore Courses</Link>
 
           <Link onClick={() => navigate("/mentors")} className="hover:text-indigo-600 transition" to="/mentors">Mentors</Link>
 

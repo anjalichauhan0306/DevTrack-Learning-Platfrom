@@ -6,6 +6,7 @@ import {
   editLecture,
   getCourseById,
   getCourseLecture,
+  getCreatorById,
   getCreatorCourses,
   getPublished,
   removeCourse,
@@ -13,7 +14,6 @@ import {
 } from "../controller/courseController.js";
 import isAuth from "../middleware/isAuth.js";
 import upload from "../middleware/multer.js";
-import Courses from "../model/courseModel.js";
 
 const courseRouter = express.Router();
 
@@ -32,4 +32,5 @@ courseRouter.post("/createlecture/:courseId",isAuth,createLecture)
 courseRouter.get("/courselecture/:courseId",isAuth,getCourseLecture)
 courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videoUrl"),editLecture)
 courseRouter.delete("/deletelecture/:lectureId", isAuth, removeLecture);
+courseRouter.post("/creator",isAuth,getCreatorById)
 export default courseRouter;

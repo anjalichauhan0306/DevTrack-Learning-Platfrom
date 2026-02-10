@@ -10,7 +10,6 @@ const ScrollToTop = () => {
   }, 100);
 }, [pathname]);
 
-
   return null;
 };
 

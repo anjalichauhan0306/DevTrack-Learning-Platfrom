@@ -13,6 +13,7 @@ import Students from "./pages/Educator/Students";
 import CreateCourse from "./pages/Educator/CreateCourse";
 import MyCourses from "./pages/Educator/Mycourses";
 import GetCreatorCourse from "./customHooks/getCreatorCourse";
+import ViewLecture from './pages/ViewLecture'
 import EditCourse from "./pages/Educator/EditCourse";
 import GetPublishedCourse from "./customHooks/getPublishedCourse";
 import AllCourses from "./pages/AllCourses";
@@ -96,6 +97,11 @@ const App = () => {
         <Route 
         path="/viewcourse/:courseId"
         element={userData?.role === "educator" ? <Navigate to="/signup" /> : <ViewCourse/>  }
+        />
+
+        <Route 
+        path="/viewlecture/:courseId"
+        element={<ViewLecture/>}
         />
 
       </Routes>

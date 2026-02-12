@@ -33,10 +33,10 @@ const CreateLecture = () => {
       const result = await axios.post(
         `${serverURL}/api/course/createlecture/${courseId}`,
         { lectureTitle },
-        { withCredentials: true },
+        { withCredentials: true }
       );
       console.log(result.data);
-      dispatch(setLectureData([...lectureData, result.data.lectures]));
+      dispatch(setLectureData([...lectureData, result.data.lecture]));
       toast.success("Lecture added! 🎉");
       setLectureTitle("");
     } catch (error) {
@@ -113,7 +113,7 @@ const CreateLecture = () => {
       {/* --- MAIN CONTENT LAYOUT --- */}
       <main className="flex-1 flex flex-col lg:flex-row">
         {/* LEFT PANEL: The Builder Tool */}
-        <aside className="w-full lg:w-[400px] border-r border-slate-200 bg-white p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)]">
+        <aside className="w-full lg:w-100 border-r border-slate-200 bg-white p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)]">
           <div className="mb-10">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100 mb-6 overflow-hidden border border-slate-100">
               <img
@@ -183,7 +183,7 @@ const CreateLecture = () => {
               {lectureData && lectureData.length > 0 ? (
                 lectureData.map((lecture, index) => (
                   <div
-                    key={lecture._id || index}
+                    key={index}
                     className="group flex items-center gap-6 p-6 rounded-3xl bg-white border border-slate-100 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100/50 transition-all duration-500 cursor-default"
                   >
                     <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-lg font-black text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
@@ -192,7 +192,7 @@ const CreateLecture = () => {
 
                     <div className="flex-1">
                       <h4 className="text-lg font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
-                        {lectureData.lectureTitle}
+                        {lecture?.lectureTitle}
                       </h4>
                       <div className="flex items-center gap-4 mt-2">
                         <span className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -201,12 +201,12 @@ const CreateLecture = () => {
                         <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
                         <span
                           className={`text-[10px] font-black uppercase tracking-widest ${
-                            lecture.videoUrl
+                            lecture?.videoUrl
                               ? "text-emerald-500"
                               : "text-amber-500"
                           }`}
                         >
-                          {lecture.videoUrl
+                          {lecture?.videoUrl
                             ? "Content Ready"
                             : "Pending Upload"}
                         </span>

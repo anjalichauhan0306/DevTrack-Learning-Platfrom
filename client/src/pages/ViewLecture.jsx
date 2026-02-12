@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { serverURL } from "../App";
@@ -8,12 +8,15 @@ import { FiArrowLeft, FiPlayCircle, FiBookOpen } from "react-icons/fi";
 const ViewLecture = () => {
   const { courseId } = useParams();
   const { courseData } = useSelector((state) => state.course);
+  
   const selectedCourse = courseData?.find((course) => course._id === courseId);
   const navigate = useNavigate();
   const [creatorData, setCreatorData] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
   );
+  const videoRef = useRef(null);
+
 
   const [progress, setProgress] = useState({});
   const [notes, setNotes] = useState("");
@@ -138,6 +141,7 @@ const ViewLecture = () => {
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoaded}
                 onEnded={playNextLecture}
+                ref={videoRef}
               />
             ) : (
               <div className="text-white flex flex-col items-center gap-3">

@@ -62,14 +62,14 @@ const Navbar = () => {
       ) : role === "Student" ? (
 
         <>
+          <Link onClick={() => navigate("/")} className="hover:text-indigo-600 transition" to="/">Home</Link>
 
           <Link onClick={() => navigate("/allcourses")} className="hover:text-indigo-600 transition" to="/allcourses">Explore Courses</Link>
 
           <Link onClick={() => navigate("/mentors")} className="hover:text-indigo-600 transition" to="/mentors">Mentors</Link>
 
-          <Link onClick={() => navigate("/dashboard")} className="hover:text-indigo-600 transition" to="/dashboard">My Learning</Link>
+          <Link onClick={() => navigate("/mylearning")} className="hover:text-indigo-600 transition" to="/mylearning">My Learning</Link>
 
-          <Link onClick={() => navigate("/resources")} className="hover:text-indigo-600 transition" to="/contact">Contact</Link>
 
         </>
 

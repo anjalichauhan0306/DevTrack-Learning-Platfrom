@@ -21,6 +21,7 @@ import CreateLecture from "./pages/Educator/CreateLecture";
 import EditLecture from "./pages/Educator/EditLecture";
 import ViewCourse from "./pages/ViewCourse";
 import ScrollToTop from "./component/ScrollToTop";
+import MyLearning from "./pages/MyLeaning";
 export const serverURL = "http://localhost:5000";
 
 const App = () => {
@@ -96,14 +97,19 @@ const App = () => {
          
         <Route 
         path="/viewcourse/:courseId"
-        element={userData?.role === "educator" ? <Navigate to="/signup" /> : <ViewCourse/>  }
+        element={!userData ? <Navigate to="/signup" /> : <ViewCourse/>  }
         />
 
-        <Route 
-        path="/viewlecture/:courseId"
-        element={<ViewLecture/>}
+        <Route
+          path="/viewlecture/:courseId"
+          element={!userData ?  <Navigate to="/login" /> : <ViewLecture />}
         />
 
+        <Route
+          path="/mylearning/"
+          element={<MyLearning/>}
+        />
+      
       </Routes>
     </>
   );

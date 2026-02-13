@@ -83,7 +83,7 @@ const Navbar = () => {
 
           <Link onClick={() => navigate("/students")} className="hover:text-indigo-600 transition" to="/students">Students</Link>
 
-          <Link onClick={() => navigate("/analytics")} className="hover:text-indigo-600 transition" to="/analytics">Analytics</Link>
+          <Link onClick={() => navigate("/analytics")} className="hover:text-indigo-600 transition" to="/analytics">Analytics</Link> 
 
         </>
 

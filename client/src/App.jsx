@@ -61,7 +61,7 @@ const App = () => {
 
         <Route 
         path="/analytics"
-        element={userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
+        element={!userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
         />
         
         <Route 

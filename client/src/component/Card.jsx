@@ -2,8 +2,24 @@ import { Star, Clock, BarChart3, Users, MoveRight } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Card = ({ thumbnail, title, category, price, level , id = "Beginner" }) => {
+const Card = ({ reviews, thumbnail, title, category, price, level , id = "Beginner" }) => {
+
     const navigate = useNavigate()
+
+    const calculateAvgReview = (reviews) =>{
+    if(!reviews || reviews.length === 0){
+      return 0
+    }
+
+    const total = reviews.reduce((sum, review)=>sum + review.rating , 0)
+
+    return (total / reviews.length).toFixed(1)
+  }
+
+  const avgRating = calculateAvgReview(reviews)
+
+  console.log("Avg Rating :" , avgRating);
+
     return (
         <div className='group bg-white rounded-2xl border border-slate-200/60 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500' onClick={()=>navigate(`/viewcourse/${id}`)}>
             {/* Image Section */}
@@ -43,7 +59,7 @@ const Card = ({ thumbnail, title, category, price, level , id = "Beginner" }) =>
                         <Users size={14} className='text-indigo-500' /> 1.2k
                     </div>
                     <div className='ml-auto flex items-center gap-1 text-amber-500 text-[11px] font-bold'>
-                        <Star size={13} fill="currentColor" /> 4.9
+                        <Star size={13} fill="currentColor" /> {avgRating}
                     </div>
                 </div>
 

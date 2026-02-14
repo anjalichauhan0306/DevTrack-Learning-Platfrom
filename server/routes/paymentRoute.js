@@ -1,10 +1,10 @@
 import express from 'express'
-import { createStripePayment, freeEnrollCourse, verifyStripePayment } from '../controller/paymentController.js'
+import { createStripeCheckout, freeEnrollCourse, verifyCheckout } from '../controller/paymentController.js'
 
 const paymentRouter = express.Router()
 
-paymentRouter.post("/razorpay-order",createStripePayment)
-paymentRouter.post("/verifypayment",verifyStripePayment)
+paymentRouter.post("/create-checkout-session", createStripeCheckout);
+paymentRouter.post("/verifypayment",verifyCheckout)
 paymentRouter.post("/free-enroll", freeEnrollCourse);
 
 

@@ -6,10 +6,8 @@ import {
   MoreVertical,
   Users,
   Star,
-  BarChart3,
   Edit3,
   CheckCircle,
-  FileText,
   Layout,
 } from "lucide-react";
 import placeholder from "../../assets/placeholder.jpg";
@@ -18,12 +16,13 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { serverURL } from "../../App.jsx";
 import { setCreatorCourseData } from "../../redux/courseSliec.js";
+import Navbar from "../../component/Nav.jsx";
 
 const MyCourses = () => {
   const navigate = useNavigate();
   const { creatorCourseData } = useSelector((state) => state.course);
   const dispatch = useDispatch();
-  const { userData } = useSelector(state => state.user);
+  const { userData } = useSelector((state) => state.user);
 
   useEffect(() => {
     const creatorCourses = async () => {
@@ -31,174 +30,134 @@ const MyCourses = () => {
         const result = await axios.get(serverURL + "/api/course/getcreator", {
           withCredentials: true,
         });
-
-        console.log(result.data);
         dispatch(setCreatorCourseData(result.data));
       } catch (error) {
         console.log(error);
       }
     };
     creatorCourses();
-  }, [userData]);
+  }, [userData, dispatch]);
 
   return (
-    <div className="p-8 bg-slate-50 min-h-screen font-inter">
-      {/* 1. Header & Create Button */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Courses</h1>
-          <p className="text-slate-500 text-sm">
-            Create and manage your educational content
-          </p>
+    <div className="p-4 md:p-8 bg-slate-900 min-h-screen text-slate-100">
+      <Navbar />
 
+      {/* 1. Header Section - Fixed Alignment */}
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 mt-24">
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">My Courses</h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Manage your curriculum and track student engagement
+          </p>
         </div>
+
         <button
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
           onClick={() => navigate("/createcourse")}
         >
-          <Plus size={18} />
+          <Plus size={20} />
           Create New Course
         </button>
-
       </div>
 
-      {/* 2. Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            size={18}
-          />
-          <input
-            type="text"
-            placeholder="Search your courses..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
-          />
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50">
-          <Filter size={18} />
-          Filter
-        </button>
-      </div>
-
-      {/* 3. Course Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {creatorCourseData.map((course, index) => (
-          <div
-            key={course._id || index}
-            className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow"
-          >
-            {/* Thumbnail */}
-            <div className="w-full md:w-48 h-48 md:h-auto relative">
-              {course.thumbnail ? (
-                <img
-                  src={course.thumbnail}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                  src={placeholder}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              )}
-              <div
-                className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm ${
-                  course.isPublished === "Published"
-                    ? "bg-green-500 text-white"
-                    : "bg-amber-500 text-white"
-                }`}
-              >
-                {course.isPublished ? "Published" : "Draft"}
-              </div>
-            </div>
-
-            {/* Content & Stats */}
-            <div className="p-5 flex-1 flex flex-col">
-              <div className="flex justify-between">
-                <h3 className="font-bold text-slate-800 text-lg leading-tight mb-1">
-                  {course.title}
-                </h3>
-                <MoreVertical
-                  className="text-slate-400 cursor-pointer"
-                  size={20}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-4">
-                <Stat
-                  icon={<Users size={14} />}
-                  label="Students"
-                  value={course.enrolledStudents?.length || 0}
-                />
-                <Stat
-                  icon={<Star size={14} />}
-                  label="Rating"
-                  value={course.rating || 0}
-                />
-                <Stat
-                  icon={<CheckCircle size={14} />}
-                  label="Access"
-                  value={
-                    course.isPaid ? (
-                      `₹${course.Price}`
-                    ) : (
-                      <span className="text-green-600 font-bold">Free</span>
-                    )
-                  }
-                />
-                <Stat
-                  icon={<Layout size={14} />}
-                  label="Category"
-                  value={course.category}
-                />
-              </div>
-
-              {/* ⚡ Quick Actions (The "Meat" of the Page) */}
-              <div className="mt-auto pt-4 border-t border-slate-50 flex flex-wrap gap-2">
-                <ActionButton
-                  icon={<Edit3 size={16} />}
-                  label="Edit"
-                  color="text-blue-600 bg-blue-50"
-                  onClick={() => navigate(`/editcourse/${course._id}`)}
-                />
-                <ActionButton
-                  icon={<BarChart3 size={16} />}
-                  label="Analytics"
-                  color="text-indigo-600 bg-indigo-50"
-                />
-                <ActionButton
-                  icon={<FileText size={16} />}
-                  label="Curriculum"
-                  color="text-slate-600 bg-slate-100"
-                />
-              </div>
-            </div>
+      <div className="max-w-7xl mx-auto">
+        {/* 2. Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-10">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+            <input
+              type="text"
+              placeholder="Search your courses..."
+              className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white transition-all"
+            />
           </div>
-        ))}
+          <button className="flex items-center justify-center gap-2 px-6 py-3 border border-slate-700 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
+            <Filter size={18} />
+            Filter
+          </button>
+        </div>
+
+        {/* 3. Course Grid - Fixed Card Heights */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {creatorCourseData.map((course) => (
+            <div
+              key={course._id}
+              className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden flex flex-col h-full hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
+            >
+              {/* Thumbnail Container */}
+              <div className="relative aspect-video w-full overflow-hidden">
+                <img
+                  src={course.thumbnail || placeholder}
+                  alt={course.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-60" />
+                
+                <div
+                  className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg ${
+                    course.isPublished ? "bg-emerald-500 text-emerald-950" : "bg-amber-500 text-amber-950"
+                  }`}
+                >
+                  {course.isPublished ? "Live" : "Draft"}
+                </div>
+              </div>
+
+              {/* Content Section - flex-1 pushes footer to bottom */}
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-4 gap-2">
+                  <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 group-hover:text-indigo-400 transition-colors">
+                    {course.title}
+                  </h3>
+                  <button className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0">
+                    <MoreVertical className="text-slate-500" size={18} />
+                  </button>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-6">
+                  <Stat icon={<Users size={14} />} label="Students" value={course.enrolledStudents?.length || 0} />
+                  <Stat icon={<Star size={14} />} label="Rating" value={course.rating || "N/A"} />
+                  <Stat 
+                    icon={<CheckCircle size={14} />} 
+                    label="Price" 
+                    value={course.isPaid ? `₹${course.Price}` : "Free"} 
+                    isPrice={!course.isPaid}
+                  />
+                  <Stat icon={<Layout size={14} />} label="Category" value={course.category || "General"} />
+                </div>
+
+                {/* Action Footer - Always stays at bottom */}
+                <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
+                    Updated: {new Date(course.updatedAt).toLocaleDateString()}
+                  </span>
+                  <button
+                    onClick={() => navigate(`/editcourse/${course._id}`)}
+                    className="flex items-center gap-2 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-400 hover:text-white rounded-lg text-xs font-bold transition-all"
+                  >
+                    <Edit3 size={14} />
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-// Sub-components for cleaner code
-const Stat = ({ icon, label, value }) => (
-  <div className="flex flex-col">
-    <span className="text-slate-400 text-[10px] uppercase font-bold flex items-center gap-1">
-      {icon} {label}
+const Stat = ({ icon, label, value, isPrice }) => (
+  <div className="flex flex-col gap-0.5">
+    <div className="flex items-center gap-1.5 text-slate-500">
+      <span className="text-indigo-400">{icon}</span>
+      <span className="text-[10px] uppercase font-bold tracking-wider">{label}</span>
+    </div>
+    <span className={`text-sm font-semibold truncate ${isPrice ? "text-emerald-400" : "text-slate-200"}`}>
+      {value}
     </span>
-    <span className="text-slate-800 font-semibold text-sm">{value}</span>
   </div>
-);
-
-const ActionButton = ({ icon, label, color, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-opacity hover:opacity-80 ${color}`}
-  >
-    {icon} {label}
-  </button>
 );
 
 export default MyCourses;

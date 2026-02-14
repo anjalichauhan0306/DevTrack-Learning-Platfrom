@@ -29,7 +29,7 @@ export const updateProfile = async (req,res) => {
         const user = await User.findByIdAndUpdate(userId, {
             description,
             name,
-            photo : photoUrl
+            photoUrl : photoUrl
         }, {new : true}).select("-password");
 
         if(!user) { 

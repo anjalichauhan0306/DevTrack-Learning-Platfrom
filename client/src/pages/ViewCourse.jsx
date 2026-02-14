@@ -8,6 +8,7 @@ import emy from "../assets/empty.jpg";
 import { setSelectedCourse } from "../redux/courseSliec";
 import Card from "../component/Card.jsx";
 import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 const CourseDetailPage = () => {
   const navigate = useNavigate();
@@ -18,8 +19,10 @@ const CourseDetailPage = () => {
   const { courseData, selectedCourse } = useSelector((state) => state.course);
   const [creatorCourses, setCreatorCourses] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(null);
-
+  const [loading , setLoading] =useState(false)
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
   const fetchCourseData = async () => {
     courseData.map((course) => {
@@ -76,46 +79,41 @@ const CourseDetailPage = () => {
     }
   }, [creatorData, courseData]);
 
-  const handleEnroll = async (userId, courseId) => {
+  const handleEnroll = async () => {
     try {
-      const paymentData = await axios.post(
-        serverURL + "/api/payment/razorpay-order",
-        { userId, courseId },
+      const { data } = await axios.post(
+        serverURL + "/api/payment/create-checkout-session",
+        {
+          courseId,
+          userId: userData._id,
+        },
         { withCredentials: true },
       );
 
-      console.log(paymentData);
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: paymentData.data.amount,
-        Currency: "INR",
-        name: "DEVTRACK",
-        description: "Course Enrollment Payment",
-        order_id: paymentData.data.id,
-
-        handle: async function (response) {
-          console.log("Razorpay Response", response);
-          try {
-            const verifypayment = await axios.post(
-              serverURL + "/api/payment/verifypayment",
-              { ...response, courseId, userId },
-              { withCredentials: true },
-            );
-            setIsEnrolled(true);
-            toast.success(verifypayment?.data?.message);
-          } catch (error) {
-            console.log(error.response?.data?.message);
-            toast.error("Something went wrong while enrolling.");
-          }
-        },
-      };
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      window.location.href = data.url;
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong while enrolling.");
+      toast.error("Payment Failed");
     }
   };
+
+  useEffect(() => {
+    const sessionId = new URLSearchParams(location.search).get("session_id");
+
+    if (sessionId) {
+      axios
+        .post(
+          serverURL + "/api/payment/verify-checkout",
+          { sessionId },
+          { withCredentials: true },
+        )
+        .then(() => {
+          toast.success("Enrollment Successful 🎉");
+        })
+        .catch(() => {
+          toast.error("Verification Failed");
+        });
+    }
+  }, []);
 
   const enrollFree = async (userId, courseId) => {
     try {
@@ -132,6 +130,38 @@ const CourseDetailPage = () => {
     }
   };
 
+  const handleReview = async () => {
+    setLoading(true)
+    try {
+      const result =await axios.post(serverURL + "/api/review/createreview" ,{rating ,comment , courseId},{withCredentials:true})
+      toast.success("Review Added")
+      setLoading(false)
+      console.log(result.data);
+      setRating(0)
+      setComment("")
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+      setLoading(false)
+      setRating(0)
+      setComment("")
+    }
+  }
+
+  const calculateAvgReview = (reviews) =>{
+    if(!reviews || reviews.length === 0){
+      return 0
+    }
+
+    const total = reviews.reduce((sum, review)=>sum + review.rating , 0)
+
+    return (total / reviews.length).toFixed(1)
+  }
+
+  const avgRating = calculateAvgReview(selectedCourse?.reviews)
+
+  console.log("Avg Rating :" , avgRating);
+
+  
   return (
     <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-8 space-y-8">
       <div
@@ -166,7 +196,7 @@ const CourseDetailPage = () => {
 
           <div className="flex items-center gap-2 text-yellow-500">
             <FiStar />
-            <span className="font-semibold">5.0</span>
+            <span className="font-semibold">{avgRating}</span>
             <span className="text-gray-500">(1200 Reviews)</span>
           </div>
 
@@ -187,7 +217,8 @@ const CourseDetailPage = () => {
               className="bg-green-600 text-white px-6 py-3 rounded-xl w-full md:w-auto"
               onClick={() => navigate(`/viewlecture/${courseId}`)}
             >
-              Watch Now
+              {" "}
+              Warch Now
             </button>
           ) : (
             <button
@@ -280,7 +311,59 @@ const CourseDetailPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4 pt-4 border-t">
+
+      <div className="pt-5 mt-6">
+        <div className="rounded-xl p-4">
+          <h2 className="text-base font-semibold text-gray-900 mb-3">
+            Add a Review
+          </h2>
+
+          {/* Rating */}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-gray-600">Your Rating</span>
+
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FiStar
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className={`w-5 h-5 cursor-pointer transition-all duration-200
+              ${
+                star <= rating
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-300 hover:text-yellow-400"
+              }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Feedback */}
+          <div className="mb-3">
+            <textarea
+              rows="2"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Write your feedback..."
+              className="w-full p-2.5 text-sm rounded-lg border border-gray-300 
+                   focus:ring-1 focus:ring-black 
+                   outline-none transition resize-none"
+            />
+          </div>
+
+          {/* Button */}
+          <button
+            onClick={handleReview}
+            disabled={loading}
+            className="bg-black text-white px-5 py-2 rounded-lg 
+                 hover:bg-gray-800 transition text-sm font-medium"
+          > {loading ? <ClipLoader size={18} color="white"
+             /> : "Submit Review" }
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 pt-4">
         <img
           src={creatorData?.photoUrl || emy}
           alt="creator"

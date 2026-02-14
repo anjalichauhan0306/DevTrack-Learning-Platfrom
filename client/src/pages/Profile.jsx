@@ -1,17 +1,17 @@
 import {
   User,
-  BookOpen,
-  Award,
-  Settings,
   LogOut,
   ChevronRight,
   Home,
+  Camera,
+  Edit2,
+  Check,
+  X
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { Camera } from "lucide-react";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { serverURL } from "../App";
 import { setUserData } from "../redux/userSlice.js";
 import { toast } from "react-toastify";
@@ -20,286 +20,223 @@ import { ClipLoader } from "react-spinners";
 const Profile = () => {
   const { userData } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const [name, setName] = useState(userData?.name || "");
-  const [description, setDescription] = useState(userData?.description || "");
-  const [photoUrl, setPhotourl] = useState(userData?.photoUrl || "");
   const dispatch = useDispatch();
+  const fileInputRef = useRef(null);
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("personal");
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sync userData with local state
   useEffect(() => {
     if (userData) {
       setName(userData.name || "");
       setDescription(userData.description || "");
-      setPhotourl(userData.photoUrl || "");
+      setPreviewUrl(userData.photoUrl || "");
     }
   }, [userData]);
 
-  const handleEditProfile = async () => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpdateProfile = async () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("name", name || userData?.name || "");
-      formData.append(
-        "description",
-        description || userData?.description || "",
-      );
-      formData.append("photoUrl", photoUrl || userData?.photoUrl || "");
+      formData.append("name", name);
+      formData.append("description", description);
+      if (selectedFile) {
+        formData.append("photoUrl", selectedFile);
+      }
 
-      const result = await axios.post(
-        serverURL + "/api/user/profile",
-        formData,
-        { withCredentials: true },
-      );
+      const result = await axios.post(`${serverURL}/api/user/profile`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       dispatch(setUserData(result.data));
-      setLoading(false);
+      toast.success("Profile Updated Successfully");
       setIsEditing(false);
-      navigate("/");
-      toast.success("Profile Updated successfully");
+      setSelectedFile(null);
     } catch (error) {
+      toast.error(error.response?.data?.message || "Update failed");
+    } finally {
       setLoading(false);
-      console.log(error);
-      toast.error(error.response?.data?.message);
     }
   };
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${serverURL}/api/auth/logout`,
-        {},
-        { withCredentials: true },
-      );
+      await axios.post(`${serverURL}/api/auth/logout`, {}, { withCredentials: true });
       dispatch(setUserData(null));
       navigate("/login");
     } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message);
+      toast.error("Logout failed");
     }
   };
 
-  const tabs = [
-    { id: "personal", label: "Personal Info", icon: <User size={18} /> },
-    { id: "learning", label: "My Learning", icon: <BookOpen size={18} /> },
-    { id: "certificates", label: "Certificates", icon: <Award size={18} /> },
-    { id: "settings", label: "Settings", icon: <Settings size={18} /> },
-  ];
-
   return (
-    <div className="w-full min-h-screen bg-white font-sans selection:bg-indigo-100">
+    <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">
+      {/* --- Breadcrumb Header (Wahi Purana Style) --- */}
       <nav className="max-w-7xl mx-auto px-6 py-6 flex items-center gap-3 text-sm font-medium">
         <Link
           to="/"
-          className="text-slate-400 hover:text-indigo-600 transition-colors flex items-center gap-1.5"
+          className="text-slate-400 hover:text-indigo-600 flex items-center gap-1.5 transition-colors"
         >
           <Home size={16} /> Home
         </Link>
         <ChevronRight size={14} className="text-slate-300" />
-        <span className="text-slate-900 font-semibold">Profile</span>
+        <span className="text-slate-900 font-bold italic">Account Settings</span>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <main className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Sidebar Panel */}
         <aside className="lg:col-span-4 space-y-6">
-          <div className="relative overflow-hidden p-6 rounded-4xl bg-white border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col items-center text-center">
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-50 rounded-full blur-3xl opacity-60" />
-
-            <div className="relative mb-4 group cursor-pointer">
-              <div className="absolute inset-0 bg-indigo-500 rounded-full blur-xl opacity-10 animate-pulse" />
-              <div className="relative p-0.5 rounded-full bg-linear-to-tr from-indigo-500 to-purple-500 transition-transform group-hover:scale-105">
-                {userData?.photoUrl ? (
-                  <img
-                    src={userData?.photoUrl}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-white"
-                    alt="profile"
-                  />
+          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-8 flex flex-col items-center text-center">
+            
+            {/* Avatar with Camera Overlay */}
+            <div className="relative group mb-6">
+              <div className="w-32 h-32 rounded-full p-1 bg-white ring-2 ring-indigo-50 overflow-hidden shadow-inner">
+                {previewUrl ? (
+                  <img src={previewUrl} className="w-full h-full rounded-full object-cover" alt="profile" />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-[#0a0a23] flex items-center justify-center text-white text-2xl font-black border-2 border-white">
-                    {userData?.name?.charAt(0).toUpperCase() || "A"}
+                  <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-white text-4xl font-black">
+                    {userData?.name?.charAt(0)?.toUpperCase()}
                   </div>
                 )}
-                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
-                  <Camera size={22} className="text-white" />
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => setPhotourl(e.target.files[0])}
-                    accept="image/*"
-                    value={photoUrl}
-                    placeholder="photoUrl"
-                  />
-                </label>
               </div>
+              
+              {isEditing && (
+                <button 
+                  onClick={() => fileInputRef.current.click()}
+                  className="absolute bottom-1 right-1 p-2 bg-indigo-600 text-white rounded-full shadow-lg hover:scale-110 transition-transform border-4 border-white"
+                >
+                  <Camera size={16} />
+                </button>
+              )}
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
             </div>
 
-            <div className="relative">
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight leading-none">
-                {userData?.name}
-              </h2>
-              <p className="text-indigo-600 font-bold text-[9px] uppercase tracking-widest mt-2 bg-indigo-50 px-2.5 py-1 rounded-lg inline-block">
-                {userData?.email || "Student@gmail.com"}
-              </p>
-              <p className="text-slate-500 text-[12px] font-medium mt-3 px-1 leading-tight line-clamp-2 italic">
-                {userData?.description}
-              </p>
-            </div>
-            <div className="mt-5 w-full grid grid-cols-3 divide-x divide-slate-100 bg-slate-50/50 rounded-2xl py-2 border border-slate-100">
-              <div className="flex flex-col items-center">
-                <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">
-                  Enrolled
-                </span>
-                <span className="text-sm font-black text-slate-700">05</span>
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+              {userData?.name}
+            </h2>
+            <p className="text-slate-500 text-sm font-medium mb-8">
+              {userData?.email}
+            </p>
+
+            <div className="w-full border-t border-slate-100 pt-6 space-y-3">
+              <div className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm text-indigo-600 bg-indigo-50 border border-indigo-100">
+                <User size={18} /> Personal Info
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">
-                  Done
-                </span>
-                <span className="text-sm font-black text-emerald-600">04</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">
-                  Certis
-                </span>
-                <span className="text-sm font-black text-amber-500">01</span>
-              </div>
-            </div>
-          </div>
-          <nav className="bg-white/60 backdrop-blur-md p-3 rounded-4xl border border-slate-100 space-y-1">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full group flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold text-sm ${
-                    isActive
-                      ? "bg-indigo-900 text-white shadow-lg shadow-indigo-200 -translate-y-0.5"
-                      : "text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm"
-                  }`}
-                >
-                  <span
-                    className={`transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}
-                  >
-                    {tab.icon}
-                  </span>
-                  {tab.label}
-                </button>
-              );
-            })}
-            <div className="pt-3 mt-3 border-t border-slate-100">
+
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all duration-300 font-bold text-sm group"
+                className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm text-rose-500 hover:bg-rose-50 transition-all group"
               >
-                <LogOut
-                  size={18}
-                  className="group-hover:-translate-x-1 transition-transform"
-                />
+                <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
                 Sign Out
               </button>
             </div>
-          </nav>
+          </div>
         </aside>
+
+        {/* Content Panel */}
         <div className="lg:col-span-8">
-          <div className="min-h-125">
-            {activeTab === "personal" && (
-              <div className="space-y-6 max-w-2xl">
-                <div className="flex items-center justify-between border-b pb-4">
-                  <h3 className="text-xl font-bold text-slate-800">
-                    Profile Settings
-                  </h3>
+          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            
+            <div className="px-8 py-7 border-b border-slate-50 flex justify-between items-center bg-white">
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Personal Details</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Update your basic information here.</p>
+              </div>
+
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                >
+                  <Edit2 size={14} /> Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
                   <button
-                    disabled={loading}
                     onClick={() => {
-                      if (isEditing) {
-                        handleEditProfile();
-                      } else {
-                        setIsEditing(true);
-                      }
+                      setIsEditing(false);
+                      setName(userData.name);
+                      setDescription(userData.description);
+                      setPreviewUrl(userData.photoUrl);
+                      setSelectedFile(null);
                     }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all relative ${
-                      isEditing
-                        ? "bg-indigo-600 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    } ${loading ? "opacity-80 cursor-not-allowed" : ""}`}
+                    className="p-2.5 text-slate-400 hover:text-rose-500 transition-colors"
                   >
-                    {loading ? (
-                      <>
-                        {" "}
-                        <ClipLoader size={30} color="white" />{" "}
-                        <span>Saving...</span>{" "}
-                      </>
-                    ) : isEditing ? (
-                      "Save"
-                    ) : (
-                      "Edit Profile"
-                    )}
+                    <X size={20} />
                   </button>
-                </div>
-
-                <div onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                  <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                      Full Name
-                    </label>
-                    <input
-                      disabled={!isEditing}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={`w-full mt-1 px-4 py-3 rounded-xl border transition-all ${
-                        isEditing
-                          ? "border-indigo-500 bg-white shadow-sm"
-                          : "border-transparent bg-slate-50 opacity-70"
-                      } font-semibold text-slate-700 outline-none`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                      Email (Read Only)
-                    </label>
-                    <div className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-100/50 text-slate-400 font-medium border border-transparent">
-                      {userData?.email}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                      Bio
-                    </label>
-                    <textarea
-                      disabled={!isEditing}
-                      rows="3"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className={`w-full mt-1 px-4 py-3 rounded-xl border transition-all ${
-                        isEditing
-                          ? "border-indigo-500 bg-white shadow-sm"
-                          : "border-transparent bg-slate-50 opacity-70"
-                      } font-medium text-slate-600 outline-none resize-none`}
-                    />
-                  </div>
-                </div>
-
-                {isEditing && (
                   <button
-                    onClick={() => setIsEditing(false)}
-                    className="text-sm text-slate-400 hover:text-red-500 font-medium ml-1"
+                    onClick={handleUpdateProfile}
+                    disabled={loading}
+                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 flex items-center gap-2"
                   >
-                    Cancel changes
+                    {loading ? <ClipLoader size={16} color="white" /> : <><Check size={16} /> Save Changes</>}
                   </button>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
-            {activeTab === "learning" && (
-              <div className="animate-in fade-in duration-500">
-                <h3 className="text-3xl font-black text-slate-900 mb-8">
-                  Learning Path
-                </h3>
+            <div className="p-8 space-y-8 max-w-2xl">
+              {/* Name Input */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Full Name
+                </label>
+                <input
+                  disabled={!isEditing}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={`w-full px-5 py-4 rounded-2xl border transition-all outline-none font-medium ${
+                    isEditing 
+                    ? "bg-white border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50" 
+                    : "bg-slate-50 border-transparent text-slate-500"
+                  }`}
+                />
               </div>
-            )}
+
+              {/* Email Input */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Email Address
+                </label>
+                <div className="w-full px-5 py-4 rounded-2xl border border-transparent bg-slate-50 text-slate-400 font-medium flex items-center justify-between">
+                  {userData?.email}
+                  <span className="text-[9px] bg-slate-200 px-2 py-0.5 rounded-md text-slate-500 uppercase">Read Only</span>
+                </div>
+              </div>
+
+              {/* Bio Input */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  About You
+                </label>
+                <textarea
+                  disabled={!isEditing}
+                  rows="4"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className={`w-full px-5 py-4 rounded-2xl border transition-all outline-none resize-none font-medium ${
+                    isEditing 
+                    ? "bg-white border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50" 
+                    : "bg-slate-50 border-transparent text-slate-500"
+                  }`}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </main>

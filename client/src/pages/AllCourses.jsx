@@ -174,6 +174,7 @@ const CoursePage = () => {
                   category={course.category}
                   price={course.Price}
                   id={course._id}
+                  reviews={course.reviews}
                   subtitle={course.subtitle}
                   level={course.level}
                 />

@@ -7,6 +7,7 @@ import authRouter from "./routes/authRoute.js"
 import userRouter from "./routes/userRoute.js"
 import courseRouter from "./routes/courseRoute.js"
 import paymentRouter from "./routes/paymentRoute.js"
+import reviewRouter from "./routes/reviewRouter.js"
 dotenv.config()
 
 const app = express()
@@ -22,6 +23,7 @@ app.use("/api/auth" , authRouter);
 app.use("/api/user/",userRouter);
 app.use("/api/course",courseRouter)
 app.use("/api/payment",paymentRouter)
+app.use("/api/review",reviewRouter)
 
 app.get("/",(req,res) => {
   res.send("Hello from server");

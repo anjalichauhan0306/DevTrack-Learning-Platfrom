@@ -47,6 +47,7 @@ const CardPage = () => {
                             price={course.Price} 
                             id={course._id} 
                             subtitle={course.subtitle}
+                            reviews={course.reviews}
                             level={course.level}
                         />
                     ))}

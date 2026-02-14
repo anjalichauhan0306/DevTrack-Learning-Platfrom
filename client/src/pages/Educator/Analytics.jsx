@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Users,
   BookOpen,
@@ -7,58 +7,115 @@ import {
   TrendingUp,
   ArrowUpRight,
   Award,
-  Zap,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 import Navbar from "../../component/Nav.jsx";
 import { useSelector } from "react-redux";
-import { CheckCircle } from "lucide-react";
 
 const Analytics = () => {
   const { userData } = useSelector((state) => state.user);
-  const summary = [
-    {
-      label: "Total Students",
-      value: "2,540",
-      icon: Users,
-      color: "from-blue-500 to-indigo-600",
-      shadow: "shadow-blue-200",
-    },
-    {
-      label: "Total Courses",
-      value: "12",
-      icon: BookOpen,
-      color: "from-purple-500 to-pink-600",
-      shadow: "shadow-purple-200",
-    },
-    {
-      label: "Total Earnings",
-      value: "$18,245",
-      icon: DollarSign,
-      color: "from-emerald-400 to-teal-600",
-      shadow: "shadow-emerald-200",
-    },
-    {
-      label: "Avg. Rating",
-      value: "4.9",
-      icon: Star,
-      color: "from-orange-400 to-amber-600",
-      shadow: "shadow-orange-200",
-    },
-  ];
+  const { creatorCourseData } = useSelector((state) => state.course);
+
+  // 1. Prepare Summary Data
+  const summaryStats = useMemo(() => {
+    const totalCourses = creatorCourseData?.length || 0;
+    const totalStudents =
+      creatorCourseData?.reduce(
+        (acc, curr) => acc + (curr.enrolledStudents?.length || 0),
+        0,
+      ) || 0;
+
+    const totalEarnings =
+      creatorCourseData?.reduce(
+        (sum, course) =>{
+          const studentCount = course.enrolledStudents?.length || 0;
+          const courseRevenue = course.Price ? course.Price * studentCount : 0;
+
+          return sum + courseRevenue
+        },0) || 0;
+
+    return [
+      {
+        label: "Total Students",
+        value: totalStudents.toLocaleString(),
+        icon: Users,
+        color: "from-blue-500 to-indigo-600",
+        shadow: "shadow-blue-200",
+      },
+      {
+        label: "Total Courses",
+        value: totalCourses,
+        icon: BookOpen,
+        color: "from-purple-500 to-pink-600",
+        shadow: "shadow-purple-200",
+      },
+      {
+        label: "Total Earnings",
+        value: `$${totalEarnings.toLocaleString()}`,
+        icon: DollarSign,
+        color: "from-emerald-400 to-teal-600",
+        shadow: "shadow-emerald-200",
+      },
+      {
+        label: "Avg. Rating",
+        value: "4.9",
+        icon: Star,
+        color: "from-orange-400 to-amber-600",
+        shadow: "shadow-orange-200",
+      },
+    ];
+  }, [creatorCourseData]);
+
+  const sortedCourses = creatorCourseData ? [...creatorCourseData].sort((a, b) => {
+  return (b.enrolledStudents?.length || 0) - (a.enrolledStudents?.length || 0);
+}) : [];
+
+const popularCourses = sortedCourses.slice(0, 4);
+
+  const chartData = useMemo(
+    () =>
+      creatorCourseData?.map((course) => ({
+        name: course.title?.slice(0, 10) + "...",
+        students: course.enrolledStudents?.length || 0,
+        fullName: course.title,
+      })),
+    [creatorCourseData],
+  );
+
+  const lectureData = useMemo(
+    () =>
+      creatorCourseData?.map((course) => ({
+        name: course.title?.slice(0, 10) + "...",
+        lectures: course.lectures?.length || 0, 
+        fullName: course.title,
+      })),
+    [creatorCourseData],
+  );
+
+
+
+  const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#f59e0b"];
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] font-sans pb-20">
       <Navbar />
 
-      {/* Dynamic Header Section */}
       <div className="bg-[#0a0a23] pt-32 pb-30 px-3 md:px-10 clip-path-slant">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* Profile Identity Section (Left Side) */}
-
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative group">
               <div className="absolute -inset-1 bg-linear-to-tr from-indigo-500 to-cyan-400 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-              <div className="relative bg-[#1a1a40] p-1 rounded-[2.5rem] border border-white/10 shadow-1xl">
+
+              <div className="relative bg-[#1a1a40] p-1 rounded-[2.5rem] border border-white/10">
                 <img
                   src={
                     userData?.photoUrl ||
@@ -67,32 +124,33 @@ const Analytics = () => {
                   className="w-22 h-22 md:w-30 md:h-30 rounded-[2.2rem] object-cover"
                   alt="Educator"
                 />
-                <div className="absolute top-4 right-4 w-2 h-2 bg-emerald-500 border-4 border-[#1a1a40] rounded-full shadow-lg shadow-emerald-500/20"></div>
               </div>
             </div>
 
-            {/* Name, Email & Courses Info */}
-            <div className="text-center md:text-left flex flex-col justify-center">
-              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                {userData?.name || "Arjun Mehta"}
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-white">
+                {userData?.name || "Educator"}
               </h1>
 
-              <p className="text-slate-400 font-sm mt-1 flex items-center text-[14px] justify-center md:justify-start gap-2">
-                {userData?.email || "arjun.dev@example.com"}
-              </p>
+              <p className="text-slate-400 text-sm mt-1">{userData?.email}</p>
 
-              {/* Horizontal Stats for Courses */}
-              <div className="mt-6 flex items-center justify-center md:justify-start gap-8">
+              <div className="mt-6 flex gap-8 justify-center md:justify-start">
                 <div className="flex flex-col">
-                  <span className="text-indigo-400 font-black text-xl">12</span>
-                  <span className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">
+                  <span className="text-indigo-400 font-black text-xl">
+                    {creatorCourseData?.length || 0}
+                  </span>
+
+                  <span className="text-slate-500 text-[9px] font-bold uppercase">
                     Total Courses
                   </span>
                 </div>
-                <div className="w-px h-9 bg-white/10"></div>
+
                 <div className="flex flex-col">
-                  <span className="text-white font-black text-xl">2.5k</span>
-                  <span className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">
+                  <span className="text-white font-black text-xl">
+                    {summaryStats[0].value}
+                  </span>
+
+                  <span className="text-slate-500 text-[9px] font-bold uppercase">
                     Active Students
                   </span>
                 </div>
@@ -100,36 +158,31 @@ const Analytics = () => {
             </div>
           </div>
 
-          {/* Main Revenue Glass Card */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[2.5rem] relative overflow-hidden group">
-            <div className="relative z-10">
-              <p className="text-slate-300 text-[9px] font-bold">
-                Monthly Payout
-              </p>
-              <h2 className="text-2xl font-black text-white mt-2 tracking-tighter">
-                $2,400.00
-              </h2>
-              <div className="flex items-center gap-3 mt-6">
-                <div className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold flex items-center gap-1 text-[12px]">
-                  <ArrowUpRight size={12} /> +18.4%
-                </div>
-              </div>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[2.5rem]">
+            <p className="text-slate-300 text-[9px] font-bold">
+              Estimated Revenue
+            </p>
+
+            <h2 className="text-2xl font-black text-white mt-2">
+              {summaryStats[2].value}
+            </h2>
+
+            <div className="mt-6 inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
+              <ArrowUpRight size={12} /> +12.5% this month
             </div>
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl group-hover:bg-indigo-500/40 transition-all"></div>
           </div>
         </div>
       </div>
 
-      {/* Overlapping Content Container */}
       <main className="max-w-7xl mx-auto px-6 md:px-10 -mt-20">
         {/* Bento Summary Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {summary.map((item, i) => (
+          {summaryStats.map((item, i) => (
             <div
               key={i}
-              className={`bg-white p-2 rounded-4xl border border-white shadow-xl ${item.shadow} hover:-translate-y-2 transition-all duration-300`}
+              className={`bg-white p-6 rounded-4xl shadow-xl ${item.shadow} hover:-translate-y-1 transition-all`}
             >
-              <div className="flex items-center gap-4 p-4">
+              <div className="flex items-center gap-4">
                 <div
                   className={`w-12 h-12 bg-linear-to-br ${item.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}
                 >
@@ -149,130 +202,125 @@ const Analytics = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Chart Section - Takes 8 cols */}
-          <div className="lg:col-span-8 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                Student Retention
-              </h3>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 bg-slate-50 rounded-xl text-xs font-bold text-slate-600 hover:bg-indigo-600 hover:text-white transition">
-                  Week
-                </button>
-                <button className="px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-200">
-                  Month
-                </button>
-              </div>
-            </div>
-
-            <div className="h-64 flex items-end gap-4">
-              {[40, 70, 45, 90, 65, 80, 55, 95, 70, 85].map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 flex flex-col items-center gap-3 group"
-                >
-                  <div
-                    className="w-full bg-slate-100 rounded-2xl group-hover:bg-indigo-600 transition-all duration-500 relative"
-                    style={{ height: `${h}%` }}
+          {/* Chart 1: Enrollments */}
+          <div className="lg:col-span-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">
+              Enrollment Analytics
+            </h3>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f1f5f9"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#94a3b8", fontSize: 10 }}
+                    dy={10}
+                  />
+                  <YAxis hide />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "16px",
+                      border: "none",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Bar
+                    dataKey="students"
+                    radius={[10, 10, 10, 10]}
+                    barSize={35}
                   >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      {h}%
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400">
-                    0{i + 1}
-                  </span>
-                </div>
-              ))}
+                    {chartData?.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Achievement Card - Takes 4 cols */}
-          <div className="lg:col-span-4 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-300">
-            <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6">
-                <Award size={30} className="text-yellow-300" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold leading-tight mb-2">
-                  Top Performer <br />
-                  Badge!
-                </h3>
-                <p className="text-indigo-100 text-sm leading-relaxed mb-6">
-                  Your course completion rate is 25% higher than the global
-                  average.
-                </p>
-                <button className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-bold text-sm shadow-xl hover:scale-[1.02] transition-transform">
-                  Share Milestone
-                </button>
-              </div>
+          {/* Chart 2: Lectures (Progress) */}
+          <div className="lg:col-span-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <h3 className="text-xl font-bold text-slate-900 mb-8">
+              Course Content (Lectures)
+            </h3>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={lectureData}>
+                  {" "}
+                  {/* Data fixed: lectureData use kiya */}
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f1f5f9"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#94a3b8", fontSize: 10 }}
+                    dy={10}
+                  />
+                  <YAxis hide />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "16px",
+                      border: "none",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Bar
+                    dataKey="lectures"
+                    radius={[10, 10, 10, 10]}
+                    barSize={35}
+                  >
+                    {" "}
+                    {/* dataKey fixed: lectures use kiya */}
+                    {lectureData?.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            {/* Decorative element */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
           </div>
 
-          {/* Table Section - Full width list style */}
+          {/* Table Section */}
           <div className="lg:col-span-12 mt-4">
-            <div className="flex justify-between items-center mb-6 px-4">
-              <h3 className="text-xl font-bold text-slate-800">
-                Popular Content
-              </h3>
-              <TrendingUp size={20} className="text-indigo-600" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                {
-                  name: "React Mastery 2026",
-                  sales: "1.2k",
-                  trend: "+12%",
-                  color: "bg-blue-500",
-                },
-                {
-                  name: "Fullstack Architecture",
-                  sales: "840",
-                  trend: "+5%",
-                  color: "bg-purple-500",
-                },
-                {
-                  name: "Modern CSS Mastery",
-                  sales: "2.1k",
-                  trend: "+24%",
-                  color: "bg-pink-500",
-                },
-                {
-                  name: "Backend with Node",
-                  sales: "560",
-                  trend: "-2%",
-                  color: "bg-orange-500",
-                },
-              ].map((course, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between hover:border-indigo-200 transition-colors cursor-pointer group shadow-sm"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-3 h-12 rounded-full ${course.color} opacity-20 group-hover:opacity-100 transition-opacity`}
-                    ></div>
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
-                        {course.name}
-                      </h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                        Total Students: {course.sales}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-xs font-black ${course.trend.includes("+") ? "text-emerald-500" : "text-rose-500"}`}
-                  >
-                    {course.trend}
-                  </div>
-                </div>
-              ))}
-            </div>
+  <h3 className="text-xl font-bold text-slate-800 mb-6 px-4">Most Popular Courses</h3>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {popularCourses.map((course, idx) => (
+      <div key={idx} className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all">
+        <div className="flex items-center gap-4">
+          {/* Rank Circle */}
+          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
+            #{idx + 1}
           </div>
+          <div>
+            <h4 className="font-bold text-slate-800 text-sm">{course.title}</h4>
+            <p className="text-[11px] text-slate-500">
+              <span className="text-indigo-600 font-bold">{course.enrolledStudents?.length || 0}</span> Students enrolled
+            </p>
+          </div>
+        </div>
+        <div className="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
+          <TrendingUp size={16} />
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
         </div>
       </main>
     </div>

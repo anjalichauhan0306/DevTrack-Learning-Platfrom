@@ -7,70 +7,74 @@ dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const createStripePayment = async (req, res) => {
+export const createStripeCheckout = async (req, res) => {
   try {
-    const { courseId } = req.body;
+    const { courseId, userId } = req.body;
 
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: course.Price * 100, // paisa in paise
-      currency: "inr",
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            product_data: {
+              name: course.title,
+            },
+            unit_amount: course.Price * 100,
+          },
+          quantity: 1,
+        },
+      ],
       metadata: {
         courseId: courseId.toString(),
+        userId: userId.toString(),
       },
+      success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:5173/viewcourse/${courseId}`,
     });
 
-    return res.status(200).json({
-      clientSecret: paymentIntent.client_secret,
-    });
+    res.status(200).json({ url: session.url });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: `Failed to create Stripe Payment ${error.message}`,
+    res.status(500).json({
+      message: "Stripe Checkout failed",
+      error: error.message,
     });
   }
 };
-
-export const verifyStripePayment = async (req, res) => {
+export const verifyCheckout = async (req, res) => {
   try {
-    const { paymentIntentId, userId, courseId } = req.body;
+    const { sessionId } = req.body;
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (paymentIntent.status === "succeeded") {
+    if (session.payment_status === "paid") {
+      const { courseId, userId } = session.metadata;
+
       const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      const course = await Course.findById(courseId);
 
       if (!user.enrolledCourses.includes(courseId)) {
         user.enrolledCourses.push(courseId);
         await user.save();
       }
 
-      const course = await Course.findById(courseId);
-
       if (!course.enrolledStudents.includes(userId)) {
         course.enrolledStudents.push(userId);
         await course.save();
       }
 
-      return res.status(200).json({
-        message: "Payment verified and enrollment successful",
-      });
+      return res.status(200).json({ message: "Enrollment successful" });
     }
 
-    return res.status(400).json({
-      message: "Payment not completed",
-    });
+    res.status(400).json({ message: "Payment not completed" });
   } catch (error) {
-    return res.status(500).json({
-      message: `Payment verification failed ${error.message}`,
-    });
+    res.status(500).json({ message: "Verification failed" });
   }
 };
 

@@ -23,15 +23,25 @@ import ViewCourse from "./pages/ViewCourse";
 import ScrollToTop from "./component/ScrollToTop";
 import MyLearning from "./pages/MyLeaning";
 export const serverURL = "http://localhost:5000";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import PaymentSuccess from "./component/paymentSuccess";
+import GetAllReviews from "./customHooks/getAllReviews";
+
+const stripePromise = loadStripe(
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+);
 
 const App = () => {
   GetCurrentUser(); 
   GetCreatorCourse();
   GetPublishedCourse();
+  GetAllReviews();
   const { userData } = useSelector(state => state.user);
 
   return ( 
     <>
+    <Elements stripe={stripePromise}>
       <ToastContainer position="top-right" autoClose={3000} />
        <ScrollToTop />
       <Routes>
@@ -44,6 +54,10 @@ const App = () => {
           path="/login"
           element={!userData ? <Login /> : <Navigate to="/" />}
         />
+
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+
+
         <Route
           path="/forgot"
           element={!userData ? <ForgotPassword /> : <Navigate to="/" />}
@@ -61,7 +75,7 @@ const App = () => {
 
         <Route 
         path="/analytics"
-        element={!userData?.role === "educator" ?  <Analytics /> :  <Navigate to="/signup" />}
+        element={userData?.role === "educator" ?   <Navigate to="/signup" /> : <Analytics /> }
         />
         
         <Route 
@@ -71,7 +85,7 @@ const App = () => {
 
         <Route 
         path="/students"
-        element={userData?.role === "educator" ? <Students/> : <Navigate to="/signup" /> }
+        element={userData?.role === "educator" ? <Navigate to="/signup" /> : <Students/> }
         />
 
         <Route 
@@ -111,7 +125,8 @@ const App = () => {
         />
       
       </Routes>
-    </>
+      </Elements>
+      </>
   );
 };
 

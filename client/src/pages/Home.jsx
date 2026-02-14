@@ -14,8 +14,8 @@ import CardPage from "../component/CardPage.jsx";
 import { useNavigate } from "react-router-dom";
 import About from "../component/About.jsx";
 import Footer from "../component/Footer.jsx";
-import ContactSection from "../component/Contact.jsx";
 import FAQ from "../component/FAQ.jsx";
+import ReviewPage from "../component/Reviewpage.jsx";
 
 const Home = () => {
   const navigate = useNavigate()
@@ -116,7 +116,7 @@ const Home = () => {
           </svg>
         </div>
       </section>
-      <div className="-mt-8 relative z-20">
+      <div className="-mt-4 bg-white relative z-20">
         <Logos />
       </div>
       <section className="py-24 max-w-7xl mx-auto px-6">
@@ -168,6 +168,7 @@ const Home = () => {
       <CardPage />
       <About />
       <FAQ />
+      <ReviewPage />
       <Footer />
     </div>
   );

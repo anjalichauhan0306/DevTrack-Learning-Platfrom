@@ -16,6 +16,7 @@ import GetCreatorCourse from "./customHooks/getCreatorCourse";
 import ViewLecture from './pages/ViewLecture'
 import EditCourse from "./pages/Educator/EditCourse";
 import GetPublishedCourse from "./customHooks/getPublishedCourse";
+import SearchWithAI from './pages/SearchWithAI'
 import AllCourses from "./pages/AllCourses";
 import CreateLecture from "./pages/Educator/CreateLecture";
 import EditLecture from "./pages/Educator/EditLecture";
@@ -120,9 +121,14 @@ const App = () => {
         />
 
         <Route
-          path="/mylearning/"
-          element={<MyLearning/>}
+          path="/mylearning"
+         element={!userData ?  <Navigate to="/login" /> : <MyLearning />}
         />
+
+        <Route
+          path="/search"
+         element={!userData ?  <Navigate to="/login" /> : <SearchWithAI />}
+        />        
       
       </Routes>
       </Elements>

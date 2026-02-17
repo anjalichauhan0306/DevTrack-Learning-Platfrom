@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { mongo } from 'mongoose'
 
 const lectureSchema = new mongoose.Schema({
     lectureTitle :{
@@ -13,6 +13,10 @@ const lectureSchema = new mongoose.Schema({
     },
     description :{
         type:String,
+    },
+    quiz :{
+        type :mongoose.Schema.Types.ObjectId,
+        ref:"Quiz"
     }
 },{timestamps:true})
 

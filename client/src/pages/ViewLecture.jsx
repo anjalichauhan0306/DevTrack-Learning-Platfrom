@@ -8,6 +8,8 @@ import { FiArrowLeft, FiPlayCircle, FiBookOpen } from "react-icons/fi";
 const ViewLecture = () => {
   const { courseId } = useParams();
   const { courseData } = useSelector((state) => state.course);
+  const {quizData} = useSelector(state=>state.quiz);
+
   
   const selectedCourse = courseData?.find((course) => course._id === courseId);
   const navigate = useNavigate();
@@ -58,7 +60,6 @@ const ViewLecture = () => {
     }
   };
 
-  // Auto Next Lecture
   const playNextLecture = () => {
     const index = selectedCourse.lectures.findIndex(
       (lec) => lec._id === selectedLecture._id,
@@ -79,7 +80,6 @@ const ViewLecture = () => {
     localStorage.setItem("lectureNotes", JSON.stringify(savedNotes));
   };
 
-  // Course Completion
   const totalLectures = selectedCourse?.lectures?.length || 0;
   const completedLectures = Object.values(progress).filter(
     (p) => p.completed,

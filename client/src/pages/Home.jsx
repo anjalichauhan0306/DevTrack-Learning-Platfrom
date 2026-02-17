@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Nav from "../component/Nav.jsx";
 import {
   SearchIcon,
@@ -19,6 +19,7 @@ import ReviewPage from "../component/Reviewpage.jsx";
 
 const Home = () => {
   const navigate = useNavigate()
+
   return (
     <div className="w-full min-h-screen bg-white font-sans selection:bg-indigo-100 selection:text-indigo-900">
       <Nav />

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { setUserData } from "../redux/userSlice";
 
 const Navbar = () => {
-  const { userData } = useSelector((state) => state.user);
+  const { userData } = useSelector(state => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

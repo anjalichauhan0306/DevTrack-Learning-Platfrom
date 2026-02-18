@@ -4,6 +4,7 @@ import {
   createLecture,
   editCourse,
   editLecture,
+  getAllEnrolledStudents,
   getCourseById,
   getCourseLecture,
   getCreatorById,
@@ -34,6 +35,8 @@ courseRouter.get("/courselecture/:courseId",isAuth,getCourseLecture)
 courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videoUrl"),editLecture)
 courseRouter.delete("/deletelecture/:lectureId", isAuth, removeLecture);
 courseRouter.post("/creator",isAuth,getCreatorById)
+courseRouter.get("/getcreator/:creatorId", getCreatorById);
+courseRouter.get("/getenrolled", isAuth, getAllEnrolledStudents);
 
 // For search 
 

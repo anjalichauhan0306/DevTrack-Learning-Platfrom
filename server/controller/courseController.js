@@ -1,7 +1,7 @@
 import Courses from "../model/courseModel.js";
 import uploadOnCloudinary from "../config/cloudnary.js";
 import Lecture from "../model/lectureModel.js";
-import User from "../model/userModel.js"
+import User from "../model/userModel.js";
 export const createCourse = async (req, res) => {
   try {
     const { title, category, description, subTitle, level } = req.body;
@@ -38,7 +38,9 @@ export const createCourse = async (req, res) => {
 
 export const getPublished = async (req, res) => {
   try {
-    const courses = await Courses.find({ isPublished: true }).populate("lectures reviews");
+    const courses = await Courses.find({ isPublished: true }).populate(
+      "lectures reviews",
+    );
 
     if (!courses) {
       return res.status(404).json({ message: "Courses Not Found" });
@@ -54,7 +56,12 @@ export const getPublished = async (req, res) => {
 export const getCreatorCourses = async (req, res) => {
   try {
     const userId = req.userId;
-    const courses = await Courses.find({ creator: userId });
+    const courses = await Courses.find({ creator: userId })
+      .populate("lectures reviews")
+      .populate({
+        path: "enrolledStudents",
+        select: "name email",
+      });
 
     if (!courses) {
       return res.status(400).json({ message: "Courses Not Found" });
@@ -149,7 +156,7 @@ export const removeCourse = async (req, res) => {
       .status(500)
       .json({ message: `failed to Delete Course : ${error.message}` });
   }
-}
+};
 
 export const createLecture = async (req, res) => {
   try {
@@ -169,11 +176,11 @@ export const createLecture = async (req, res) => {
       return res.status(404).json({ message: "Course Not Found" });
     }
 
-      if (course) {
-        course.lectures.push(lecture._id)
-      }
-      
-    await course.populate("lectures")
+    if (course) {
+      course.lectures.push(lecture._id);
+    }
+
+    await course.populate("lectures");
     await course.save();
 
     const updatedCourse = await Courses.findById(courseId).populate("lectures");
@@ -182,7 +189,6 @@ export const createLecture = async (req, res) => {
       lecture,
       course: updatedCourse,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: `Failed to create lecture: ${error.message}`,
@@ -190,105 +196,145 @@ export const createLecture = async (req, res) => {
   }
 };
 
-
-
-export const getCourseLecture = async (req,res) => {
+export const getCourseLecture = async (req, res) => {
   try {
-    const {courseId} = req.params
-    const course = await Courses.findById(courseId)
-    if(!course){
-    return res.status(400).json({message:
-      "Course Id Not Found !"
-    });
+    const { courseId } = req.params;
+    const course = await Courses.findById(courseId);
+    if (!course) {
+      return res.status(400).json({ message: "Course Id Not Found !" });
     }
 
-    await course.populate("lectures")
-    await course.save()
+    await course.populate("lectures");
+    await course.save();
     return res.status(200).json(course);
-
   } catch (error) {
     return res
       .status(500)
-      .json({ message: `failed to get Course lecture By ID: ${error.message}` });
+      .json({
+        message: `failed to get Course lecture By ID: ${error.message}`,
+      });
   }
-}
+};
 
-export const editLecture = async (req,res) => {
+export const editLecture = async (req, res) => {
   try {
-    const {lectureId} = req.params;
-    const {isPreviewFree, lectureTitle,description} =req.body
-    const lecture = await Lecture.findById(lectureId)
-    if(!lecture){
-      return res.status(400).json({message:
-      "Lecture Not Found !"
-    });
-    }
-    
-    let videoUrl 
-    if(req.file){
-      videoUrl =  await uploadOnCloudinary(req.file.path)
-      lecture.videoUrl = videoUrl
-    }
-    if(lectureTitle){
-      lecture.lectureTitle = lectureTitle
+    const { lectureId } = req.params;
+    const { isPreviewFree, lectureTitle, description } = req.body;
+    const lecture = await Lecture.findById(lectureId);
+    if (!lecture) {
+      return res.status(400).json({ message: "Lecture Not Found !" });
     }
 
-    if(description){
-      lecture.description = description
+    let videoUrl;
+    if (req.file) {
+      videoUrl = await uploadOnCloudinary(req.file.path);
+      lecture.videoUrl = videoUrl;
+    }
+    if (lectureTitle) {
+      lecture.lectureTitle = lectureTitle;
     }
 
-      
-    lecture.isPreviewFree = isPreviewFree
-    await lecture.save()
-    
-    return res.status(200).json(lecture)
+    if (description) {
+      lecture.description = description;
+    }
 
+    lecture.isPreviewFree = isPreviewFree;
+    await lecture.save();
+
+    return res.status(200).json(lecture);
   } catch (error) {
     return res
       .status(500)
-      .json({ message: `failed to Edit Course lecture : ${error.message}` }); 
+      .json({ message: `failed to Edit Course lecture : ${error.message}` });
   }
-}
+};
 
-export const removeLecture = async (req,res) => {
+export const removeLecture = async (req, res) => {
   try {
-    const {lectureId} = req.params
-    const lecture =  await Lecture.findByIdAndDelete(lectureId)
-    if(!lecture){
-      return res.status(400).json({message:
-      "Lecture Not Found !"
-    });
+    const { lectureId } = req.params;
+    const lecture = await Lecture.findByIdAndDelete(lectureId);
+    if (!lecture) {
+      return res.status(400).json({ message: "Lecture Not Found !" });
     }
 
     await Courses.updateOne(
-      {lectures : lectureId},
-      {$pull:{lectures:lectureId}}
-    )
-      return res.status(200).json({
-  message: "Lecture Removed!"
-});
-
+      { lectures: lectureId },
+      { $pull: { lectures: lectureId } },
+    );
+    return res.status(200).json({
+      message: "Lecture Removed!",
+    });
   } catch (error) {
-    return res.status(400).json({message:
-      `try again ${error} !`
-    }); 
+    return res.status(400).json({ message: `try again ${error} !` });
   }
-}
+};
 
-
-
-export const getCreatorById = async (req,res) => {
+export const getCreatorById = async (req, res) => {
   try {
-    const {userId} = req.body;
-    const user = await User.findById(userId).select("-password")
+    const { userId } = req.body;
+    const user = await User.findById(userId).select("-password");
 
-    if(!user) {
-       return res.status(400).json({message:
-      "User Not Found !"
-    })}
+    if (!user) {
+      return res.status(400).json({ message: "User Not Found !" });
+    }
 
-    return res.status(200).json(user)
+    return res.status(200).json(user);
   } catch (error) {
-    return res.status(200).json({message : `Failed to get Creator ${error}`})
+    return res.status(200).json({ message: `Failed to get Creator ${error}` });
   }
-}
+};
+
+export const getAllEnrolledStudents = async (req, res) => {
+  try {
+    const educatorId = req.userId;
+
+    const courses = await Courses.find({ creator: educatorId })
+      .populate({
+        path: "enrolledStudents",
+        select: "name email photoUrl lastLogin createdAt"
+      });
+
+    const studentMap = new Map();
+
+    for (const course of courses) {
+      for (const student of course.enrolledStudents) {
+        const id = student._id.toString();
+
+        if (!studentMap.has(id)) {
+          studentMap.set(id, {
+            user: {
+              _id: student._id,
+              name: student.name,
+              email: student.email,
+              photo: student.photoUrl
+            },
+            totalSpend: course.isPaid ? course.Price : 0,
+            courseCount: 1,
+            enrolledCourses: [course.title],
+            enrolledAt: student.createdAt,
+            lastLogin: student.lastLogin || null,
+            progress: 0, // future ready
+            rating: 0 // future ready
+          });
+        } else {
+          const existing = studentMap.get(id);
+
+          existing.courseCount += 1;
+          existing.enrolledCourses.push(course.title);
+
+          if (course.isPaid) {
+            existing.totalSpend += course.Price;
+          }
+        }
+      }
+    }
+
+    res.status(200).json(Array.from(studentMap.values()));
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+

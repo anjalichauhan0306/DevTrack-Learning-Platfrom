@@ -28,6 +28,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import PaymentSuccess from "./component/paymentSuccess";
 import GetAllReviews from "./customHooks/getAllReviews";
+import GetQuiz from "./customHooks/getQuiz";
+import QuizAttempt from "./pages/quizAttempt";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -129,7 +131,11 @@ const App = () => {
           path="/search"
          element={!userData ?  <Navigate to="/login" /> : <SearchWithAI />}
         />        
-      
+
+        <Route
+        path = "/quiz-attempt/:quizId"
+        element={!userData ?  <Navigate to="/login" /> : <QuizAttempt />} />
+
       </Routes>
       </Elements>
       </>

@@ -39,7 +39,7 @@ export const createCourse = async (req, res) => {
 export const getPublished = async (req, res) => {
   try {
     const courses = await Courses.find({ isPublished: true }).populate(
-      "lectures reviews",
+      "lectures reviews quizzes",
     );
 
     if (!courses) {
@@ -57,7 +57,7 @@ export const getCreatorCourses = async (req, res) => {
   try {
     const userId = req.userId;
     const courses = await Courses.find({ creator: userId })
-      .populate("lectures reviews")
+      .populate("lectures reviews quizzes")
       .populate({
         path: "enrolledStudents",
         select: "name email",
@@ -85,7 +85,7 @@ export const editCourse = async (req, res) => {
       level,
       isPublished,
       isPaid,
-      quiz,
+      quizzes,
       certificate,
       Price,
     } = req.body;
@@ -128,7 +128,9 @@ export const editCourse = async (req, res) => {
 export const getCourseById = async (req, res) => {
   try {
     const { courseId } = req.params;
-    let course = await Courses.findById(courseId);
+    let course = await Courses.findById(courseId).
+      populate("lectures reviews quizzes");
+      
     if (!course) {
       return res.status(400).json({ message: "Courses is Not Found" });
     }

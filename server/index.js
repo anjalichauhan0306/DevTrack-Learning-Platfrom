@@ -9,6 +9,7 @@ import courseRouter from "./routes/courseRoute.js"
 import paymentRouter from "./routes/paymentRoute.js"
 import reviewRouter from "./routes/reviewRouter.js"
 import quizRoute from "./routes/quizRoute.js"
+
 dotenv.config()
 
 const app = express()

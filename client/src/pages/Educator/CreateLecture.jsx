@@ -4,8 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { setLectureData } from "../../redux/lectureSliece";
 import img from "../../assets/logo.png";
-import { serverURL } from "../../App.jsx";
+import { serverURL } from "../../App";
 import { toast } from "react-toastify";
+import { FiAward } from "react-icons/fi";
+import { setQuizData } from "../../redux/quizSlice";
 import axios from "axios";
 import {
   FiArrowLeft,
@@ -17,7 +19,11 @@ import {
 } from "react-icons/fi";
 
 const CreateLecture = () => {
+  const { quizData } = useSelector((state) => state.quiz);
+  const [showPreview, setShowPreview] = useState(false);
   const navigate = useNavigate();
+  const [quizLoading, setQuizLoading] = useState(false);
+  const { userData } = useSelector((state) => state.user);
   const { courseId } = useParams();
   const [lectureTitle, setLectureTitle] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +39,7 @@ const CreateLecture = () => {
       const result = await axios.post(
         `${serverURL}/api/course/createlecture/${courseId}`,
         { lectureTitle },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(result.data);
       dispatch(setLectureData([...lectureData, result.data.lecture]));
@@ -47,20 +53,23 @@ const CreateLecture = () => {
   };
 
   const removeLecture = async (lectureId) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await axios.delete(serverURL + `/api/course/deletelecture/${lectureId}`,{withCredentials:true});
+      const result = await axios.delete(
+        serverURL + `/api/course/deletelecture/${lectureId}`,
+        { withCredentials: true },
+      );
       console.log(result.data);
-      setLoading(false)
-      const filterCourse = lectureData.filter(c =>c._id !== lectureId)
-            dispatch(setLectureData(filterCourse))
-       toast.success("Lecture deleted successfully!");
+      setLoading(false);
+      const filterCourse = lectureData.filter((c) => c._id !== lectureId);
+      dispatch(setLectureData(filterCourse));
+      toast.success("Lecture deleted successfully!");
     } catch (error) {
-        toast.error(error.response?.data?.message || "Delete failed");
-        console.log(error);
-        setLoading(false)
+      toast.error(error.response?.data?.message || "Delete failed");
+      console.log(error);
+      setLoading(false);
     }
-  }
+  };
   useEffect(() => {
     const getCourseLecture = async () => {
       try {
@@ -76,6 +85,54 @@ const CreateLecture = () => {
     getCourseLecture();
   }, [courseId, dispatch]);
 
+  useEffect(() => {
+    if (!courseId) return;
+
+    const getQuiz = async () => {
+      try {
+        const result = await axios.get(
+          `${serverURL}/api/quiz/getquiz/${courseId}`,
+          { withCredentials: true },
+        );
+        console.log(result.data);
+        dispatch(setQuizData(result.data.quiz));
+      } catch (error) {
+        toast.error(
+          `Failed to fetch quiz: ${error.response?.data?.message || error.message}`,
+        );
+        console.log("No quiz found");
+      }
+    };
+    getQuiz();
+  }, [courseId, dispatch]);
+
+  const handleGenerateQuiz = async () => {
+    setQuizLoading(true);
+
+    try {
+      const result = await axios.post(
+        serverURL + `/api/quiz/generatequiz/${courseId}`,
+        {},
+        { withCredentials: true },
+      );
+      console.log("Quiz Generation Result:", result.data);
+      dispatch(setQuizData([result.data.quiz]));
+      toast.success("AI Final Exam Generated Successfully 🎓✨");
+      setShowPreview(true);
+    } catch (error) {
+      console.error("Generate Quiz Error:", error);
+      dispatch(setQuizData([]));
+      toast.error(`Quiz generation failed ${error.message}`);
+    } finally {
+      setQuizLoading(false);
+    }
+  };
+
+  const courseQuiz =
+  quizData && quizData.courseId?.toString() === courseId
+    ? quizData
+    : null;
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <header className="h-20 bg-white/70 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 px-8 flex items-center justify-between">
@@ -89,7 +146,7 @@ const CreateLecture = () => {
             </div>
             Back to Course
           </button>
-          <div className="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
+          <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
           <div>
             <h1 className="text-lg font-bold text-slate-800 leading-tight">
               Curriculum Designer
@@ -156,6 +213,31 @@ const CreateLecture = () => {
                 </>
               )}
             </button>
+
+            <div className="mt-6">
+              {!courseQuiz ? (
+                <button
+                  disabled={quizLoading}
+                  onClick={handleGenerateQuiz}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg"
+                >
+                  {quizLoading ? (
+                    <ClipLoader size={18} color="white" />
+                  ) : (
+                    <>
+                      <FiAward /> Generate Final Exam
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowPreview(true)}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg"
+                >
+                  <FiCheckCircle /> Preview Final Exam
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="mt-12 p-6 bg-blue-50 rounded-3xl border border-blue-100">
@@ -178,6 +260,40 @@ const CreateLecture = () => {
                 {lectureData?.length || 0} Modules Created
               </div>
             </div>
+
+            {showPreview && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div className="bg-white w-[90%] max-w-2xl p-6 rounded-2xl max-h-[80vh] overflow-y-auto">
+                  <h2 className="text-xl font-bold mb-4">Final Exam Preview</h2>
+
+                  {courseQuiz?.questions?.map((q, index) => (
+                    <div key={index} className="mb-6">
+                      <p className="font-semibold">
+                        {index + 1}. {q.question}
+                      </p>
+
+                      <ul className="mt-2 space-y-1">
+                        {q.options.map((opt, i) => (
+                          <li
+                            key={i}
+                            className="text-sm bg-slate-100 p-2 rounded-lg"
+                          >
+                            {opt}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-4">
               {lectureData && lectureData.length > 0 ? (
@@ -215,8 +331,9 @@ const CreateLecture = () => {
 
                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
                       <button
-                       onClick={() => removeLecture(lecture._id)}
-                       className="p-3 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors text-slate-400">
+                        onClick={() => removeLecture(lecture._id)}
+                        className="p-3 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors text-slate-400"
+                      >
                         <FiTrash2 size={20} />
                       </button>
                       <button

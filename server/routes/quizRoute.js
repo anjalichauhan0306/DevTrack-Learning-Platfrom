@@ -1,14 +1,11 @@
 import express from "express";
-import {
-  generateQuiz,
-  getQuiz,
-  submitQuiz,
-} from "../controller/quizController.js";
+import { generateQuiz,  getQuizById, submitQuiz } from "../controller/quizController.js";
+import isAuth  from "../middleware/isAuth.js";
+const quizRouter = express.Router();
 
-const router = express.Router();
 
-router.post("/generate/:courseId", generateQuiz);
-router.get("/:courseId", getQuiz);
-router.post("/submit", submitQuiz);
+quizRouter.post("/generatequiz/:courseId", isAuth, generateQuiz);
+quizRouter.get("/getquiz/:quizId", isAuth, getQuizById);
+quizRouter.post("/submit", isAuth, submitQuiz);
 
-export default router;
+export default quizRouter;

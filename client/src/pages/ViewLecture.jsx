@@ -1,47 +1,54 @@
 import axios from "axios";
-import React, { useEffect, useState ,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { serverURL } from "../App";
-import { FiArrowLeft, FiPlayCircle, FiBookOpen } from "react-icons/fi";
+import { toast } from "react-toastify";
+import {
+  FiArrowLeft,
+  FiPlayCircle,
+  FiBookOpen,
+  FiAward,
+  FiLock,
+  FiCheckCircle,
+  FiFileText,
+  FiUser,
+} from "react-icons/fi";
+import { setQuizData } from "../redux/quizSlice";
+import GetQuiz from "../customHooks/getQuiz";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
   const { courseData } = useSelector((state) => state.course);
-  const {quizData} = useSelector(state=>state.quiz);
-
-  
-  const selectedCourse = courseData?.find((course) => course._id === courseId);
   const navigate = useNavigate();
+
+  const selectedCourse = courseData?.find((course) => course._id === courseId);
   const [creatorData, setCreatorData] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
   );
+
   const videoRef = useRef(null);
-
-
   const [progress, setProgress] = useState({});
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  // Q uiz & Certificate Mock States
+  const [quizAttempts, setQuizAttempts] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
 
   useEffect(() => {
     const savedProgress = JSON.parse(
       localStorage.getItem("lectureProgress") || "{}",
     );
     setProgress(savedProgress);
-
     const savedNotes = JSON.parse(localStorage.getItem("lectureNotes") || "{}");
     setNotes(savedNotes[selectedLecture?._id] || "");
-
-    setLoading(false);
   }, [selectedLecture]);
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video || !selectedLecture) return;
-
     const percent = (video.currentTime / video.duration) * 100;
-
     const updated = {
       ...progress,
       [selectedLecture._id]: {
@@ -53,31 +60,11 @@ const ViewLecture = () => {
     setProgress(updated);
     localStorage.setItem("lectureProgress", JSON.stringify(updated));
   };
+
   const handleLoaded = () => {
     const saved = progress[selectedLecture?._id];
-    if (saved && videoRef.current) {
+    if (saved && videoRef.current)
       videoRef.current.currentTime = saved.time || 0;
-    }
-  };
-
-  const playNextLecture = () => {
-    const index = selectedCourse.lectures.findIndex(
-      (lec) => lec._id === selectedLecture._id,
-    );
-
-    if (index < selectedCourse.lectures.length - 1) {
-      setSelectedLecture(selectedCourse.lectures[index + 1]);
-    }
-  };
-
-  // Save Notes
-  const saveNotes = (value) => {
-    setNotes(value);
-
-    const savedNotes = JSON.parse(localStorage.getItem("lectureNotes") || "{}");
-    savedNotes[selectedLecture._id] = value;
-
-    localStorage.setItem("lectureNotes", JSON.stringify(savedNotes));
   };
 
   const totalLectures = selectedCourse?.lectures?.length || 0;
@@ -88,13 +75,17 @@ const ViewLecture = () => {
     ? Math.round((completedLectures / totalLectures) * 100)
     : 0;
 
+  const isCourseFinished = coursePercent === 100;
+  const isCertificateUnlocked = quizScore >= 7;
+  const { quizData } = useSelector(state => state.quiz);
+
   useEffect(() => {
     const handleCreator = async () => {
       if (selectedCourse?.creator) {
         try {
           const result = await axios.post(
-            serverURL + "/api/course/creator",
-            { userId: selectedCourse?.creator },
+            `${serverURL}/api/course/creator`,
+            { userId: selectedCourse.creator },
             { withCredentials: true },
           );
           setCreatorData(result.data);
@@ -106,207 +97,280 @@ const ViewLecture = () => {
     handleCreator();
   }, [selectedCourse]);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* HEADER */}
-      <div className="bg-white border-b sticky top-0 z-10 px-4 py-4">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
-          <button
-            onClick={() => navigate("/")}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <FiArrowLeft className="text-xl text-gray-700" />
-          </button>
-          <h1 className="text-xl font-bold text-gray-800 truncate">
-            {selectedCourse?.title || "Course Player"}
-          </h1>
+  useEffect(() => {
+    if (!courseId) return;
 
-          <div className="ml-auto font-semibold text-blue-600">
-            Progress: {coursePercent}%
+    const getQuiz = async () => {
+      try {
+        const result = await axios.get(
+          `${serverURL}/api/quiz/getquiz/${courseId}`,
+          { withCredentials: true },
+        );
+        console.log(result.data);
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+        console.log("No quiz found");
+      }
+    };
+    getQuiz();
+  }, [courseId, dispatch]);
+
+  console.log("Redux quizData:", quizData);
+console.log("URL courseId:", courseId);
+
+
+ const courseQuiz = selectedCourse?.quizzes?.[0] || null; // first quiz
+
+
+  return (
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* HEADER */}
+      <header className="bg-white  sticky top-0 z-30 px-6 py-4 shadow-sm">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/")}
+              className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+            >
+              <FiArrowLeft className="text-xl" />
+            </button>
+            <h1 className="text-xl font-extrabold text-gray-900 hidden md:block">
+              {selectedCourse?.title}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Overall Progress
+              </span>
+              <span className="text-lg font-black text-blue-600">
+                {coursePercent}%
+              </span>
+            </div>
+            <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+              <div
+                className="bg-blue-600 h-full transition-all duration-1000"
+                style={{ width: `${coursePercent}%` }}
+              ></div>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <main className="max-w-7xl mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT SIDE - VIDEO PLAYER */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-black rounded-2xl overflow-hidden shadow-xl aspect-video flex items-center justify-center">
+      <main className="max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* LEFT COLUMN: VIDEO & INFO (COL-8) */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* VIDEO PLAYER */}
+          <div className="bg-black rounded-[2rem] overflow-hidden shadow-2xl aspect-video border-8 border-white">
             {selectedLecture?.videoUrl ? (
               <video
                 key={selectedLecture.videoUrl}
                 className="w-full h-full"
                 src={selectedLecture.videoUrl}
                 controls
-                controlsList="nodownload"
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoaded}
-                onEnded={playNextLecture}
                 ref={videoRef}
               />
             ) : (
-              <div className="text-white flex flex-col items-center gap-3">
-                <FiPlayCircle className="text-5xl opacity-50" />
-                <p className="text-gray-400">
-                  Select a lecture to start learning
-                </p>
+              <div className="h-full flex items-center justify-center text-white/20">
+                <FiPlayCircle size={80} />
               </div>
             )}
           </div>
 
-          {/* LECTURE DETAILS */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {selectedLecture?.lectureTitle || "Welcome to the course"}
-            </h2>
-
-            <div className="flex flex-wrap gap-4 text-sm mb-4">
-              <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium">
-                {selectedCourse?.category}
-              </span>
-              <span className="bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-medium">
-                {selectedCourse?.level}
-              </span>
-            </div>
-
-            <hr className="my-4" />
-
-            {/* LECTURE DESCRIPTION */}
+          {/* LECTURE INFO BOX */}
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-800 mb-2">
-                What you will learn
-              </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h2 className="text-2xl font-black text-gray-900 mb-2">
+                {selectedLecture?.lectureTitle}
+              </h2>
+              <p className="text-gray-500 leading-relaxed">
                 {selectedLecture?.description ||
-                  "No description available for this lecture."}
+                  "No description provided for this lecture."}
               </p>
             </div>
 
-            {/* QUIZ SECTION */}
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mt-4">
-              <h3 className="font-semibold text-indigo-700 mb-2">
-                Lecture Quiz
-              </h3>
+            {/* FINAL EXAM & CERTIFICATE AREA */}
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-200">
+              <h2 className="text-xl font-black mb-6 flex items-center gap-2">
+                <FiAward className="text-blue-600" /> Course Completion &
+                Rewards
+              </h2>
 
-              {selectedLecture?.quiz ? (
-                <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">
-                  Start Quiz
-                </button>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  No quiz available for this lecture
-                </p>
-              )}
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* FINAL EXAM CARD */}
+                <div
+                  className={`p-6 rounded-2xl border-2 transition-all ${isCourseFinished ? "bg-orange-50 border-orange-200 shadow-md" : "bg-gray-50 border-gray-100 opacity-60"}`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div
+                      className={`p-3 rounded-xl ${isCourseFinished ? "bg-orange-500 text-white" : "bg-gray-300 text-gray-500"}`}
+                    >
+                      <FiFileText className="text-2xl" />
+                    </div>
+                    {!isCourseFinished && <FiLock className="text-gray-400" />}
+                  </div>
+                  <h3 className="font-bold text-lg">Final Exam</h3>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Complete 100% of the course to unlock the exam. (Max 3
+                    attempts)
+                  </p>
 
-            {/* NOTES SECTION */}
-            <div className="mt-6">
-              <h3 className="font-semibold text-gray-800 mb-2">Your Notes</h3>
-              <textarea
-                className="w-full border rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-                rows="4"
-                value={notes}
-                onChange={(e) => saveNotes(e.target.value)}
-                placeholder="Write important points from this lecture..."
-              />
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-orange-700">
+                      Attempts: {quizAttempts}/3
+                    </span>
+                    {isCourseFinished && (
+                      <span className="text-xs font-bold text-green-600">
+                        Unlocked!
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    disabled={
+                      !isCourseFinished || quizAttempts >= 3 || !courseQuiz
+                    }
+                    onClick={() => {
+                      if (courseQuiz?._id) {
+                        navigate(`/quiz-attempt/${courseQuiz._id}`);
+                      }
+                    }}
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
+                      !isCourseFinished
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : quizAttempts >= 3
+                          ? "bg-red-100 text-red-500 cursor-not-allowed"
+                          : !courseQuiz
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-1"
+                    }`}
+                  >
+                    {!isCourseFinished
+                      ? "Complete Course First"
+                      : quizAttempts >= 3
+                        ? "No Attempts Left"
+                        : !courseQuiz
+                          ? "Exam Not Available"
+                          : "Start Final Exam"}
+                  </button>
+                </div>
+
+                {/* CERTIFICATE CARD */}
+                <div
+                  className={`p-6 rounded-2xl border-2 transition-all ${isCertificateUnlocked ? "bg-emerald-50 border-emerald-200 shadow-md" : "bg-gray-50 border-gray-100 opacity-60"}`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div
+                      className={`p-3 rounded-xl ${isCertificateUnlocked ? "bg-emerald-500 text-white" : "bg-gray-300 text-gray-500"}`}
+                    >
+                      <FiAward className="text-2xl" />
+                    </div>
+                    {!isCertificateUnlocked && (
+                      <FiLock className="text-gray-400" />
+                    )}
+                  </div>
+                  <h3 className="font-bold text-lg">Certificate</h3>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Required: Score 7/10 or higher in Final Exam.
+                  </p>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-emerald-700">
+                      Best Score: {quizScore}/10
+                    </span>
+                    {isCertificateUnlocked && (
+                      <FiCheckCircle className="text-emerald-600" />
+                    )}
+                  </div>
+
+                  <button
+                    disabled={!isCertificateUnlocked}
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
+                      isCertificateUnlocked
+                        ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:-translate-y-1"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
+                    }`}
+                  >
+                    {isCertificateUnlocked ? "Download Certificate" : "Locked"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT SIDE - LECTURE LIST */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* LECTURE PANEL */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sticky top-24 max-h-[70vh]">
-            <div className="p-4 border-b">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <FiBookOpen /> Course Content
+        {/* RIGHT COLUMN: SYLLABUS & INSTRUCTOR (COL-4) */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* SYLLABUS PANEL */}
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b bg-gray-50/50 flex justify-between items-center">
+              <h3 className="font-black text-sm uppercase tracking-tighter flex items-center gap-2">
+                <FiBookOpen className="text-blue-600" /> Course Content
               </h3>
+              <span className="text-xs font-bold text-gray-400">
+                {completedLectures}/{totalLectures}
+              </span>
             </div>
-
-            {/* LECTURE LIST */}
-            <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
+            <div className="max-h-125 overflow-y-auto p-4 space-y-3">
               {selectedCourse?.lectures?.map((lecture, index) => {
-                const lectureProgress = progress[lecture._id]?.percent || 0;
                 const isCompleted = progress[lecture._id]?.completed;
-
+                const isActive = selectedLecture?._id === lecture._id;
                 return (
                   <button
                     key={index}
                     onClick={() => setSelectedLecture(lecture)}
-                    className={`w-full text-left p-4 rounded-xl mb-2 transition-all border ${
-                      selectedLecture?._id === lecture._id
-                        ? "bg-blue-50 border-blue-200"
-                        : "hover:bg-gray-50 border-gray-100"
-                    }`}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${isActive ? "bg-blue-600 text-white shadow-lg" : "hover:bg-gray-50 bg-white border border-gray-100"}`}
                   >
-                    <div className="flex items-center gap-3">
-                      {/* Play or Completed Icon */}
-                      <div>
-                        {isCompleted ? (
-                          <span className="text-green-600 text-lg">✔</span>
-                        ) : (
-                          <FiPlayCircle
-                            className={`text-lg ${
-                              selectedLecture?._id === lecture._id
-                                ? "text-blue-600"
-                                : "text-gray-400"
-                            }`}
-                          />
-                        )}
-                      </div>
-
-                      <div className="flex-1">
-                        <p
-                          className={`text-sm font-semibold ${
-                            selectedLecture?._id === lecture._id
-                              ? "text-blue-700"
-                              : "text-gray-700"
-                          }`}
-                        >
-                          {lecture.lectureTitle}
-                        </p>
-
-                        {/* Progress Bar */}
-                        <div className="w-full bg-gray-200 h-1 rounded mt-2">
-                          <div
-                            className="bg-green-500 h-1 rounded transition-all"
-                            style={{ width: `${lectureProgress}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <span className="text-xs text-gray-400">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
+                    <div
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? "bg-white/20" : isCompleted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}
+                    >
+                      {isCompleted ? "✓" : index + 1}
                     </div>
+                    <span className="flex-1 text-left text-sm font-bold truncate">
+                      {lecture.lectureTitle}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* ===== INSTRUCTOR CARD - ALAG LOOK ===== */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 fixed">
-            <p className="text-sm text-gray-500 mb-3 font-semibold">
-              Course Instructor
-            </p>
-
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+          {/* INSTRUCTOR PANEL */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <FiUser /> Your Instructor
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-700 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-100">
                 {creatorData?.name?.charAt(0) || "I"}
               </div>
-
               <div>
-                <p className="font-semibold text-gray-800">
-                  {creatorData?.name}
+                <h4 className="font-bold text-gray-900">
+                  {creatorData?.name || "Instructor Name"}
+                </h4>
+                <p className="text-xs text-blue-600 font-semibold">
+                  Senior Course Mentor
                 </p>
-
-                <p className="text-xs text-gray-500">Professional Instructor</p>
               </div>
             </div>
-
-            <div className="mt-3 text-xs text-gray-500">
-              Learn directly from experienced mentor with structured content.
+            <div className="mt-4 p-3 bg-blue-50 rounded-xl text-[11px] text-blue-700 leading-relaxed font-medium">
+              Professional mentor helping you master this course with
+              step-by-step guidance.
             </div>
+          </div>
+
+          {/* NOTES QUICK BOX */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-bold mb-3">Quick Notes</h3>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Type something..."
+              className="w-full bg-gray-50 border-none rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-100"
+              rows="3"
+            ></textarea>
           </div>
         </div>
       </main>

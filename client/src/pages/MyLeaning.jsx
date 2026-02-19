@@ -40,7 +40,7 @@ const MyLearning = () => {
           </p>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-6 pb-24">
+      <main className="max-w-6xl mx-auto px-5 pb-20">
         {userData?.enrolledCourses?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {userData.enrolledCourses.map((course, index) => {
@@ -48,10 +48,11 @@ const MyLearning = () => {
 
               return (
                 <div
+                  onClick={() => navigate(`/viewlecture/${course._id}`)}
                   key={index}
                   className="group bg-[#0f0f2d] border border-white/5 rounded-3xl overflow-hidden hover:border-indigo-500/50 hover:shadow-[0_0_30px_rgba(79,70,229,0.15)] transition-all duration-500 flex flex-col"
                 >
-                  <div className="relative aspect-video">
+                  <div className="relative aspect-[16/9] overflow-hidden">
                     <img
                       src={course.thumbnail}
                       alt={course.title}
@@ -59,7 +60,7 @@ const MyLearning = () => {
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-[#0f0f2d] via-transparent to-transparent opacity-60"></div>
                     <button
-                      onClick={() => navigate(`/view-lecture/${course._id}`)}
+                      onClick={() => navigate(`/viewlecture/${course._id}`)}
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white p-4 rounded-full shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300"
                     >
                       <FiPlay size={24} fill="currentColor" />
@@ -87,7 +88,7 @@ const MyLearning = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/view-lecture/${course._id}`)}
+                      onClick={() => navigate(`/viewlecture/${course._id}`)}
                       className="mt-auto flex items-center justify-center gap-2 w-full bg-white/5 border border-white/10 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-600 hover:border-indigo-600 transition-all duration-300"
                     >
                       {progressPercent > 0 ? "Continue" : "Start Now"}

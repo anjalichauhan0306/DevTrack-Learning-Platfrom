@@ -3,11 +3,13 @@ import { Search, Mail, Calendar, CreditCard, Star, GraduationCap, Zap } from "lu
 import Navbar from "../../component/Nav.jsx";
 import axios from "axios";
 import { serverURL } from "../../App.jsx";
+import { useSelector } from "react-redux";
 
 const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const {courseData} = useSelector(state => state.course);
 
   const fetchStudents = async () => {
     try {
@@ -37,32 +39,42 @@ const StudentsPage = () => {
     return { label: "VIP ✨", color: "bg-amber-50 text-amber-700 border-amber-200" };
   };
 
+  console.log(students);
   const getProcessedList = () => {
-    const search = searchTerm.toLowerCase();
-    const studentMap = new Map();
+  const search = searchTerm.toLowerCase();
+  const studentMap = new Map();
 
-    students.forEach((item) => {
-      const id = item.user?._id || item._id;
-      if (!studentMap.has(id)) {
-        studentMap.set(id, {
-          ...item,
-          totalSpend: item.price || 0,
-          courseCount: 1,
-          allCourses: [item.courseId?.courseTitle]
-        });
-      } else {
-        const existing = studentMap.get(id);
-        existing.totalSpend += (item.price || 0);
-        existing.courseCount += 1;
-        existing.allCourses.push(item.courseId?.courseTitle);
+
+  students.forEach((item) => {
+    const id = item.user?._id;
+    if (!id) return;
+    if (!studentMap.has(id)) {
+      studentMap.set(id, {
+        user: item.user,
+        totalSpend: item.totalSpend || 0, // ensure numeric
+        courseCount: 1,
+        enrolledAt: item.enrolledAt,
+        allCourses: [item.courseId?.courseTitle]
+      });
+    } else {
+      const existing = studentMap.get(id);
+      existing.totalSpend += price; // add price of this course
+      existing.courseCount += 1;
+      existing.allCourses.push(item.courseId?.courseTitle);
+
+      // latest enrollment date store karo
+      if (new Date(item.enrolledAt) > new Date(existing.enrolledAt)) {
+        existing.enrolledAt = item.enrolledAt;
       }
-    });
+    }
+  });
 
-    return Array.from(studentMap.values()).filter(s =>
-      (s.user?.name || s.name || "").toLowerCase().includes(search) ||
-      (s.user?.email || s.email || "").toLowerCase().includes(search)
-    );
-  };
+  // search filter
+  return Array.from(studentMap.values()).filter(s =>
+    (s.user?.name || "").toLowerCase().includes(search) ||
+    (s.user?.email || "").toLowerCase().includes(search)
+  );
+};
 
   const finalStudentsList = getProcessedList();
 

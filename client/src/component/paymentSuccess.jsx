@@ -3,16 +3,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverURL } from "../App";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const sessionId = new URLSearchParams(location.search).get("session_id");
 
     if (sessionId) {
-      axios.post(
+
+      const result = axios.post(
         serverURL + "/api/payment/verifypayment",
         { sessionId },
         { withCredentials: true }
@@ -21,8 +25,8 @@ const PaymentSuccess = () => {
         toast.success("Enrollment Successful 🎉");
         navigate("/mylearning");
       })
-      .catch(() => {
-        toast.error("Verification Failed");
+      .catch((error) => {
+        toast.error(` ${error}. || "Unknown error"}`);
       });
     }
   }, []);

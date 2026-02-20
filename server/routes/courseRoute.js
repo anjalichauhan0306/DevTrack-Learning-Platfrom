@@ -16,29 +16,42 @@ import {
 import isAuth from "../middleware/isAuth.js";
 import upload from "../middleware/multer.js";
 import { searchWithAi } from "../controller/searchAiController.js";
+import { generateCertificate } from "../controller/certificateController.js";
 
 const courseRouter = express.Router();
 
 courseRouter.post("/create", isAuth, upload.single("thumbnail"), createCourse);
 courseRouter.get("/getpublished", getPublished);
 courseRouter.get("/getcreator", isAuth, getCreatorCourses);
-courseRouter.post("/editcourse/:courseId",isAuth,upload.single("thumbnail"),editCourse,);
+courseRouter.post(
+  "/editcourse/:courseId",
+  isAuth,
+  upload.single("thumbnail"),
+  editCourse,
+);
 
 courseRouter.get("/getcourse/:courseId", isAuth, getCourseById);
 courseRouter.delete("/delete/:courseId", isAuth, removeCourse);
 
-
 // For Lecture
 
-courseRouter.post("/createlecture/:courseId",isAuth,createLecture)
-courseRouter.get("/courselecture/:courseId",isAuth,getCourseLecture)
-courseRouter.post("/editlecture/:courseId/:lectureId",isAuth,upload.single("videoUrl"),editLecture)
+courseRouter.post("/createlecture/:courseId", isAuth, createLecture);
+courseRouter.get("/courselecture/:courseId", isAuth, getCourseLecture);
+courseRouter.post(
+  "/editlecture/:courseId/:lectureId",
+  isAuth,
+  upload.single("videoUrl"),
+  editLecture,
+);
 courseRouter.delete("/deletelecture/:lectureId", isAuth, removeLecture);
-courseRouter.post("/creator",isAuth,getCreatorById)
+courseRouter.post("/creator", isAuth, getCreatorById);
 courseRouter.get("/getcreator/:creatorId", getCreatorById);
 courseRouter.get("/getenrolled", isAuth, getAllEnrolledStudents);
 
-// For search 
+// For search
+courseRouter.post("/search", searchWithAi);
 
-courseRouter.post("/search",searchWithAi)
+// For certificate
+courseRouter.get("/certificate/:courseId", isAuth,generateCertificate );
+
 export default courseRouter;

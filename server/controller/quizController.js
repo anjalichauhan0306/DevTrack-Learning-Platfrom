@@ -2,7 +2,6 @@ import { Quiz } from "../model/quizModel.js";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import Course from "../model/courseModel.js";
-import User from "../model/userModel.js";
 
 dotenv.config();
 
@@ -35,10 +34,7 @@ export const generateQuiz = async (req, res) => {
       return res.status(400).json({ message: "Quiz already generated" });
     }
 
-    // Create empty quiz with correct userId
     newQuiz = await Quiz.create({ userId, courseId, questions: [] });
-
-    // AI Prompt
     const prompt = `
 Generate 10 technical multiple choice questions for the course titled:
 genearate the questions based on the course title and the lecture titles of the course.  The questions should be in English. Each question should have 4 options and only 1 correct answer. Also provide a brief explanation for the correct answer. Format the response in JSON as shown below: "${course.title}"
@@ -112,39 +108,6 @@ await course.save();
   }
 };
 
-/* ======================================
-   GET QUIZ
-====================================== */
-// export const getQuizById = async (req, res) => {
-//   try {
-//     const { courseId } = req.params;
-//     const quizId = await Quiz.findOne({ courseId }).select("_id");
-
-//     if(quizId){
-//       const quiz = await Quiz.findById(quizId);
-//       if (!quiz) return res.status(404).json({ message: "Quiz not found" });
-//       return res.status(200).json({ quiz });  
-//     }
-
-//     if(!quizId){
-//       return res.status(400).json({ message: "Quiz ID missing" });
-//     }
-    
-//     const userId = req.userId;
-//     if (!courseId)
-//       return res.status(400).json({ message: "Course ID missing" });
-
-//     const quiz = await Quiz.findOne({ userId, courseId });
-//     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
-
-//     return res.status(200).json({ quiz });
-//   } catch (error) {
-//     console.error("Get Quiz Error:", error);
-//     return res.status(500).json({ message: `Server error: ${error.message}` });
-//   }
-// };
-
-
 // GET Quiz by Course ID
 export const getQuizByCourseId = async (req, res) => {
   try {
@@ -194,15 +157,32 @@ export const submitQuiz = async (req, res) => {
       }
     });
 
-    if (quiz.attempts.length >= MAX_ATTEMPTS) {
-  return res.status(400).json({ message: "Maximum attempts reached" });
+    if (quiz.attempts.length >= 5) {
+  const lastAttempt = quiz.attempts[quiz.attempts.length - 1];
+
+  const now = new Date();
+  const lastDate = new Date(lastAttempt.date);
+
+  const diffHours = (now - lastDate) / (1000 * 60 * 60);
+
+  if (diffHours < 24) {
+    return res.status(400).json({
+      message:
+        "Maximum attempts reached. Please revise the course and try again after 24 hours.",
+    });
+  } else {
+    // 🔥 RESET attempts after 24h
+    quiz.attempts = [];
+  }
 }
 
     quiz.attempts = quiz.attempts || [];
     quiz.attempts.push({ score, total, date: new Date() });
     await quiz.save();
 
+    
     const percentage = Math.round((score / total) * 100);
+
 
     return res.status(200).json({
       message: "Quiz submitted successfully",

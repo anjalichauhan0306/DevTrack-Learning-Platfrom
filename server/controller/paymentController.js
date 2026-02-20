@@ -59,6 +59,10 @@ export const verifyCheckout = async (req, res) => {
       const user = await User.findById(userId);
       const course = await Course.findById(courseId);
 
+      if (!user.enrolledCourses) {
+      user.enrolledCourses = [];
+    }
+    
       if (!user.enrolledCourses.includes(courseId)) {
         user.enrolledCourses.push(courseId);
         await user.save();
@@ -74,6 +78,7 @@ export const verifyCheckout = async (req, res) => {
 
     res.status(400).json({ message: "Payment not completed" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Verification failed" });
   }
 };
@@ -99,7 +104,7 @@ export const freeEnrollCourse = async (req, res) => {
     }
 
     if (!user.enrolledCourses.includes(courseId)) {
-       await user.enrolledCourses.push(courseId);
+        user.enrolledCourses.push(courseId);
       await user.save();
     }
 

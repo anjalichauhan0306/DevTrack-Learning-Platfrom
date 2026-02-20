@@ -2,6 +2,7 @@ import Courses from "../model/courseModel.js";
 import uploadOnCloudinary from "../config/cloudnary.js";
 import Lecture from "../model/lectureModel.js";
 import User from "../model/userModel.js";
+
 export const createCourse = async (req, res) => {
   try {
     const { title, category, description, subTitle, level } = req.body;
@@ -110,8 +111,11 @@ export const editCourse = async (req, res) => {
       level,
       isPublished,
       Price,
-      thumbnail,
     };
+
+    if (thumbnail) {
+      updateData.thumbnail = thumbnail;
+    }
 
     course = await Courses.findByIdAndUpdate(courseId, updateData, {
       new: true,
@@ -128,9 +132,10 @@ export const editCourse = async (req, res) => {
 export const getCourseById = async (req, res) => {
   try {
     const { courseId } = req.params;
-    let course = await Courses.findById(courseId).
-      populate("lectures reviews quizzes");
-      
+    let course = await Courses.findById(courseId).populate(
+      "lectures reviews quizzes",
+    );
+
     if (!course) {
       return res.status(400).json({ message: "Courses is Not Found" });
     }
@@ -151,7 +156,6 @@ export const removeCourse = async (req, res) => {
     }
 
     course = await Courses.findByIdAndDelete(courseId);
-
     return res.status(200).json({ message: "Course Deleted Successfully" });
   } catch (error) {
     return res
@@ -210,11 +214,9 @@ export const getCourseLecture = async (req, res) => {
     await course.save();
     return res.status(200).json(course);
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: `failed to get Course lecture By ID: ${error.message}`,
-      });
+    return res.status(500).json({
+      message: `failed to get Course lecture By ID: ${error.message}`,
+    });
   }
 };
 
@@ -280,9 +282,9 @@ export const getCreatorById = async (req, res) => {
       return res.status(400).json({ message: "User Not Found !" });
     }
 
-    return res.status(200).json(user);
+    return res.status(201).json(user);
   } catch (error) {
-    return res.status(200).json({ message: `Failed to get Creator ${error}` });
+    return res.status(500).json({ message: `Failed to get Creator ${error}` });
   }
 };
 
@@ -290,15 +292,17 @@ export const getAllEnrolledStudents = async (req, res) => {
   try {
     const educatorId = req.userId;
 
-    const courses = await Courses.find({ creator: educatorId })
-      .populate({
-        path: "enrolledStudents",
-        select: "name email photoUrl lastLogin createdAt"
-      });
+    const courses = await Courses.find({ creator: educatorId }).populate({
+      path: "enrolledStudents",
+      select: "name email photoUrl lastLogin createdAt",
+    });
 
     const studentMap = new Map();
 
     for (const course of courses) {
+      const price = course.Price ;
+      console.log(`Price: ${price},`);
+      
       for (const student of course.enrolledStudents) {
         const id = student._id.toString();
 
@@ -308,16 +312,17 @@ export const getAllEnrolledStudents = async (req, res) => {
               _id: student._id,
               name: student.name,
               email: student.email,
-              photo: student.photoUrl
+              photo: student.photoUrl,
             },
-            totalSpend: course.isPaid ? course.Price : 0,
+            totalSpend: price, // first course price
             courseCount: 1,
             enrolledCourses: [course.title],
             enrolledAt: student.createdAt,
             lastLogin: student.lastLogin || null,
-            progress: 0, // future ready
-            rating: 0 // future ready
+            progress: 0, 
+            rating: 0,
           });
+          console.log(`Added new student: ${student.name}, Price: ${price}`);
         } else {
           const existing = studentMap.get(id);
 
@@ -325,18 +330,16 @@ export const getAllEnrolledStudents = async (req, res) => {
           existing.enrolledCourses.push(course.title);
 
           if (course.isPaid) {
-            existing.totalSpend += course.Price;
+            existing.totalSpend += price;
           }
         }
       }
     }
 
     res.status(200).json(Array.from(studentMap.values()));
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 

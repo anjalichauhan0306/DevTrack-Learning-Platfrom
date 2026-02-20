@@ -13,86 +13,74 @@ import {
   FiFileText,
   FiUser,
 } from "react-icons/fi";
+import { setQuizData } from "../redux/quizSlice";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
   const { courseData } = useSelector((state) => state.course);
-  const navigate = useNavigate();
+  const { quizData } = useSelector((state) => state.quiz);
+  const { userData } = useSelector((state) => state.user);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const selectedCourse = courseData?.find((course) => course._id === courseId);
+
   const [creatorData, setCreatorData] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
   );
+  
 
   const videoRef = useRef(null);
-  const [progress, setProgress] = useState({});
   const [notes, setNotes] = useState("");
-  const dispatch = useDispatch();
-  // Q uiz & Certificate Mock States
-  const [quizAttempts, setQuizAttempts] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
 
-  useEffect(() => {
-    const savedProgress = JSON.parse(
-      localStorage.getItem("lectureProgress") || "{}",
-    );
-    setProgress(savedProgress);
-    const savedNotes = JSON.parse(localStorage.getItem("lectureNotes") || "{}");
-    setNotes(savedNotes[selectedLecture?._id] || "");
-  }, [selectedLecture]);
-
-  const handleTimeUpdate = () => {
-    const video = videoRef.current;
-    if (!video || !selectedLecture) return;
-    const percent = (video.currentTime / video.duration) * 100;
-    const updated = {
-      ...progress,
-      [selectedLecture._id]: {
-        percent,
-        time: video.currentTime,
-        completed: percent > 95,
-      },
-    };
-    setProgress(updated);
-    localStorage.setItem("lectureProgress", JSON.stringify(updated));
-  };
-
-  const handleLoaded = () => {
-    const saved = progress[selectedLecture?._id];
-    if (saved && videoRef.current)
-      videoRef.current.currentTime = saved.time || 0;
-  };
-
+  const courseProgress = userData.completedLectures?.find(
+    (c) => c.courseId === courseId,
+  );
+  const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
-  const completedLectures = Object.values(progress).filter(
-    (p) => p.completed,
-  ).length;
   const coursePercent = totalLectures
     ? Math.round((completedLectures / totalLectures) * 100)
     : 0;
 
   const isCourseFinished = coursePercent === 100;
-  const isCertificateUnlocked = quizScore >= 7;
-  const { quizData } = useSelector(state => state.quiz);
 
-  useEffect(() => {
-    const handleCreator = async () => {
-      if (selectedCourse?.creator) {
-        try {
-          const result = await axios.post(
-            `${serverURL}/api/course/creator`,
-            { userId: selectedCourse.creator },
-            { withCredentials: true },
-          );
-          setCreatorData(result.data);
-        } catch (error) {
-          console.log(error);
-        }
+  // Quiz logic
+  const quizAttempts = quizData?.attempts?.length || 0;
+  const isCertificateUnlocked =
+  isCourseFinished && // course 100% complete
+  quizData?.questions?.length > 0 && // quiz loaded
+  quizScore >= Math.ceil(quizData.questions.length * 0.7);
+
+  const handleTimeUpdate = async () => {
+    const video = videoRef.current;
+    if (!video || !selectedLecture) return;
+
+    const percent = (video.currentTime / video.duration) * 100;
+
+    if (percent > 95) {
+      try {
+        const response = await axios.post(
+          `${serverURL}/api/user/update-progress`,
+          {
+            courseId,
+            lectureId: selectedLecture._id,
+            totalLectures: selectedCourse.lectures.length,
+          },
+          { withCredentials: true },
+        );
+
+        // Update UI completion % from server
+        setCoursePercent(response.data.percentage);
+
+        // Optionally, refresh userData in Redux
+        // dispatch(fetchUserData());
+      } catch (err) {
+        console.error("Failed to mark lecture completed", err);
       }
-    };
-    handleCreator();
-  }, [selectedCourse]);
+    }
+  };
 
   useEffect(() => {
     if (!courseId) return;
@@ -103,6 +91,19 @@ const ViewLecture = () => {
           `${serverURL}/api/quiz/getquiz/${courseId}`,
           { withCredentials: true },
         );
+        const quiz = result.data.quiz;
+
+        if (quiz) {
+          dispatch({ type: "SET_QUIZ_DATA", payload: quiz });
+
+          const attempts = quiz.attempts || [];
+
+          const bestScore =
+            attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : 0;
+
+          setQuizScore(bestScore);
+        }
+        dispatch(setQuizData(quiz));
         console.log(result.data);
       } catch (error) {
         console.error("Error fetching quiz:", error);
@@ -112,18 +113,34 @@ const ViewLecture = () => {
     getQuiz();
   }, [courseId, dispatch]);
 
-  console.log("Redux quizData:", quizData);
-console.log("URL courseId:", courseId);
+  const downloadCertificate = async () => {
+    try {
+      const response = await axios.get(
+        `${serverURL}/api/course/certificate/${courseId}`,
+        {
+          withCredentials: true,
+          responseType: "blob",
+        },
+      );
 
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `certificate_${courseId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      alert("Certificate not unlocked yet!");
+    }
+  };
 
- const courseQuiz = selectedCourse?.quizzes?.[0] || null; // first quiz
-
+  const courseQuiz = selectedCourse?.quizzes?.[0] || null;
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* HEADER */}
       <header className="bg-white  sticky top-0 z-30 px-6 py-4 shadow-sm">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+        <div className="max-w-400 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/")}
@@ -154,11 +171,9 @@ console.log("URL courseId:", courseId);
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* LEFT COLUMN: VIDEO & INFO (COL-8) */}
+      <main className="max-w-400 mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
-          {/* VIDEO PLAYER */}
-          <div className="bg-black rounded-[2rem] overflow-hidden shadow-2xl aspect-video border-8 border-white">
+          <div className="bg-black rounded-4xl overflow-hidden shadow-2xl aspect-video border-8 border-white">
             {selectedLecture?.videoUrl ? (
               <video
                 key={selectedLecture.videoUrl}
@@ -166,7 +181,6 @@ console.log("URL courseId:", courseId);
                 src={selectedLecture.videoUrl}
                 controls
                 onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoaded}
                 ref={videoRef}
               />
             ) : (
@@ -175,8 +189,6 @@ console.log("URL courseId:", courseId);
               </div>
             )}
           </div>
-
-          {/* LECTURE INFO BOX */}
           <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
             <div className="mb-6">
               <h2 className="text-2xl font-black text-gray-900 mb-2">
@@ -187,8 +199,6 @@ console.log("URL courseId:", courseId);
                   "No description provided for this lecture."}
               </p>
             </div>
-
-            {/* FINAL EXAM & CERTIFICATE AREA */}
             <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-200">
               <h2 className="text-xl font-black mb-6 flex items-center gap-2">
                 <FiAward className="text-blue-600" /> Course Completion &
@@ -196,7 +206,6 @@ console.log("URL courseId:", courseId);
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* FINAL EXAM CARD */}
                 <div
                   className={`p-6 rounded-2xl border-2 transition-all ${isCourseFinished ? "bg-orange-50 border-orange-200 shadow-md" : "bg-gray-50 border-gray-100 opacity-60"}`}
                 >
@@ -210,13 +219,13 @@ console.log("URL courseId:", courseId);
                   </div>
                   <h3 className="font-bold text-lg">Final Exam</h3>
                   <p className="text-xs text-gray-500 mb-4">
-                    Complete 100% of the course to unlock the exam. (Max 3
+                    Complete 100% of the course to unlock the exam. (Max 5
                     attempts)
                   </p>
 
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold text-orange-700">
-                      Attempts: {quizAttempts}/3
+                      Attempts: {quizAttempts}/5
                     </span>
                     {isCourseFinished && (
                       <span className="text-xs font-bold text-green-600">
@@ -227,7 +236,7 @@ console.log("URL courseId:", courseId);
 
                   <button
                     disabled={
-                      !isCourseFinished || quizAttempts >= 3 || !courseQuiz
+                      !isCourseFinished || quizAttempts >= 5 || !courseQuiz
                     }
                     onClick={() => {
                       if (courseQuiz?._id) {
@@ -237,7 +246,7 @@ console.log("URL courseId:", courseId);
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
                       !isCourseFinished
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : quizAttempts >= 3
+                        : quizAttempts >= 5
                           ? "bg-red-100 text-red-500 cursor-not-allowed"
                           : !courseQuiz
                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -246,15 +255,13 @@ console.log("URL courseId:", courseId);
                   >
                     {!isCourseFinished
                       ? "Complete Course First"
-                      : quizAttempts >= 3
-                        ? "No Attempts Left"
+                      : quizAttempts >= 5
+                        ? "Revise Course to Retry"
                         : !courseQuiz
                           ? "Exam Not Available"
                           : "Start Final Exam"}
                   </button>
                 </div>
-
-                {/* CERTIFICATE CARD */}
                 <div
                   className={`p-6 rounded-2xl border-2 transition-all ${isCertificateUnlocked ? "bg-emerald-50 border-emerald-200 shadow-md" : "bg-gray-50 border-gray-100 opacity-60"}`}
                 >
@@ -275,7 +282,8 @@ console.log("URL courseId:", courseId);
 
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold text-emerald-700">
-                      Best Score: {quizScore}/10
+                      Best Score: {quizScore}/
+                      {quizData?.questions?.length || 10}
                     </span>
                     {isCertificateUnlocked && (
                       <FiCheckCircle className="text-emerald-600" />
@@ -284,6 +292,7 @@ console.log("URL courseId:", courseId);
 
                   <button
                     disabled={!isCertificateUnlocked}
+                    onClick={downloadCertificate}
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
                       isCertificateUnlocked
                         ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:-translate-y-1"
@@ -297,10 +306,7 @@ console.log("URL courseId:", courseId);
             </div>
           </div>
         </div>
-
-        {/* RIGHT COLUMN: SYLLABUS & INSTRUCTOR (COL-4) */}
         <div className="lg:col-span-4 space-y-6">
-          {/* SYLLABUS PANEL */}
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="p-6 border-b bg-gray-50/50 flex justify-between items-center">
               <h3 className="font-black text-sm uppercase tracking-tighter flex items-center gap-2">
@@ -312,18 +318,30 @@ console.log("URL courseId:", courseId);
             </div>
             <div className="max-h-125 overflow-y-auto p-4 space-y-3">
               {selectedCourse?.lectures?.map((lecture, index) => {
-                const isCompleted = progress[lecture._id]?.completed;
-                const isActive = selectedLecture?._id === lecture._id;
+                const completed = userData.completedLectures
+                  .find((c) => c.courseId === courseId)
+                  ?.lectureIds.includes(lecture._id);
+                  const isActive = (lec) => selectedLecture?._id === lecture._id;
                 return (
                   <button
                     key={index}
                     onClick={() => setSelectedLecture(lecture)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${isActive ? "bg-blue-600 text-white shadow-lg" : "hover:bg-gray-50 bg-white border border-gray-100"}`}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
+                      isActive(lecture)
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "hover:bg-gray-50 bg-white border border-gray-100"
+                    }`}
                   >
                     <div
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? "bg-white/20" : isCompleted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                        isActive(lecture)
+                          ? "bg-white/20"
+                          : completed
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-100 text-gray-400"
+                      }`}
                     >
-                      {isCompleted ? "✓" : index + 1}
+                      {completed ? "✓" : index + 1}
                     </div>
                     <span className="flex-1 text-left text-sm font-bold truncate">
                       {lecture.lectureTitle}
@@ -333,8 +351,6 @@ console.log("URL courseId:", courseId);
               })}
             </div>
           </div>
-
-          {/* INSTRUCTOR PANEL */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
               <FiUser /> Your Instructor
@@ -357,8 +373,6 @@ console.log("URL courseId:", courseId);
               step-by-step guidance.
             </div>
           </div>
-
-          {/* NOTES QUICK BOX */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-sm font-bold mb-3">Quick Notes</h3>
             <textarea

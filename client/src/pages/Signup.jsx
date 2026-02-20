@@ -35,9 +35,9 @@ const Signup = () => {
         { withCredentials: true },
       );
       setLoading(false);
-      navigate("/");
       dispatch(setUserData(result.data));
       toast.success("Signup Successful");
+      navigate("/");
     } catch (error) {
       setLoading(false);
       console.log(error);

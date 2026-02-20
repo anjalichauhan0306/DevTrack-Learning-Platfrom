@@ -38,8 +38,8 @@ const Analytics = () => {
       creatorCourseData?.reduce(
         (sum, course) =>{
           const studentCount = course.enrolledStudents?.length || 0;
-          const courseRevenue = course.Price ? course.Price * studentCount : 0;
-
+          const price = Number(course.Price || course.Price || 0);
+          const courseRevenue = price * studentCount;
           return sum + courseRevenue
         },0) || 0;
 

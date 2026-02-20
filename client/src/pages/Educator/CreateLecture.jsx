@@ -23,7 +23,6 @@ const CreateLecture = () => {
   const [showPreview, setShowPreview] = useState(false);
   const navigate = useNavigate();
   const [quizLoading, setQuizLoading] = useState(false);
-  const { userData } = useSelector((state) => state.user);
   const { courseId } = useParams();
   const [lectureTitle, setLectureTitle] = useState("");
   const [loading, setLoading] = useState(false);

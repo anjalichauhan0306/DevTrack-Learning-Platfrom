@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { serverURL } from "../App";
-import { toast } from "react-toastify";
 import {
   FiArrowLeft,
   FiPlayCircle,
@@ -14,8 +13,6 @@ import {
   FiFileText,
   FiUser,
 } from "react-icons/fi";
-import { setQuizData } from "../redux/quizSlice";
-import GetQuiz from "../customHooks/getQuiz";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
@@ -234,7 +231,7 @@ console.log("URL courseId:", courseId);
                     }
                     onClick={() => {
                       if (courseQuiz?._id) {
-                        navigate(`/quiz-attempt/${courseQuiz._id}`);
+                        navigate(`/quiz-attempt/${courseId}`);
                       }
                     }}
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${

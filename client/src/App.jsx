@@ -133,7 +133,7 @@ const App = () => {
         />        
 
         <Route
-        path = "/quiz-attempt/:quizId"
+        path = "/quiz-attempt/:courseId"
         element={!userData ?  <Navigate to="/login" /> : <QuizAttempt />} />
 
       </Routes>

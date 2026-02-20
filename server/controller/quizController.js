@@ -115,31 +115,56 @@ await course.save();
 /* ======================================
    GET QUIZ
 ====================================== */
-export const getQuizById = async (req, res) => {
+// export const getQuizById = async (req, res) => {
+//   try {
+//     const { courseId } = req.params;
+//     const quizId = await Quiz.findOne({ courseId }).select("_id");
+
+//     if(quizId){
+//       const quiz = await Quiz.findById(quizId);
+//       if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+//       return res.status(200).json({ quiz });  
+//     }
+
+//     if(!quizId){
+//       return res.status(400).json({ message: "Quiz ID missing" });
+//     }
+    
+//     const userId = req.userId;
+//     if (!courseId)
+//       return res.status(400).json({ message: "Course ID missing" });
+
+//     const quiz = await Quiz.findOne({ userId, courseId });
+//     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+
+//     return res.status(200).json({ quiz });
+//   } catch (error) {
+//     console.error("Get Quiz Error:", error);
+//     return res.status(500).json({ message: `Server error: ${error.message}` });
+//   }
+// };
+
+
+// GET Quiz by Course ID
+export const getQuizByCourseId = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const {quizId} = req.params;
 
-    if(quizId){
-      const quiz = await Quiz.findById(quizId);
-      if (!quiz) return res.status(404).json({ message: "Quiz not found" });
-      return res.status(200).json({ quiz });  
-    }
-    if(!quizId){
-      return res.status(400).json({ message: "Quiz ID missing" });
-    }
-    
-    const userId = req.userId;
-    if (!courseId)
+    if (!courseId) {
       return res.status(400).json({ message: "Course ID missing" });
+    }
 
-    const quiz = await Quiz.findOne({ userId, courseId });
-    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+    // Find the quiz for this course
+    const quiz = await Quiz.findOne({ courseId }).populate("questions");
+
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found for this course" });
+    }
 
     return res.status(200).json({ quiz });
   } catch (error) {
     console.error("Get Quiz Error:", error);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
 
@@ -149,36 +174,49 @@ export const getQuizById = async (req, res) => {
 export const submitQuiz = async (req, res) => {
   try {
     const { quizId, answers } = req.body;
-
-    if (!quizId || !answers)
+    const MAX_ATTEMPTS = 13;
+    if (!quizId || !answers) 
       return res.status(400).json({ message: "Missing data" });
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
-    // Calculate score
     let score = 0;
     const total = quiz.questions.length;
 
-    quiz.questions.forEach((q, index) => {
-      const userAnswer = answers.find((a) => a.questionIndex === index);
-      if (userAnswer && userAnswer.selectedAnswer === q.correctAnswer) score++;
+    // Calculate score correctly
+    answers.forEach(a => {
+      const qIndex = a.questionIndex;
+      const selected = a.selectedAnswer;
+
+      if (quiz.questions[qIndex].correctAnswer === quiz.questions[qIndex].options[selected]) {
+        score++;
+      }
     });
 
-    // Record attempt
+    if (quiz.attempts.length >= MAX_ATTEMPTS) {
+  return res.status(400).json({ message: "Maximum attempts reached" });
+}
+
     quiz.attempts = quiz.attempts || [];
     quiz.attempts.push({ score, total, date: new Date() });
-
     await quiz.save();
+
+    const percentage = Math.round((score / total) * 100);
 
     return res.status(200).json({
       message: "Quiz submitted successfully",
       score,
       total,
-      percentage: Math.round((score / total) * 100),
+      percentage,
+      attemptsLeft: Math.max(0, MAX_ATTEMPTS - quiz.attempts.length), 
+      quiz,
     });
+
   } catch (error) {
     console.error("Submit Quiz Error:", error);
-    return res.status(500).json({ message: "Submission failed" });
+    return res.status(500).json({ message: `Submission failed: ${error.message}` });
   }
 };
+
+

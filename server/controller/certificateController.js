@@ -6,84 +6,42 @@ import fs from "fs";
 import User from "../model/userModel.js";
 import Course from "../model/courseModel.js";
 import Certificate from "../model/certificate.model.js";
-import { Quiz } from "../model/quizModel.js";
 
-// 🔹 Eligibility check function
-const eligibilityCheck = async (userId, courseId) => {
-  const user = await User.findById(userId);
-  const course = await Course.findById(courseId);
-
-  if (!user || !course) return false;
-
-  // 1️⃣ Check if all lectures completed
-  const completedCourse = user.completedLectures.find(
-    (c) => c.courseId.toString() === courseId
-  );
-  if (!completedCourse || completedCourse.lectureIds.length < course.lectures.length)
-    return false;
-
-  // 2️⃣ Check quiz / final exam score
-  const quiz = await Quiz.findOne({ course: courseId, user: userId });
-  if (!quiz) return false;
-
-  const attempts = quiz.attempts || [];
-  const bestScore =
-    attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : 0;
-  const totalQuestions = quiz.questions.length;
-  const percentage = (bestScore / totalQuestions) * 100;
-
-  if (percentage < 70) return false;
-
-  return { bestScore, totalQuestions, percentage };
-};
-
-// 🔹 Generate Certificate
 export const generateCertificate = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user._id;
+    const { userId, score = 0, totalQuestions = 0 } = req.body;
 
-    // 1️⃣ Eligibility check
-    const eligibility = await eligibilityCheck(userId, courseId);
-    if (!eligibility)
-      return res.status(400).json({ message: "Not eligible for certificate" });
+    const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
 
-    const { bestScore, totalQuestions, percentage } = eligibility;
-
-    // 2️⃣ Already generated?
-    const existing = await Certificate.findOne({ userId, courseId });
-    if (existing)
-      return res.json({
-        message: "Certificate already generated",
-        downloadUrl: existing.downloadUrl,
-      });
+    if (!userId) return res.status(400).json({ message: "User ID missing" });
 
     const user = await User.findById(userId);
-    const course = await Course.findById(courseId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // 3️⃣ Certificate ID & PDF path
-    const certificateId =
-      "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const existing = await Certificate.findOne({ userId, courseId });
+    if (existing) {
+      // If exists, just send the file
+      return res.download(existing.downloadUrl, `certificate-${existing.certificateId}.pdf`);
+    }
+    
+
+    // Optional: skip eligibility check, direct generate
+    const certificateId = "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
     const pdfDir = path.join("certificates");
     if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir);
     const pdfPath = path.join(pdfDir, `certificate-${certificateId}.pdf`);
 
-    // 4️⃣ Update user's enrolled course certificate info (optional)
-    user.enrolledCourses = user.enrolledCourses.map((c) =>
-      c.toString() === courseId
-        ? { course: c, certificate: { isIssued: true, certificateId, issuedAt: new Date() } }
-        : c
-    );
-    await user.save();
-
-    // 5️⃣ Generate PDF
     const doc = new PDFDocument({ layout: "landscape", size: "A4" });
     const writeStream = fs.createWriteStream(pdfPath);
     doc.pipe(writeStream);
 
     // Fonts
     doc.registerFont("HeadingFont", path.join("assets", "playfair_font.ttf"));
-    doc.registerFont("SignatureFont", path.join("assets", "MomoSign.ttf"));
+    doc.registerFont("SignatureFont", path.join("assets", "MomoSignature-Regular.ttf"));
 
     // Background
     doc.image(path.join("assets", "certificate-bg.png"), 0, 0, {
@@ -115,19 +73,18 @@ export const generateCertificate = async (req, res) => {
     );
     doc.moveDown();
     doc.fontSize(16).text(
-      `Score: ${bestScore}/${totalQuestions} (${percentage.toFixed(0)}%)`,
+      `Score: ${score}/${totalQuestions} (${percentage.toFixed(0)}%)`,
       { align: "center" }
     );
 
     // Footer
     doc.fontSize(14).text(`Certificate ID: ${certificateId}`, 500, 500);
     doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
-    doc.font("SignatureFont").fontSize(28).text("Instructor Name", 80, 450);
-    doc.fontSize(12).text("Instructor Signature", 80, 480);
+    doc.font("SignatureFont").fontSize(28).text("anjali Chauhan", 80, 450);
+    doc.fontSize(12).text("anjali", 80, 480);
 
     doc.end();
 
-    // 6️⃣ Save certificate record & send PDF
     writeStream.on("finish", async () => {
       const certificate = new Certificate({
         userId,
@@ -136,11 +93,10 @@ export const generateCertificate = async (req, res) => {
         downloadUrl: pdfPath,
       });
       await certificate.save();
-
       res.download(pdfPath, `certificate-${certificateId}.pdf`);
     });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Certificate generation error" });
+  } catch (err) {
+    console.log("Certificate error:", err);
+    res.status(500).json({ message: "Certificate generation failed", error: err.message });
   }
 };

@@ -52,6 +52,6 @@ courseRouter.get("/getenrolled", isAuth, getAllEnrolledStudents);
 courseRouter.post("/search", searchWithAi);
 
 // For certificate
-courseRouter.get("/certificate/:courseId", isAuth,generateCertificate );
+courseRouter.post("/certificate/:courseId", isAuth,generateCertificate );
 
 export default courseRouter;

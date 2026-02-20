@@ -112,6 +112,9 @@ await course.save();
 export const getQuizByCourseId = async (req, res) => {
   try {
     const { courseId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     if (!courseId) {
       return res.status(400).json({ message: "Course ID missing" });
@@ -121,8 +124,10 @@ export const getQuizByCourseId = async (req, res) => {
     const quiz = await Quiz.findOne({ courseId }).populate("questions");
 
     if (!quiz) {
-      return res.status(404).json({ message: "Quiz not found for this course" });
+      return res.status(404).json({ message: `Quiz not found for this course ${courseId}`});
     }
+    
+    quiz.attempts = quiz.attempts.filter(a => a.userId.toString() === req.userId);
 
     return res.status(200).json({ quiz });
   } catch (error) {
@@ -137,11 +142,11 @@ export const getQuizByCourseId = async (req, res) => {
 export const submitQuiz = async (req, res) => {
   try {
     const { quizId, answers } = req.body;
-    const MAX_ATTEMPTS = 13;
+    const MAX_ATTEMPTS = 5;
     if (!quizId || !answers) 
       return res.status(400).json({ message: "Missing data" });
 
-    const quiz = await Quiz.findById(quizId);
+    const quiz = await Quiz.findById(quizId).populate("questions");
     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
     let score = 0;
@@ -177,7 +182,7 @@ export const submitQuiz = async (req, res) => {
 }
 
     quiz.attempts = quiz.attempts || [];
-    quiz.attempts.push({ score, total, date: new Date() });
+    quiz.attempts.push({ score, total, date: new Date()  , userId: req.userId });
     await quiz.save();
 
     
@@ -194,6 +199,7 @@ export const submitQuiz = async (req, res) => {
     });
 
   } catch (error) {
+    
     console.error("Submit Quiz Error:", error);
     return res.status(500).json({ message: `Submission failed: ${error.message}` });
   }

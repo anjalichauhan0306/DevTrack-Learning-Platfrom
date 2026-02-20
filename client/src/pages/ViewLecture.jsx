@@ -14,6 +14,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { setQuizData } from "../redux/quizSlice";
+import { setUserData } from "../redux/userSlice";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
@@ -24,7 +25,6 @@ const ViewLecture = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const selectedCourse = courseData?.find((course) => course._id === courseId);
-
   const [creatorData, setCreatorData] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
@@ -40,16 +40,21 @@ const ViewLecture = () => {
   );
   const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
-  const coursePercent = totalLectures
-    ? Math.round((completedLectures / totalLectures) * 100)
-    : 0;
 
+  const [coursePercent, setCoursePercent] = useState(
+  userData.completedLectures?.find(c => c.courseId === courseId)?.lectureIds?.length
+    ? Math.round(
+        (userData.completedLectures.find(c => c.courseId === courseId)?.lectureIds?.length /
+          (selectedCourse?.lectures?.length || 1)) *
+          100
+      )
+    : 0
+);
   const isCourseFinished = coursePercent === 100;
 
-  // Quiz logic
   const quizAttempts = quizData?.attempts?.length || 0;
   const isCertificateUnlocked =
-  isCourseFinished && // course 100% complete
+  isCourseFinished && 
   quizData?.questions?.length > 0 && // quiz loaded
   quizScore >= Math.ceil(quizData.questions.length * 0.7);
 
@@ -62,7 +67,7 @@ const ViewLecture = () => {
     if (percent > 95) {
       try {
         const response = await axios.post(
-          `${serverURL}/api/user/update-progress`,
+          `${serverURL}/api/user/updateprogress`,
           {
             courseId,
             lectureId: selectedLecture._id,
@@ -73,14 +78,15 @@ const ViewLecture = () => {
 
         // Update UI completion % from server
         setCoursePercent(response.data.percentage);
-
-        // Optionally, refresh userData in Redux
-        // dispatch(fetchUserData());
+        setUserData(response.data);
+        console.log(response.data);
       } catch (err) {
         console.error("Failed to mark lecture completed", err);
       }
     }
   };
+  
+  const courseQuizAvailable = quizData?.questions?.length > 0; // quiz loaded
 
   useEffect(() => {
     if (!courseId) return;
@@ -114,9 +120,19 @@ const ViewLecture = () => {
   }, [courseId, dispatch]);
 
   const downloadCertificate = async () => {
+
+    if(!isCertificateUnlocked) {
+      alert("Certificate not unlocked yet! Score at least 7/10 in the final exam to unlock.");
+      return;
+    }
+
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         `${serverURL}/api/course/certificate/${courseId}`,
+        { userId: userData._id  ,
+          score: quizScore,
+          totalQuestions: quizData?.questions?.length || 0,
+        },
         {
           withCredentials: true,
           responseType: "blob",
@@ -130,11 +146,10 @@ const ViewLecture = () => {
       document.body.appendChild(link);
       link.click();
     } catch (error) {
-      alert("Certificate not unlocked yet!");
-    }
+      console.error("Certificate Download Error:", error);
+      }
   };
 
-  const courseQuiz = selectedCourse?.quizzes?.[0] || null;
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -236,10 +251,10 @@ const ViewLecture = () => {
 
                   <button
                     disabled={
-                      !isCourseFinished || quizAttempts >= 5 || !courseQuiz
+                      !isCourseFinished || quizAttempts >= 5 || !courseQuizAvailable
                     }
                     onClick={() => {
-                      if (courseQuiz?._id) {
+                      if(courseQuizAvailable) {
                         navigate(`/quiz-attempt/${courseId}`);
                       }
                     }}
@@ -248,7 +263,7 @@ const ViewLecture = () => {
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : quizAttempts >= 5
                           ? "bg-red-100 text-red-500 cursor-not-allowed"
-                          : !courseQuiz
+                          : !courseQuizAvailable
                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                             : "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-1"
                     }`}
@@ -257,7 +272,7 @@ const ViewLecture = () => {
                       ? "Complete Course First"
                       : quizAttempts >= 5
                         ? "Revise Course to Retry"
-                        : !courseQuiz
+                        : !courseQuizAvailable
                           ? "Exam Not Available"
                           : "Start Final Exam"}
                   </button>

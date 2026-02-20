@@ -11,6 +11,7 @@ const attemptSchema = new mongoose.Schema({
   score: { type: Number, required: true },
   total: { type: Number, required: true },
   date: { type: Date, default: Date.now },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 const quizSchema = new mongoose.Schema(

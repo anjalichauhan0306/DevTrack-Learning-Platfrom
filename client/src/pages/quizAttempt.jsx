@@ -77,7 +77,7 @@ const QuizAttempt = () => {
       selectedAnswer: optIndex
     }));
     
-      const MAX_ATTEMPTS = 13;
+      const MAX_ATTEMPTS = 5;
 
     try {
       const result = await axios.post(`${serverURL}/api/quiz/submit`, {
@@ -94,7 +94,7 @@ const QuizAttempt = () => {
       setShowConfirm(false);
 
       if (result.data.quiz) dispatch(setQuizData(result.data.quiz));
-
+      
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit quiz. Please try again.");
       console.error("Failed to submit quiz:", err);

@@ -28,11 +28,15 @@ const Analytics = () => {
   // 1. Prepare Summary Data
   const summaryStats = useMemo(() => {
     const totalCourses = creatorCourseData?.length || 0;
-    const totalStudents =
-      creatorCourseData?.reduce(
-        (acc, curr) => acc + (curr.enrolledStudents?.length || 0),
-        0,
-      ) || 0;
+
+     const studentSet = new Set();
+  creatorCourseData?.forEach((course) => {
+    course.enrolledStudents?.forEach((student) => {
+      // Assuming student is an object with _id, else just use student
+      studentSet.add(student._id?.toString() || student);
+    });
+  });
+  const totalStudents = studentSet.size;
 
     const totalEarnings =
       creatorCourseData?.reduce(

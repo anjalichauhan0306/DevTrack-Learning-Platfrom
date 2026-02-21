@@ -44,25 +44,27 @@ const StudentsPage = () => {
   const search = searchTerm.toLowerCase();
   const studentMap = new Map();
 
-
   students.forEach((item) => {
     const id = item.user?._id;
     if (!id) return;
+
     if (!studentMap.has(id)) {
       studentMap.set(id, {
         user: item.user,
-        totalSpend: item.totalSpend || 0, // ensure numeric
-        courseCount: 1,
+        totalSpend: item.totalSpend || 0,
+        courseCount: item.courseCount || 1,
         enrolledAt: item.enrolledAt,
-        allCourses: [item.courseId?.courseTitle]
+        allCourses: [...(item.enrolledCourses || [])],
+        lastLogin: item.lastLogin || null,
+        rating: item.rating || 0,
+        progress: item.progress || 0,
       });
     } else {
       const existing = studentMap.get(id);
-      existing.totalSpend += price; // add price of this course
-      existing.courseCount += 1;
-      existing.allCourses.push(item.courseId?.courseTitle);
+      existing.totalSpend += item.totalSpend || 0;
+      existing.courseCount += item.courseCount || 1;
+      existing.allCourses.push(...(item.enrolledCourses || []));
 
-      // latest enrollment date store karo
       if (new Date(item.enrolledAt) > new Date(existing.enrolledAt)) {
         existing.enrolledAt = item.enrolledAt;
       }
@@ -70,9 +72,10 @@ const StudentsPage = () => {
   });
 
   // search filter
-  return Array.from(studentMap.values()).filter(s =>
-    (s.user?.name || "").toLowerCase().includes(search) ||
-    (s.user?.email || "").toLowerCase().includes(search)
+  return Array.from(studentMap.values()).filter(
+    (s) =>
+      (s.user?.name || "").toLowerCase().includes(search) ||
+      (s.user?.email || "").toLowerCase().includes(search)
   );
 };
 

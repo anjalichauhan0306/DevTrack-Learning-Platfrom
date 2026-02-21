@@ -300,8 +300,7 @@ export const getAllEnrolledStudents = async (req, res) => {
     const studentMap = new Map();
 
     for (const course of courses) {
-      const price = course.Price ;
-      console.log(`Price: ${price},`);
+      const price = Number(course.Price) || 0;
       
       for (const student of course.enrolledStudents) {
         const id = student._id.toString();
@@ -322,7 +321,6 @@ export const getAllEnrolledStudents = async (req, res) => {
             progress: 0, 
             rating: 0,
           });
-          console.log(`Added new student: ${student.name}, Price: ${price}`);
         } else {
           const existing = studentMap.get(id);
 

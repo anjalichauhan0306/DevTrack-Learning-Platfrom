@@ -28,8 +28,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import PaymentSuccess from "./component/paymentSuccess";
 import GetAllReviews from "./customHooks/getAllReviews";
-import GetQuiz from "./customHooks/getQuiz";
 import QuizAttempt from "./pages/quizAttempt";
+import MentorsList from "./pages/Mentor";
+import ContactSection from "./component/Contact";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -135,6 +136,15 @@ const App = () => {
         <Route
         path = "/quiz-attempt/:courseId"
         element={!userData ?  <Navigate to="/login" /> : <QuizAttempt />} />
+
+        <Route
+        path = "/mentors"
+        element={!userData ?  <Navigate to="/login" /> : <MentorsList />} />
+
+        <Route
+        path = "/contact"
+        element={<ContactSection />} />
+  
 
       </Routes>
       </Elements>

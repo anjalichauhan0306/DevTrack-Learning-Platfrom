@@ -144,7 +144,6 @@ const App = () => {
         <Route
         path = "/contact"
         element={<ContactSection />} />
-  
 
       </Routes>
       </Elements>

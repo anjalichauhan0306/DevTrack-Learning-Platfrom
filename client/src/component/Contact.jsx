@@ -1,129 +1,211 @@
-import React, { useState } from 'react';
-import { Mail, Github, Linkedin, FileText, Send, User, MessageSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import {
+  Mail,
+  Github,
+  Linkedin,
+  Send,
+  ArrowLeft,
+  Copy,
+  CheckCircle2,
+  MapPin,
+  Code2,
+  Sparkles,
+} from "lucide-react";
+import axios from "axios";
+import { serverURL } from "../App";
+import { ClipLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom"; // Navigation ke liye
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const navigate = useNavigate(); // Hook initialize kiya
+  const [copied, setCopied] = useState(false);
+  const [loading, setloading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText("aaruba.dev@gmail.com");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-    alert("Message sent! I'll get back to you soon.");
+    setloading(true);
+    try {
+      await axios.post(serverURL + "/api/user/contact", formData, { withCredentials: true });
+      alert("Message sent successfully 🚀");
+      setFormData({ name: "", email: "", message: "" });
+      setloading(false);
+    } catch (error) {
+      console.log(error);
+      setloading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center p-6 font-sans">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-5xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]"
+    <div className="min-h-screen bg-[#050505] text-[#e4e4e7] flex items-center justify-center p-4 font-sans selection:bg-indigo-500/30 overflow-x-hidden">
+      
+      {/* --- BACK BUTTON --- */}
+      <button 
+        onClick={() => navigate(-1)} 
+        className="fixed top-8 left-8 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all group backdrop-blur-md"
       >
+        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="text-xs font-bold uppercase tracking-widest">Go Back</span>
+      </button>
+
+      {/* Background Subtle Grid - Fixed Classes */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+
+      <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-6 relative z-10">
         
-        {/* Left Section: Branding & Info */}
-        <div className="md:w-[40%] bg-[#2D3E72] p-10 text-white flex flex-col justify-between relative overflow-hidden">
-          {/* Decorative Circles for Professional Look */}
-          <div className="absolute top-[-10%] left-[-10%] w-40 h-40 bg-white/5 rounded-full" />
-          
-          <div className="relative z-10">
-            <h2 className="text-4xl font-extrabold tracking-tight mb-2">Aaruba Chauhan</h2>
-            <p className="text-blue-200 text-lg font-medium mb-8">MERN Stack & Java Developer</p>
-            
-            <p className="text-blue-100/80 leading-relaxed mb-10 text-sm">
-              I built <span className="text-white font-semibold">DevTrack</span> to bridge the gap between learning and building. 
-              Looking for a developer who owns the product? Let’s connect.
-            </p>
+        {/* Left Column: Profile Card */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-10 flex flex-col h-full shadow-2xl">
+            <div className="flex-1 space-y-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest">
+                <Sparkles size={12} /> Open for Opportunities
+              </div>
 
-            <div className="space-y-6">
-              <a href="mailto:aaruba.dev@email.com" className="flex items-center gap-4 group transition-all">
-                <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20">
-                  <Mail size={20} />
+              <div>
+                <h1 className="text-5xl font-black tracking-tighter text-white mb-2">
+                  Anjali <br /> Chauhan
+                </h1>
+                <h2 className="text-indigo-400 font-mono text-sm tracking-widest uppercase">
+                  Full Stack Developer
+                </h2>
+              </div>
+
+              <p className="text-gray-400 leading-relaxed text-sm">
+                Focused on building scalable MERN applications like{" "}
+                <span className="text-white font-medium italic">DevTrack</span>.
+                I specialize in turning complex logic into elegant, performant
+                digital experiences.
+              </p>
+
+              <div className="grid grid-cols-1 gap-3">
+                <div
+                  onClick={copyEmail}
+                  className="group cursor-pointer flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-indigo-500/30 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white transition-colors">
+                    <Mail size={18} />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[10px] font-bold text-gray-600 uppercase">Email</p>
+                    <p className="text-sm font-medium truncate">aaruba.dev@gmail.com</p>
+                  </div>
+                  {copied ? (
+                    <CheckCircle2 size={16} className="text-green-500" />
+                  ) : (
+                    <Copy size={16} className="text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
                 </div>
-                <span className="group-hover:translate-x-1 transition-transform">aaruba.dev@email.com</span>
+
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400">
+                    <MapPin size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-600 uppercase">Location</p>
+                    <p className="text-sm font-medium">India • Remote</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12 flex gap-3">
+              <a href="https://github.com/anjalichauhan0306" className="flex-1 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white hover:text-black transition-all group">
+                <Github size={20} />
               </a>
-              <a href="#" className="flex items-center gap-4 group transition-all">
-                <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20">
-                  <Linkedin size={20} />
-                </div>
-                <span className="group-hover:translate-x-1 transition-transform">linkedin.com/in/aaruba</span>
+              <a href="https://www.linkedin.com/in/anjali-chauhan-22b93430a/" className="flex-1 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-[#0077b5] hover:text-white transition-all group">
+                <Linkedin size={20} />
               </a>
-              <a href="#" className="flex items-center gap-4 group transition-all">
-                <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20">
-                  <Github size={20} />
-                </div>
-                <span className="group-hover:translate-x-1 transition-transform">github.com/aaruba-dev</span>
+              <a href="#" className="flex-1 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all group">
+                <Code2 size={20} />
               </a>
             </div>
           </div>
-
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="relative z-10 mt-12 flex items-center justify-center gap-3 bg-white text-[#2D3E72] font-bold py-4 rounded-xl shadow-lg hover:bg-blue-50 transition-all"
-          >
-            <FileText size={20} /> Download My Resume
-          </motion.button>
         </div>
 
-        {/* Right Section: Modern Form */}
-        <div className="md:w-[60%] p-12 flex flex-col justify-center">
-          <div className="mb-8">
-            <h3 className="text-3xl font-bold text-gray-800">Send a Message</h3>
-            <p className="text-gray-500 mt-2 text-sm">Got a project or a job opportunity? Drop a line below.</p>
+        {/* Right Column: Form */}
+        <div className="lg:col-span-7">
+          <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] -z-10"></div>
+            <div className="mb-10">
+              <h3 className="text-2xl font-bold text-white mb-2 font-mono tracking-tight">Drop a Message</h3>
+              <p className="text-gray-500 text-sm">Whether it's a project inquiry or just a tech talk.</p>
+            </div>
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-600 uppercase tracking-widest ml-1">Your Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    onChange={handleChange}
+                    value={formData.name}
+                    placeholder="John Doe"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-600 uppercase tracking-widest ml-1">Email Address</label>
+                  <input
+                    name="email"
+                    onChange={handleChange}
+                    value={formData.email}
+                    type="email"
+                    placeholder="john@company.com"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-600 uppercase tracking-widest ml-1">Project Message</label>
+                <textarea
+                  rows="5"
+                  name="message"
+                  onChange={handleChange}
+                  value={formData.message}
+                  placeholder="Tell me what you're working on..."
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none resize-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 group active:scale-[0.98]"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                <span className="uppercase text-xs tracking-widest font-black">
+                  {loading ? <ClipLoader size={20} color="#000000" /> : "Submit Inquiry"}
+                </span>
+                {!loading && <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+              </button>
+            </form>
+
+            <div className="mt-10 flex items-center justify-between border-t border-white/5 pt-8 text-[10px] font-bold text-gray-700 uppercase tracking-[0.2em]">
+              <span>Est. 2026</span>
+              <span className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div> Local Time IST
+              </span>
+            </div>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
-              <div className="relative mt-1">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  type="text" 
-                  required
-                  placeholder="John Doe"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#2D3E72] focus:bg-white outline-none transition-all text-gray-700"
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
-              <div className="relative mt-1">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  type="email" 
-                  required
-                  placeholder="email@example.com"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#2D3E72] focus:bg-white outline-none transition-all text-gray-700"
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Your Message</label>
-              <div className="relative mt-1">
-                <MessageSquare className="absolute left-4 top-5 text-gray-400" size={18} />
-                <textarea 
-                  rows="4" 
-                  required
-                  placeholder="Hey Aaruba, I'd like to talk about..."
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#2D3E72] focus:bg-white outline-none transition-all text-gray-700 resize-none"
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                ></textarea>
-              </div>
-            </div>
-
-            <motion.button 
-              whileHover={{ y: -2 }}
-              className="w-full bg-[#2D3E72] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-xl hover:bg-[#1e2a4d] transition-all"
-            >
-              <Send size={18} /> Send Message
-            </motion.button>
-          </form>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

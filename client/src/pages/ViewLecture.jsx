@@ -21,7 +21,7 @@ const ViewLecture = () => {
   const { courseData } = useSelector((state) => state.course);
   const { quizData } = useSelector((state) => state.quiz);
   const { userData } = useSelector((state) => state.user);
-
+  const [isMarked, setIsMarked] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const selectedCourse = courseData?.find((course) => course._id === courseId);
@@ -35,21 +35,12 @@ const ViewLecture = () => {
   const [notes, setNotes] = useState("");
   const [quizScore, setQuizScore] = useState(0);
 
-  const courseProgress = userData.completedLectures?.find(
-    (c) => c.courseId === courseId,
-  );
+const courseProgress = userData.completedLectures?.find(c => c.courseId === courseId);
+const coursePercent = courseProgress 
+  ? Math.round((courseProgress.lectureIds.length / (selectedCourse?.lectures?.length || 1)) * 100) 
+  : 0;
   const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
-
-  const [coursePercent, setCoursePercent] = useState(
-  userData.completedLectures?.find(c => c.courseId === courseId)?.lectureIds?.length
-    ? Math.round(
-        (userData.completedLectures.find(c => c.courseId === courseId)?.lectureIds?.length /
-          (selectedCourse?.lectures?.length || 1)) *
-          100
-      )
-    : 0
-);
   const isCourseFinished = coursePercent === 100;
 
   const quizAttempts = quizData?.attempts?.length || 0;
@@ -59,34 +50,28 @@ const ViewLecture = () => {
   quizScore >= Math.ceil(quizData.questions.length * 0.7);
 
   const handleTimeUpdate = async () => {
-    const video = videoRef.current;
-    if (!video || !selectedLecture) return;
-
-    const percent = (video.currentTime / video.duration) * 100;
-
-    if (percent > 95) {
-      try {
-        const response = await axios.post(
-          `${serverURL}/api/user/updateprogress`,
-          {
-            courseId,
-            lectureId: selectedLecture._id,
-            totalLectures: selectedCourse.lectures.length,
-          },
-          { withCredentials: true },
-        );
-
-        // Update UI completion % from server
-        setCoursePercent(response.data.percentage);
-        setUserData(response.data);
-        console.log(response.data);
-      } catch (err) {
-        console.error("Failed to mark lecture completed", err);
-      }
+  const video = videoRef.current;
+  if (!video || !selectedLecture) return;
+  const percent = (video.currentTime / video.duration) * 100;
+   if (percent > 90) { 
+    try {
+      const response = await axios.post(
+        `${serverURL}/api/user/updateprogress`,
+        {
+          courseId,
+          lectureId: selectedLecture._id,
+          totalLectures: selectedCourse.lectures.length,
+        },
+        { withCredentials: true },
+      );
+      dispatch(setUserData(response.data.user)); 
+    } catch (err) {
+      console.error("Failed to mark lecture completed", err);
     }
-  };
+  }
+};
   
-  const courseQuizAvailable = quizData?.questions?.length > 0; // quiz loaded
+  const courseQuizAvailable = quizData?.questions?.length > 0;
 
   useEffect(() => {
     if (!courseId) return;
@@ -100,10 +85,7 @@ const ViewLecture = () => {
         const quiz = result.data.quiz;
 
         if (quiz) {
-          dispatch({ type: "SET_QUIZ_DATA", payload: quiz });
-
           const attempts = quiz.attempts || [];
-
           const bestScore =
             attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : 0;
 

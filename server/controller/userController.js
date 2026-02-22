@@ -1,5 +1,6 @@
 import User from "../model/userModel.js";
 import uploadOnCloudinary from "../config/cloudnary.js";
+import nodemailer from "nodemailer";
 
 export const getCurrentUser = async (req, res) => {
   try {
@@ -102,5 +103,43 @@ export const updateExamScore = async (req, res) => {
     return res.status(200).json({ message: "Exam Score Updated" });
   } catch (error) {
     return res.status(500).json({ message: `UpdateExamScore Error ${error}` });
+  }
+};
+
+
+export const sendContactMail = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"DevTrack Contact" <${process.env.USER_EMAIL}>`,
+      to: process.env.USER_EMAIL,
+      subject: `New Contact Message from ${name}`,
+      html: `
+        <h2>New Message Received</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
+      `,
+    });
+
+    res.status(200).json({ success: true, message: "Email sent" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
   }
 };

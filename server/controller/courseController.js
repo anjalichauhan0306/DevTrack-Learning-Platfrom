@@ -40,7 +40,7 @@ export const createCourse = async (req, res) => {
 export const getPublished = async (req, res) => {
   try {
     const courses = await Courses.find({ isPublished: true }).populate(
-      "lectures reviews quizzes",
+      "lectures reviews quizzes creator",
     );
 
     if (!courses) {

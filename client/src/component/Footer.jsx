@@ -15,10 +15,8 @@ const Footer = () => {
                 `}
             </style>
             <div className='bg-[#0a0f1c] pt-20 px-4 devtrack-footer'>
-                <footer className="bg-[#0f172a] w-full max-w-[1350px] mx-auto text-white pt-8 lg:pt-12 px-4 sm:px-8 md:px-16 lg:px-28 rounded-tl-[3rem] rounded-tr-[3rem] overflow-hidden border-t border-white/5">
+                <footer className="bg-[#0f172a] w-full max-w-337.5 mx-auto text-white pt-8 lg:pt-12 px-4 sm:px-8 md:px-16 lg:px-28 rounded-tl-[3rem] rounded-tr-[3rem] overflow-hidden border-t border-white/5">
                     <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-6 gap-12">
-                        
-                        {/* --- Section 1: DevTrack Brand & About --- */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="flex items-center gap-2">
                                 <div className="w-10 h-10 rounded-lg flex items-center justify-center">
@@ -32,8 +30,6 @@ const Footer = () => {
                                 A modern Learning Management System designed to simplify education and track student progress in real-time.
                             </p>
                         </div>
-
-                        {/* --- Section 2: Quick Links --- */}
                         <div className="lg:col-span-2 grid grid-cols-2 gap-8">
                             <div>
                                 <h3 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Platform</h3>
@@ -50,8 +46,6 @@ const Footer = () => {
                                     <li><a href="#" className="hover:text-blue-400 transition-colors">Help Center</a></li>
                                     <li><a href="#" className="hover:text-blue-400 transition-colors">Privacy</a></li>
                                 </ul>
-                                
-                                {/* --- NEW: Contact Now Button --- */}
                                 <a 
                                     href="/contact" 
                                     onClick={()=>navigate("/contact")}
@@ -64,8 +58,6 @@ const Footer = () => {
                                 </a>
                             </div>
                         </div>
-
-                        {/* --- Section 3: Developer Info --- */}
                         <div className="lg:col-span-2 bg-white/5 p-6 rounded-2xl border border-white/10">
                             <h3 className="font-bold text-sm mb-4 text-blue-400 uppercase tracking-wider">Developed By</h3>
                             <div className="flex flex-col space-y-3">
@@ -91,8 +83,6 @@ const Footer = () => {
                     <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 flex justify-between items-center">
                         <p className="text-slate-500 text-sm">© 2026 DevTrack LMS. All rights reserved.</p>
                     </div>
-
-                    {/* --- Big Branding Section --- */}
                     <div className="relative mt-4">
                         <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-4xl h-full max-h-64 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"/>
                         <h3 className="text-center font-black leading-[0.7] text-transparent text-[clamp(3rem,16vw,16rem)] [-webkit-text-stroke:1px_#1e293b] mt-8 select-none opacity-40">

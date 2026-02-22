@@ -33,9 +33,9 @@ const Profile = () => {
 
   useEffect(() => {
     if (userData) {
-      setName(userData.name || "");
-      setDescription(userData.description || "");
-      setPreviewUrl(userData.photoUrl || "");
+      setName(userData?.name || "");
+      setDescription(userData?.description || "");
+      setPreviewUrl(userData?.photoUrl || "");
     }
   }, [userData]);
 
@@ -81,6 +81,14 @@ const Profile = () => {
       toast.error("Logout failed");
     }
   };
+
+  useEffect(() => {
+  return () => {
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  };
+}, [previewUrl]);
 
   return (
     <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">

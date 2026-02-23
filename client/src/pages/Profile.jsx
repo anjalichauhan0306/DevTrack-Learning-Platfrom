@@ -22,7 +22,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
-
+  const [activeTab, setActiveTab] = useState("personal");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -61,7 +61,7 @@ const Profile = () => {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
-      dispatch(setUserData(result.data));
+      dispatch(setUserData(result.data.user));
       toast.success("Profile Updated Successfully");
       setIsEditing(false);
       setSelectedFile(null);
@@ -73,14 +73,15 @@ const Profile = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      await axios.post(`${serverURL}/api/auth/logout`, {}, { withCredentials: true });
-      dispatch(setUserData(null));
-      navigate("/login");
-    } catch (error) {
-      toast.error("Logout failed");
-    }
-  };
+      try {
+        await axios.get(serverURL + "/api/auth/logout", { withCredentials: true });
+        dispatch(setUserData(null));
+        toast.success("Logged out successfully");
+        navigate("/");
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Logout failed");
+      }
+    };
 
   useEffect(() => {
   return () => {

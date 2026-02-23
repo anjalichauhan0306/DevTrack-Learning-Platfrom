@@ -1,187 +1,248 @@
-import React, { useState, useEffect , useRef} from 'react';
-import ai from '../assets/ai.png';
-import { RiMicAiFill } from 'react-icons/ri';
-import { FaArrowLeftLong } from 'react-icons/fa6';
+import React, { useState, useEffect, useRef } from "react";
+import { RiMicAiFill, RiSearchLine, RiCompass3Line, RiArrowLeftLine } from "react-icons/ri"; // Using standard RI icons
 import { useNavigate } from "react-router-dom";
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import { serverURL } from '../App';
-import start from '../assets/start.mp3';
+import { toast } from "react-toastify";
+import axios from "axios";
+import { serverURL } from "../App";
+import start from "../assets/start.mp3";
 
 const SearchWithAI = () => {
-    const startSound = new Audio(start);
-    const navigate = useNavigate();
-    const [input, setInput] = useState("");
-    const [recommendations, setRecommendations] = useState([]);
-    const [listening, setListening] = useState(false);
+  const startSound = new Audio(start);
+  const navigate = useNavigate();
+  const [input, setInput] = useState("");
+  const [recommendations, setRecommendations] = useState([]);
+  const recognitionRef = useRef(null);
+  const [listening, setListening] = useState(false);
 
-    function speak(message) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = 'en-IN';
-        window.speechSynthesis.speak(utterance);
-    }
+  // --- Logic Preserved ---
+  function speak(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = "en-IN";
+    window.speechSynthesis.speak(utterance);
+  }
 
-    const SpeechRecognition = window.SpeechRecognitionEvent || window.webkitSpeechRecognition;
-    let recognition = null;
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-IN';
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-IN";
+      recognitionRef.current = recognition;
     }
+  }, []);
 
-    const handleSearch = () => {
-        if (!recognition) {
-            toast.error("Speech recognition is not supported in this browser.");
-            return;
-        }
+  const handleSearch = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      toast.error("Speech recognition is not supported.");
+      return;
+    }
+    if (listening) {
+      recognition.stop();
+      return;
+    }
+    setListening(true);
+    startSound.play();
+    recognition.start();
 
-        if (listening) {
-            recognition.stop();
-            return;
-        }
-
-        setListening(true);
-        startSound.play();
-        recognition.start();
-
-        recognition.onresult = async (e) => {
-            const transcript = e.results[0][0].transcript.trim();
-            setInput(transcript);
-            setListening(false);
-            await handleRecommendation(transcript);
-        };
-
-        recognition.onerror = (err) => {
-            setListening(false);
-            if(err.error !== 'no-speech') toast.error("Speech Error: " + err.error);
-        };
-
-        recognition.onend = () => {
-            setListening(false);
-        };
+    recognition.onresult = async (e) => {
+      const transcript = e.results[0][0].transcript.trim();
+      setInput(transcript);
+      setListening(false);
+      await handleRecommendation(transcript);
     };
 
-    const handleRecommendation = async (query) => {
-        if (!query) return;
-        try {
-            const result = await axios.post(`${serverURL}/api/course/search`, { input: query }, { withCredentials: true });
-            setRecommendations(result.data);
-            if (result.data.length) {
-                speak(`I found ${result.data.length} courses for you.`);
-            } else {
-                speak("No courses found for your search.");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Search failed. Please try again.");
-        }
+    recognition.onerror = (err) => {
+      setListening(false);
+      if (err.error !== "no-speech") toast.error("Speech Error: " + err.error);
     };
 
-    return (
-        <div className='min-h-screen bg-linear-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center px-4 py-8'>
-            
-            {/* Search Container */}
-            <div className='bg-white shadow-2xl rounded-[2.5rem] p-6 sm:p-10 w-full max-w-2xl mt-10 transition-all'>
-                
-                {/* Header */}
-                <div className='flex items-center justify-between mb-8'>
-                    <button onClick={() => navigate(-1)} className='p-2 hover:bg-gray-100 rounded-full transition-all'>
-                        <FaArrowLeftLong className='text-gray-700 w-5 h-5'/>
-                    </button>
-                    <div className='flex items-center gap-2'>
-                        <img src={ai} alt='AI' className={`w-8 h-8 ${listening ? 'animate-spin' : ''}`} />
-                        <h1 className='text-xl sm:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-black'>
-                            AI Assistant
-                        </h1>
-                    </div>
-                    <div className='w-8' />
-                </div>
+    recognition.onend = () => setListening(false);
+  };
 
-                {/* Input Bar */}
-                <div className={`relative flex items-center bg-gray-100 rounded-2xl p-2 border-2 transition-all ${listening ? 'border-purple-400 ring-4 ring-purple-100' : 'border-transparent'}`}>
-                    <input 
-                        type="text" 
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleRecommendation(input)}
-                        className='grow px-4 py-3 bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none' 
-                        placeholder={listening ? "Listening..." : "Ask me anything..."}
-                    />
+  const handleRecommendation = async (query) => {
+    if (!query) return;
+    try {
+      const result = await axios.post(
+        `${serverURL}/api/course/search`,
+        { input: query },
+        { withCredentials: true }
+      );
+      setRecommendations(result.data);
+      if (result.data.length > 0) {
+        speak(`I found ${result.data.length} courses for you.`);
+      } else {
+        speak("No courses found for your search.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Search failed.");
+    }
+  };
 
-                    <div className='flex items-center gap-2'>
-                        <button onClick={() => handleRecommendation(input)} className='p-2 bg-white rounded-xl shadow-sm hover:scale-105 transition-transform'>
-                            <img src={ai} alt="Search" className='w-7 h-7' />
-                        </button>
-                        <button 
-                            onClick={handleSearch}
-                            className={`${listening ? 'bg-red-500 animate-pulse' : 'bg-gradient-to-tr from-purple-500 to-pink-500'} text-white rounded-xl w-11 h-11 flex items-center justify-center shadow-lg transition-all active:scale-90`}
-                        >
-                            <RiMicAiFill className="w-6 h-6" />
-                        </button>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 overflow-x-hidden">
+      {/* Background Decorative Elements */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/10 blur-[120px] rounded-full" />
+      </div>
 
-                {/* Suggestions */}
-                {!listening && recommendations.length === 0 && (
-                    <div className='mt-8'>
-                        <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mb-4'>Recommended Topics</p>
-                        <div className='flex flex-wrap gap-2 justify-center'>
-                            {["Web Development", "Data Science", "UI/UX Design"].map((text) => (
-                                <button key={text} onClick={() => { setInput(text); handleRecommendation(text); }} className='text-xs font-semibold bg-gray-50 hover:bg-purple-50 hover:text-purple-600 text-gray-500 px-4 py-2 rounded-full border border-gray-100 transition-all'>
-                                    {text}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between mb-16">
+          <button
+            onClick={() => navigate(-1)}
+            className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <RiArrowLeftLine className="text-xl group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.4)] ${listening ? 'animate-pulse' : ''}`}>
+               <RiMicAiFill className="text-white text-xl" />
             </div>
-
-            {/* Results Section */}
-            <div className='w-full max-w-6xl mt-12 mb-20'>
-                {listening ? (
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                         <div className="flex space-x-2">
-                            <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                            <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                            <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce"></div>
-                        </div>
-                        <p className="text-gray-400 font-medium animate-pulse text-lg tracking-wide">Processing your voice...</p>
-                    </div>
-                ) : recommendations.length > 0 ? (
-                    <div>
-                        <h2 className='text-white text-2xl font-bold mb-8 px-4 border-l-4 border-purple-500 ml-4'>Top Results</h2>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4'>
-                            {recommendations.map((course, index) => (
-                                <div 
-                                    key={index} 
-                                    onClick={() => navigate(`/viewlecture/${course._id}`)}
-                                    className='bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] hover:bg-white/15 transition-all cursor-pointer group hover:-translate-y-2'
-                                >
-                                    <div className='w-full h-44 bg-gray-800 rounded-2xl mb-4 overflow-hidden relative'>
-                                        <img src={course.thumbnail || 'https://via.placeholder.com/400x225'} alt={course.title} className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500' />
-                                        <div className='absolute top-3 right-3 bg-purple-600 text-[10px] font-bold text-white px-3 py-1 rounded-full uppercase'>
-                                            {course.category}
-                                        </div>
-                                    </div>
-                                    <h3 className='text-white text-xl font-bold line-clamp-1 group-hover:text-purple-400 transition-colors'>{course.title}</h3>
-                                    <p className='text-gray-400 text-sm mt-2 line-clamp-2 leading-relaxed'>{course.description || "Learn the fundamentals of " + course.category + " with industry experts."}</p>
-                                    <div className='mt-6 flex justify-between items-center border-t border-white/5 pt-4'>
-                                        <span className='text-white font-black text-xl'>₹{course.Price || 'Free'}</span>
-                                        <span className='text-purple-400 text-xs font-bold flex items-center gap-1'>Explore Details →</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <div className='text-center opacity-40'>
-                        <h1 className='text-white text-3xl font-light tracking-tighter'>Ready to learn something new?</h1>
-                    </div>
-                )}
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+              AI Vision
+            </h1>
+          </div>
+          <div className="w-10" /> 
         </div>
-    );
-}
+
+        {/* Hero Search Section */}
+        <div className="flex flex-col items-center mb-20">
+          <div className="w-full max-w-3xl relative group">
+            <div className={`absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 ${listening ? 'opacity-70 animate-pulse' : ''}`}></div>
+            
+            <div className="relative flex items-center bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 shadow-2xl">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && input.trim() && handleRecommendation(input)}
+                placeholder={listening ? "Listening to your voice..." : "What do you want to learn today?"}
+                className="grow bg-transparent px-6 py-4 text-lg outline-none placeholder:text-gray-500 font-light"
+              />
+              
+              <div className="flex items-center gap-2 pr-2">
+                <button
+                  onClick={() => handleRecommendation(input)}
+                  className="p-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                >
+                  <RiSearchLine size={24} />
+                </button>
+                <button
+                  onClick={handleSearch}
+                  className={`relative overflow-hidden group p-4 rounded-xl transition-all active:scale-95 ${
+                    listening ? "bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "bg-white text-black"
+                  }`}
+                >
+                  <RiMicAiFill size={24} className={listening ? "animate-bounce" : ""} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Suggested Chips */}
+          {!listening && recommendations.length === 0 && (
+            <div className="mt-8 flex flex-wrap justify-center gap-3 animate-fade-in">
+              {["Full Stack Web", "Machine Learning", "Graphic Design"].map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => { setInput(tag); handleRecommendation(tag); }}
+                  className="px-5 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-medium text-gray-400 hover:border-purple-500/50 hover:text-white hover:bg-purple-500/10 transition-all"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Results Area */}
+        <div className="min-h-[400px]">
+          {listening ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex gap-1 items-end h-12 mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-1.5 bg-purple-500 rounded-full animate-[quiet_1.2s_ease-in-out_infinite]" 
+                       style={{ animationDelay: `${i * 0.1}s`, height: `${Math.random() * 100}%` }}></div>
+                ))}
+              </div>
+              <p className="text-purple-400 font-medium tracking-[0.2em] uppercase text-xs">Analyzing Audio Signal</p>
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="flex items-center gap-4 mb-10">
+                <RiCompass3Line className="text-purple-500 text-3xl" />
+                <h2 className="text-2xl font-semibold tracking-tight">Personalized Recommendations</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {recommendations.map((course, index) => (
+                  <div
+                    key={index}
+                    onClick={() => navigate(`/viewlecture/${course._id}`)}
+                    className="group relative bg-[#0f0f0f] border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-purple-500/30 transition-all duration-500"
+                  >
+                    <div className="aspect-video overflow-hidden">
+                      <img
+                        src={course.thumbnail || "https://via.placeholder.com/400x225"}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
+                        alt={course.title}
+                      />
+                    </div>
+                    
+                    <div className="p-8">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="px-3 py-1 rounded-lg bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider">
+                          {course.category}
+                        </span>
+                        <span className="text-xl font-bold">₹{course.Price || "Free"}</span>
+                      </div>
+                      
+                      <h3 className="text-lg font-bold mb-3 line-clamp-1 group-hover:text-purple-400 transition-colors">
+                        {course.title}
+                      </h3>
+                      <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed mb-6">
+                        {course.description || `Master ${course.category} with professional training.`}
+                      </p>
+                      
+                      <div className="pt-4 border-t border-white/5 flex items-center justify-between opacity-60 group-hover:opacity-100 transition-opacity">
+                        <span className="text-xs font-semibold">VIEW DETAILS</span>
+                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all">
+                          →
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                <RiMicAiFill className="text-3xl text-gray-700" />
+              </div>
+              <h3 className="text-xl text-gray-400 font-light">
+                Tap the mic to start your journey
+              </h3>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Global CSS for custom animations (Add this to your CSS file if needed) */}
+      <style>{`
+        @keyframes quiet {
+          0%, 100% { height: 10px; }
+          50% { height: 40px; }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export default SearchWithAI;

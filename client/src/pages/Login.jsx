@@ -27,7 +27,7 @@ const Login = () => {
         { email, password },
         { withCredentials: true },
       );
-      dispatch(setUserData(result.data));
+      dispatch(setUserData(result.data.user));
       setLoading(false);
       toast.success("Login Successfully");
       navigate("/");
@@ -52,7 +52,7 @@ const Login = () => {
         { withCredentials: true },
       );
 
-      dispatch(setUserData(result.data));
+      dispatch(setUserData(result.data.user));
       navigate("/");
       toast.success("Google login Successful");
     } catch (error) {

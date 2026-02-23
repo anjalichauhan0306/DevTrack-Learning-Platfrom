@@ -41,7 +41,10 @@ export const generateCertificate = async (req, res) => {
 
     // Fonts
     doc.registerFont("HeadingFont", path.join("assets", "playfair_font.ttf"));
-    doc.registerFont("SignatureFont", path.join("assets", "MomoSignature-Regular.ttf"));
+    doc.registerFont(
+  "SignatureFont",
+  path.join("assets", "AlexBrush-Regular.ttf")
+);
 
     // Background
     doc.image(path.join("assets", "certificate-bg.png"), 0, 0, {
@@ -78,8 +81,8 @@ export const generateCertificate = async (req, res) => {
     );
 
     // Footer
-    doc.fontSize(14).text(`Certificate ID: ${certificateId}`, 500, 500);
-    doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
+doc.fontSize(14).text(`Certificate ID: ${certificateId}`, 500, 500);
+doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
     doc.font("SignatureFont").fontSize(28).text("anjali Chauhan", 80, 450);
     doc.fontSize(12).text("anjali", 80, 480);
 

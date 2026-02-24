@@ -192,7 +192,7 @@ const Signup = () => {
             </a>
           </p>
         </div>
-         <div className="hidden md:flex md:w-[45%] bg-[#020617] relative flex-col items-center justify-center p-12 overflow-hidden">
+        <div className="hidden md:flex md:w-[45%] bg-[#020617] relative flex-col items-center justify-center p-12 overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
 
           <div className="relative z-10 flex flex-col items-center text-center">

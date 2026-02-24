@@ -55,7 +55,6 @@ const CreateCourse = () => {
         }}
         className="space-y-6"
       >
-        {/* Title */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Course Title
@@ -71,7 +70,6 @@ const CreateCourse = () => {
           />
         </div>
 
-        {/* Subtitle */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Subtitle
@@ -86,7 +84,6 @@ const CreateCourse = () => {
           />
         </div>
 
-        {/* Description (Rich Text Placeholder) */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Description
@@ -105,7 +102,6 @@ const CreateCourse = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Category */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Category
@@ -132,8 +128,6 @@ const CreateCourse = () => {
               </option>
             </select>
           </div>
-
-          {/* Level */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Level
@@ -151,7 +145,6 @@ const CreateCourse = () => {
           </div>
         </div>
 
-        {/* Thumbnail */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Course Thumbnail
@@ -177,7 +170,6 @@ const CreateCourse = () => {
           </div>
         </div>
 
-        {/* Save Button */}
         <div className="pt-4 border-t border-gray-100 flex justify-end">
           <button
             type="submit"

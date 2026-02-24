@@ -93,7 +93,6 @@ const Profile = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">
-      {/* --- Breadcrumb Header (Wahi Purana Style) --- */}
       <nav className="max-w-7xl mx-auto px-6 py-6 flex items-center gap-3 text-sm font-medium">
         <Link
           to="/"
@@ -105,13 +104,9 @@ const Profile = () => {
         <span className="text-slate-900 font-bold italic">Account Settings</span>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Sidebar Panel */}
-        <aside className="lg:col-span-4 space-y-6">
+      <main className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-8">    
+      <aside className="lg:col-span-4 space-y-6">
           <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-8 flex flex-col items-center text-center">
-            
-            {/* Avatar with Camera Overlay */}
             <div className="relative group mb-6">
               <div className="w-32 h-32 rounded-full p-1 bg-white ring-2 ring-indigo-50 overflow-hidden shadow-inner">
                 {previewUrl ? (
@@ -157,7 +152,6 @@ const Profile = () => {
           </div>
         </aside>
 
-        {/* Content Panel */}
         <div className="lg:col-span-8">
           <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
             
@@ -200,7 +194,6 @@ const Profile = () => {
             </div>
 
             <div className="p-8 space-y-8 max-w-2xl">
-              {/* Name Input */}
               <div className="space-y-2">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
                   Full Name
@@ -217,7 +210,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
                   Email Address
@@ -228,7 +220,6 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Bio Input */}
               <div className="space-y-2">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
                   About You

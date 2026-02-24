@@ -15,19 +15,20 @@ const PaymentSuccess = () => {
     const sessionId = new URLSearchParams(location.search).get("session_id");
 
     if (sessionId) {
-
-      const result = axios.post(
-        serverURL + "/api/payment/verifypayment",
-        { sessionId },
-        { withCredentials: true }
-      )
-      .then(() => {
-        toast.success("Enrollment Successful 🎉");
-        navigate("/mylearning");
-      })
-      .catch((error) => {
-        toast.error(` ${error}. || "Unknown error"}`);
-      });
+      const result = axios
+        .post(
+          serverURL + "/api/payment/verifypayment",
+          { sessionId },
+          { withCredentials: true },
+        )
+        .then(() => {
+          toast.success("Enrollment Successful 🎉");
+          navigate("/mylearning");
+          dispatch(setUserData(result.data))
+        })
+        .catch((error) => {
+          toast.error(` ${error}. || "Unknown error"}`);
+        });
     }
   }, []);
 

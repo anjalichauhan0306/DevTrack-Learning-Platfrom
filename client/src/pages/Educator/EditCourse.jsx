@@ -28,8 +28,8 @@ const EditCourse = () => {
   const [isPaid, setIsPaid] = useState(false);
   const { courseId } = useParams();
   const [selectCourseData, setSelectedCourseData] = useState(null);
-  const dispatch = useDispatch()
-  const {courseData} = useSelector(state=>state.course)
+  const dispatch = useDispatch();
+  const { courseData } = useSelector((state) => state.course);
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -102,20 +102,21 @@ const EditCourse = () => {
       setLoading(false);
       navigate("/courses");
 
-      const updateData = result.data
-      if(updateData.isPublished){
-        const updateCourse = courseData.map(c =>c._id === courseId ? updateData : c)
-        
-        if(!courseData.some(c=>c._id === courseId)){
-          updateCourse.push(updateData)
+      const updateData = result.data;
+      if (updateData.isPublished) {
+        const updateCourse = courseData.map((c) =>
+          c._id === courseId ? updateData : c,
+        );
+
+        if (!courseData.some((c) => c._id === courseId)) {
+          updateCourse.push(updateData);
         }
-      dispatch(setCourseData(updateCourse))
+        dispatch(setCourseData(updateCourse));
+      } else {
+        const filterCourse = courseData.filter((c) => c._id !== courseId);
+        dispatch(filterCourse);
       }
-      else{
-       const filterCourse = courseData.filter(c =>c._id !== courseId)
-       dispatch(filterCourse)
-      }
-      
+
       toast.success("course Updated successfully");
     } catch (error) {
       setLoading(false);
@@ -125,16 +126,21 @@ const EditCourse = () => {
   };
 
   const handleDeleteCourse = async () => {
-    if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
-    
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this course? This action cannot be undone.",
+      )
+    )
+      return;
+
     try {
-      await axios.delete(serverURL +`/api/course/delete/${courseId}`, {
+      await axios.delete(serverURL + `/api/course/delete/${courseId}`, {
         withCredentials: true,
       });
       toast.success("Course deleted!");
       navigate("/courses");
-      const filterCourse = courseData.filter(c =>c._id !== courseId)
-      dispatch(setCourseData(filterCourse))
+      const filterCourse = courseData.filter((c) => c._id !== courseId);
+      dispatch(setCourseData(filterCourse));
     } catch (error) {
       toast.error(error.response?.data?.message || "Delete failed");
     }
@@ -154,7 +160,6 @@ const EditCourse = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] py-10 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-5">
             <button
@@ -174,7 +179,12 @@ const EditCourse = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm" onClick={()=>navigate(`/createlecture/${selectCourseData?._id}`)}>
+            <button
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm"
+              onClick={() =>
+                navigate(`/createlecture/${selectCourseData?._id}`)
+              }
+            >
               <Rocket className="w-4 h-4" />
               Go to Lectures
             </button>
@@ -182,7 +192,6 @@ const EditCourse = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Form Details */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
               <div className="flex items-center gap-2 mb-6 text-slate-800">
@@ -377,7 +386,10 @@ const EditCourse = () => {
               >
                 {isPublished ? "Unpublish Course" : "Publish Course"}
               </button>
-              <button onClick={handleDeleteCourse} className="w-full py-3 rounded-xl font-bold bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+              <button
+                onClick={handleDeleteCourse}
+                className="w-full py-3 rounded-xl font-bold bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+              >
                 <Trash2 className="w-4 h-4" />
                 Delete Course
               </button>
@@ -386,7 +398,7 @@ const EditCourse = () => {
             <div className="flex flex-col gap-3 pt-4">
               <button
                 onClick={handleEditCourse}
-                disabled = {loading}
+                disabled={loading}
                 className="w-full py-3.5 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-2"
               >
                 <Save className="w-4 h-4" />

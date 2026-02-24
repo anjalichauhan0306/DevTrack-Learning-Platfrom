@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const reviewSlice = createSlice({
   name: "lecture",
   initialState: {
-        reviewData :[]
+    reviewData: [],
   },
   reducers: {
     setReviewData: (state, action) => {
@@ -12,5 +12,5 @@ const reviewSlice = createSlice({
   },
 });
 
-export const {setReviewData} = reviewSlice.actions;
+export const { setReviewData } = reviewSlice.actions;
 export default reviewSlice.reducer;

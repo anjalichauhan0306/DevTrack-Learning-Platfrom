@@ -47,11 +47,7 @@ courseRouter.delete("/deletelecture/:lectureId", isAuth, removeLecture);
 courseRouter.post("/creator", isAuth, getCreatorById);
 courseRouter.get("/getcreator/:creatorId", getCreatorById);
 courseRouter.get("/getenrolled", isAuth, getAllEnrolledStudents);
-
-// For search
 courseRouter.post("/search", searchWithAi);
-
-// For certificate
-courseRouter.post("/certificate/:courseId", isAuth,generateCertificate );
+courseRouter.post("/certificate/:courseId", isAuth, generateCertificate);
 
 export default courseRouter;

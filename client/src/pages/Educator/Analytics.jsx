@@ -29,23 +29,22 @@ const Analytics = () => {
   const summaryStats = useMemo(() => {
     const totalCourses = creatorCourseData?.length || 0;
 
-     const studentSet = new Set();
-  creatorCourseData?.forEach((course) => {
-    course.enrolledStudents?.forEach((student) => {
-      // Assuming student is an object with _id, else just use student
-      studentSet.add(student._id?.toString() || student);
+    const studentSet = new Set();
+    creatorCourseData?.forEach((course) => {
+      course.enrolledStudents?.forEach((student) => {
+        // Assuming student is an object with _id, else just use student
+        studentSet.add(student._id?.toString() || student);
+      });
     });
-  });
-  const totalStudents = studentSet.size;
+    const totalStudents = studentSet.size;
 
     const totalEarnings =
-      creatorCourseData?.reduce(
-        (sum, course) =>{
-          const studentCount = course.enrolledStudents?.length || 0;
-          const price = Number(course.Price || course.Price || 0);
-          const courseRevenue = price * studentCount;
-          return sum + courseRevenue
-        },0) || 0;
+      creatorCourseData?.reduce((sum, course) => {
+        const studentCount = course.enrolledStudents?.length || 0;
+        const price = Number(course.Price || course.Price || 0);
+        const courseRevenue = price * studentCount;
+        return sum + courseRevenue;
+      }, 0) || 0;
 
     return [
       {
@@ -79,11 +78,15 @@ const Analytics = () => {
     ];
   }, [creatorCourseData]);
 
-  const sortedCourses = creatorCourseData ? [...creatorCourseData].sort((a, b) => {
-  return (b.enrolledStudents?.length || 0) - (a.enrolledStudents?.length || 0);
-}) : [];
+  const sortedCourses = creatorCourseData
+    ? [...creatorCourseData].sort((a, b) => {
+        return (
+          (b.enrolledStudents?.length || 0) - (a.enrolledStudents?.length || 0)
+        );
+      })
+    : [];
 
-const popularCourses = sortedCourses.slice(0, 4);
+  const popularCourses = sortedCourses.slice(0, 4);
 
   const chartData = useMemo(
     () =>
@@ -99,13 +102,11 @@ const popularCourses = sortedCourses.slice(0, 4);
     () =>
       creatorCourseData?.map((course) => ({
         name: course.title?.slice(0, 10) + "...",
-        lectures: course.lectures?.length || 0, 
+        lectures: course.lectures?.length || 0,
         fullName: course.title,
       })),
     [creatorCourseData],
   );
-
-
 
   const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#f59e0b"];
 
@@ -302,29 +303,39 @@ const popularCourses = sortedCourses.slice(0, 4);
 
           {/* Table Section */}
           <div className="lg:col-span-12 mt-4">
-  <h3 className="text-xl font-bold text-slate-800 mb-6 px-4">Most Popular Courses</h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {popularCourses.map((course, idx) => (
-      <div key={idx} className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all">
-        <div className="flex items-center gap-4">
-          {/* Rank Circle */}
-          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
-            #{idx + 1}
+            <h3 className="text-xl font-bold text-slate-800 mb-6 px-4">
+              Most Popular Courses
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {popularCourses.map((course, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Rank Circle */}
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
+                      #{idx + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">
+                        {course.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        <span className="text-indigo-600 font-bold">
+                          {course.enrolledStudents?.length || 0}
+                        </span>{" "}
+                        Students enrolled
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
+                    <TrendingUp size={16} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-slate-800 text-sm">{course.title}</h4>
-            <p className="text-[11px] text-slate-500">
-              <span className="text-indigo-600 font-bold">{course.enrolledStudents?.length || 0}</span> Students enrolled
-            </p>
-          </div>
-        </div>
-        <div className="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
-          <TrendingUp size={16} />
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
         </div>
       </main>
     </div>

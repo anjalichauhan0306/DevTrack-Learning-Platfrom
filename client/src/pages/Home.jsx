@@ -18,7 +18,7 @@ import FAQ from "../component/FAQ.jsx";
 import ReviewPage from "../component/Reviewpage.jsx";
 
 const Home = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <div className="w-full min-h-screen bg-white font-sans selection:bg-indigo-100 selection:text-indigo-900">
@@ -66,11 +66,17 @@ const Home = () => {
               </p>
 
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
-                <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:-translate-y-1 active:scale-95" onClick={()=>navigate("/allcourses")}>
+                <button
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:-translate-y-1 active:scale-95"
+                  onClick={() => navigate("/allcourses")}
+                >
                   Explore Courses
                 </button>
-                <button onClick={()=>navigate("/search")} className="flex items-center gap-3 px-8 py-4 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 transition-all text-white font-semibold group">
-                  <div className="bg-indigo-600 p-1.5 rounded-lg group-hover:scale-110 transition-transform" >
+                <button
+                  onClick={() => navigate("/search")}
+                  className="flex items-center gap-3 px-8 py-4 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 transition-all text-white font-semibold group"
+                >
+                  <div className="bg-indigo-600 p-1.5 rounded-lg group-hover:scale-110 transition-transform">
                     <SearchIcon size={16} strokeWidth={3} />
                   </div>
                   Search with AI

@@ -1,17 +1,21 @@
 import React, { useMemo } from "react";
-import { FiMail, FiLinkedin,  FiAward, FiArrowUpRight, FiBookOpen } from "react-icons/fi";
+import {
+  FiMail,
+  FiLinkedin,
+  FiAward,
+  FiArrowUpRight,
+  FiBookOpen,
+} from "react-icons/fi";
 import Footer from "../component/Footer";
 import Navbar from "../component/Nav";
 import { useSelector } from "react-redux";
 
 const MentorsList = () => {
-
-  const {courseData} = useSelector(state=>state.course);
-   const creators = useMemo(() => {
+  const { courseData } = useSelector((state) => state.course);
+  const creators = useMemo(() => {
     if (!courseData) return [];
 
     const map = new Map();
-
     courseData.forEach((course) => {
       if (course.creator) {
         const existing = map.get(course.creator._id);
@@ -37,13 +41,17 @@ const MentorsList = () => {
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full mb-6">
             <FiAward className="text-blue-400" />
-            <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">Expert Instructors</span>
+            <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">
+              Expert Instructors
+            </span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
-            Learn from the <span className="text-blue-500">Industry Leaders.</span>
+            Learn from the{" "}
+            <span className="text-blue-500">Industry Leaders.</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto font-medium">
-            Direct mentorship from verified educators to help you build your dream career in tech.
+            Direct mentorship from verified educators to help you build your
+            dream career in tech.
           </p>
         </div>
       </div>
@@ -62,7 +70,9 @@ const MentorsList = () => {
                   <div className="relative mb-6">
                     <div className="h-32 w-32 rounded-[2.2rem] overflow-hidden rotate-3 group-hover:rotate-0 transition-transform duration-500 border-4 border-white shadow-lg">
                       <img
-                        src={mentor.photoUrl || "https://via.placeholder.com/150"} 
+                        src={
+                          mentor.photoUrl || "https://via.placeholder.com/150"
+                        }
                         alt={mentor.name}
                         className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-500"
                       />
@@ -76,8 +86,10 @@ const MentorsList = () => {
                       {mentor.name}
                     </h3>
                     <div className="flex items-center justify-center gap-2 mt-1">
-                       <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                       <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Verified Expert</p>
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                      <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest">
+                        Verified Expert
+                      </p>
                     </div>
                   </div>
                   <p className="text-gray-500 text-sm leading-relaxed mb-8 line-clamp-3 px-2 min-h-[60px]">
@@ -91,19 +103,30 @@ const MentorsList = () => {
                           {mentor.courseCount || 0}
                         </span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Courses</span>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
+                        Courses
+                      </span>
                     </div>
 
                     <div className="flex flex-col items-center">
                       <div className="flex gap-4">
-                        <a href={`mailto:${mentor.email}`} className="text-gray-400 hover:text-blue-600 transition-colors" title="Contact Email">
+                        <a
+                          href={`mailto:${mentor.email}`}
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                          title="Contact Email"
+                        >
                           <FiMail size={18} />
                         </a>
-                        <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                        <a
+                          href="#"
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                        >
                           <FiLinkedin size={18} />
                         </a>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">Contact</span>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">
+                        Contact
+                      </span>
                     </div>
                   </div>
                 </div>

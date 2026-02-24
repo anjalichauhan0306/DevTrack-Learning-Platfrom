@@ -39,7 +39,7 @@ export const searchWithAi = async (req, res) => {
      `;
 
     const response = await ai.models.generateContent({
-     model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
@@ -68,7 +68,7 @@ export const searchWithAi = async (req, res) => {
           { level: { $regex: keyword, $options: "i" } },
         ],
       });
-      return res.status(200).json(courses)
+      return res.status(200).json(courses);
     }
   } catch (error) {
     console.error(error);

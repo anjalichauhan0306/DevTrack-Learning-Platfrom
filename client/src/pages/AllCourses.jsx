@@ -33,9 +33,7 @@ const CoursePage = () => {
     let courseCopy = courseData?.slice();
 
     if (category.length > 0) {
-      courseCopy = courseCopy.filter((c) =>
-        category.includes(c.category)
-      );
+      courseCopy = courseCopy.filter((c) => category.includes(c.category));
     }
 
     setFilteredCourse(courseCopy);
@@ -58,7 +56,8 @@ const CoursePage = () => {
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
-            Explore <span className="text-indigo-400">Universe</span> of Knowledge
+            Explore <span className="text-indigo-400">Universe</span> of
+            Knowledge
           </h1>
 
           <div className="relative max-w-xl mx-auto group">
@@ -83,8 +82,6 @@ const CoursePage = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-8">
-
-        {/* MOBILE FILTER BUTTON */}
         <div className="md:hidden flex justify-end mb-4">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -95,7 +92,6 @@ const CoursePage = () => {
           </button>
         </div>
 
-        {/* SIDEBAR */}
         <aside
           className={`
             w-full md:w-1/4 space-y-8 
@@ -150,7 +146,6 @@ const CoursePage = () => {
           </div>
         </aside>
 
-        {/* COURSE GRID */}
         <main className="w-full md:w-3/4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold">

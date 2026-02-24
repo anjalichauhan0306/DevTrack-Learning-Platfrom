@@ -30,8 +30,8 @@ export const createReview = async (req, res) => {
     course.reviews.push(review._id);
     await review.save();
 
-    await course.reviews.push(review._id)
-    course.save()
+    await course.reviews.push(review._id);
+    course.save();
 
     return res.status(200).json(review);
   } catch (error) {
@@ -43,7 +43,7 @@ export const createReview = async (req, res) => {
 export const getReviews = async (req, res) => {
   try {
     const review = await Review.find({})
-      .populate("user","name photoUrl description")
+      .populate("user", "name photoUrl description")
       .sort({ reviewedAt: -1 });
 
     return res.status(200).json(review);

@@ -23,14 +23,19 @@ const EditLecture = () => {
   const { courseId, lectureId } = useParams();
   const navigate = useNavigate();
   const { lectureData } = useSelector((state) => state.lecture);
-  const selectedLecture = lectureData.find(lecture => lecture._id === lectureId,
+  const selectedLecture = lectureData.find(
+    (lecture) => lecture._id === lectureId,
   );
   const dispatch = useDispatch();
   const [lectureTitle, setLectureTitle] = useState(
     selectedLecture?.lectureTitle,
   );
-  const [description, setDescription] = useState(selectedLecture?.description || "");
-  const [isPreviewFree, setIsPreviewFree] = useState(selectedLecture?.isPreviewFree || false);
+  const [description, setDescription] = useState(
+    selectedLecture?.description || "",
+  );
+  const [isPreviewFree, setIsPreviewFree] = useState(
+    selectedLecture?.isPreviewFree || false,
+  );
   const [videoUrl, setVideoUrl] = useState(null);
   const [videoPreview, setVideoPreview] = useState("");
   const [loading, setLoading] = useState(false);
@@ -131,7 +136,6 @@ const EditLecture = () => {
 
       <div className="max-w-6xl mx-auto px-6 -mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT: MAIN FORM */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +150,6 @@ const EditLecture = () => {
               </div>
 
               <div className="space-y-8">
-                {/* Title Input */}
                 <div className="group">
                   <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 group-focus-within:text-indigo-600 transition-colors">
                     <FiType /> Title
@@ -159,8 +162,6 @@ const EditLecture = () => {
                     placeholder="E.g. Introduction to React Hooks"
                   />
                 </div>
-
-                {/* Description Textarea */}
                 <div className="group">
                   <div className="flex justify-between items-center mb-3">
                     <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-indigo-600 transition-colors">
@@ -185,7 +186,6 @@ const EditLecture = () => {
             </div>
           </motion.div>
 
-          {/* RIGHT: VIDEO PANEL */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -275,7 +275,6 @@ const EditLecture = () => {
               </div>
             </div>
 
-            {/* UPLOAD PROGRESS */}
             {loading && (
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}

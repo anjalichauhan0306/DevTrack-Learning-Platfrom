@@ -11,7 +11,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 
 const ExploreCourses = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const categories = [
     { name: "Web Development", icon: Monitor },
     { name: "Mobile Apps", icon: Smartphone },
@@ -25,8 +25,6 @@ const ExploreCourses = () => {
     <section className="relative w-full bg-white py-25 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-20">
-
-          {/* LEFT CONTENT */}
           <div className="lg:w-1/2 space-y-8">
             <span className="text-xs font-bold tracking-widest uppercase text-indigo-600">
               Learning Paths
@@ -46,7 +44,7 @@ const ExploreCourses = () => {
 
             <Link
               to="/courses"
-              onClick={()=>navigate("/allcourses")}
+              onClick={() => navigate("/allcourses")}
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl
               bg-linear-to-r from-indigo-600 to-purple-600
               text-white font-bold text-lg shadow-xl hover:scale-105 transition-transform"
@@ -56,7 +54,6 @@ const ExploreCourses = () => {
             </Link>
           </div>
 
-          {/* RIGHT SIDE – SMALL BOXES */}
           <div className="lg:w-1/2 grid grid-cols-2 gap-6">
             {categories.map((item, index) => {
               const Icon = item.icon;
@@ -67,10 +64,8 @@ const ExploreCourses = () => {
                   className="group relative overflow-hidden rounded-2xl p-5
                   border border-white/10 hover:-translate-y-2 transition-all duration-300"
                 >
-                  {/* 🔥 HERO STYLE BOX BACKGROUND */}
                   <div className="absolute inset-0 bg-[#050B2E]" />
 
-                  {/* GRID */}
                   <div
                     className="absolute inset-0 opacity-[0.06]"
                     style={{
@@ -82,13 +77,12 @@ const ExploreCourses = () => {
                     }}
                   />
 
-                  {/* GLOWS */}
                   <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-600/30 blur-[80px]" />
                   <div className="absolute bottom-0 right-0 w-40 h-40 bg-indigo-600/30 blur-[90px]" />
 
-                  {/* CONTENT */}
                   <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl
+                    <div
+                      className="w-11 h-11 rounded-xl
                       bg-linear-to-r from-indigo-500 to-indigo-900
                       flex items-center justify-center shadow-lg
                       group-hover:scale-110 transition-transform"
@@ -104,7 +98,6 @@ const ExploreCourses = () => {
               );
             })}
           </div>
-
         </div>
       </div>
     </section>

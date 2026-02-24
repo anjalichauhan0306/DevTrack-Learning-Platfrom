@@ -19,7 +19,7 @@ const CourseDetailPage = () => {
   const { courseData, selectedCourse } = useSelector((state) => state.course);
   const [creatorCourses, setCreatorCourses] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(null);
-  const [loading , setLoading] =useState(false)
+  const [loading, setLoading] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -131,37 +131,40 @@ const CourseDetailPage = () => {
   };
 
   const handleReview = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result =await axios.post(serverURL + "/api/review/createreview" ,{rating ,comment , courseId},{withCredentials:true})
-      toast.success("Review Added")
-      setLoading(false)
+      const result = await axios.post(
+        serverURL + "/api/review/createreview",
+        { rating, comment, courseId },
+        { withCredentials: true },
+      );
+      toast.success("Review Added");
+      setLoading(false);
       console.log(result.data);
-      setRating(0)
-      setComment("")
+      setRating(0);
+      setComment("");
     } catch (error) {
       toast.error(error.response?.data?.message);
-      setLoading(false)
-      setRating(0)
-      setComment("")
+      setLoading(false);
+      setRating(0);
+      setComment("");
     }
-  }
+  };
 
-  const calculateAvgReview = (reviews) =>{
-    if(!reviews || reviews.length === 0){
-      return 0
+  const calculateAvgReview = (reviews) => {
+    if (!reviews || reviews.length === 0) {
+      return 0;
     }
 
-    const total = reviews.reduce((sum, review)=>sum + review.rating , 0)
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
 
-    return (total / reviews.length).toFixed(1)
-  }
+    return (total / reviews.length).toFixed(1);
+  };
 
-  const avgRating = calculateAvgReview(selectedCourse?.reviews)
+  const avgRating = calculateAvgReview(selectedCourse?.reviews);
 
-  console.log("Avg Rating :" , avgRating);
+  console.log("Avg Rating :", avgRating);
 
-  
   return (
     <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-8 space-y-8">
       <div
@@ -294,7 +297,6 @@ const CourseDetailPage = () => {
           </div>
         </div>
 
-        {/* Video Preview */}
         <div className="bg-white col-span-3 p-6 rounded-2xl shadow-lg">
           <div className="aspect-video w-full rounded-xl overflow-hidden bg-black flex items-center justify-center">
             {selectedLecture?.videoUrl ? (
@@ -318,7 +320,6 @@ const CourseDetailPage = () => {
             Add a Review
           </h2>
 
-          {/* Rating */}
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-600">Your Rating</span>
 
@@ -338,7 +339,6 @@ const CourseDetailPage = () => {
             </div>
           </div>
 
-          {/* Feedback */}
           <div className="mb-3">
             <textarea
               rows="2"
@@ -351,14 +351,14 @@ const CourseDetailPage = () => {
             />
           </div>
 
-          {/* Button */}
           <button
             onClick={handleReview}
             disabled={loading}
             className="bg-black text-white px-5 py-2 rounded-lg 
                  hover:bg-gray-800 transition text-sm font-medium"
-          > {loading ? <ClipLoader size={18} color="white"
-             /> : "Submit Review" }
+          >
+            {" "}
+            {loading ? <ClipLoader size={18} color="white" /> : "Submit Review"}
           </button>
         </div>
       </div>
@@ -376,8 +376,6 @@ const CourseDetailPage = () => {
           <p className="text-sm text-gray-500">{creatorData?.email}</p>
         </div>
       </div>
-
-      {/* Other Courses */}
       <div>
         <h2 className="text-xl font-semibold mb-4">
           Other Published Courses by Educator

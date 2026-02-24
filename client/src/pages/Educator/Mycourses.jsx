@@ -42,10 +42,11 @@ const MyCourses = () => {
     <div className="p-4 md:p-8 bg-slate-900 min-h-screen text-slate-100">
       <Navbar />
 
-      {/* 1. Header Section - Fixed Alignment */}
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 mt-24">
         <div className="text-center sm:text-left">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">My Courses</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            My Courses
+          </h1>
           <p className="text-slate-400 text-sm mt-1">
             Manage your curriculum and track student engagement
           </p>
@@ -61,10 +62,12 @@ const MyCourses = () => {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        {/* 2. Search & Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-4 mb-10">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search your courses..."
@@ -77,14 +80,12 @@ const MyCourses = () => {
           </button>
         </div>
 
-        {/* 3. Course Grid - Fixed Card Heights */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {creatorCourseData.map((course) => (
             <div
               key={course._id}
               className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden flex flex-col h-full hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
             >
-              {/* Thumbnail Container */}
               <div className="relative aspect-video w-full overflow-hidden">
                 <img
                   src={course.thumbnail || placeholder}
@@ -92,17 +93,18 @@ const MyCourses = () => {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-60" />
-                
+
                 <div
                   className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg ${
-                    course.isPublished ? "bg-emerald-500 text-emerald-950" : "bg-amber-500 text-amber-950"
+                    course.isPublished
+                      ? "bg-emerald-500 text-emerald-950"
+                      : "bg-amber-500 text-amber-950"
                   }`}
                 >
                   {course.isPublished ? "Live" : "Draft"}
                 </div>
               </div>
 
-              {/* Content Section - flex-1 pushes footer to bottom */}
               <div className="p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-4 gap-2">
                   <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 group-hover:text-indigo-400 transition-colors">
@@ -113,20 +115,30 @@ const MyCourses = () => {
                   </button>
                 </div>
 
-                {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-6">
-                  <Stat icon={<Users size={14} />} label="Students" value={course.enrolledStudents?.length || 0} />
-                  <Stat icon={<Star size={14} />} label="Rating" value={course.rating || "N/A"} />
-                  <Stat 
-                    icon={<CheckCircle size={14} />} 
-                    label="Price" 
-                    value={course.isPaid ? `₹${course.Price}` : "Free"} 
+                  <Stat
+                    icon={<Users size={14} />}
+                    label="Students"
+                    value={course.enrolledStudents?.length || 0}
+                  />
+                  <Stat
+                    icon={<Star size={14} />}
+                    label="Rating"
+                    value={course.rating || "N/A"}
+                  />
+                  <Stat
+                    icon={<CheckCircle size={14} />}
+                    label="Price"
+                    value={course.isPaid ? `₹${course.Price}` : "Free"}
                     isPrice={!course.isPaid}
                   />
-                  <Stat icon={<Layout size={14} />} label="Category" value={course.category || "General"} />
+                  <Stat
+                    icon={<Layout size={14} />}
+                    label="Category"
+                    value={course.category || "General"}
+                  />
                 </div>
 
-                {/* Action Footer - Always stays at bottom */}
                 <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center justify-between gap-2">
                   <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
                     Updated: {new Date(course.updatedAt).toLocaleDateString()}
@@ -152,9 +164,13 @@ const Stat = ({ icon, label, value, isPrice }) => (
   <div className="flex flex-col gap-0.5">
     <div className="flex items-center gap-1.5 text-slate-500">
       <span className="text-indigo-400">{icon}</span>
-      <span className="text-[10px] uppercase font-bold tracking-wider">{label}</span>
+      <span className="text-[10px] uppercase font-bold tracking-wider">
+        {label}
+      </span>
     </div>
-    <span className={`text-sm font-semibold truncate ${isPrice ? "text-emerald-400" : "text-slate-200"}`}>
+    <span
+      className={`text-sm font-semibold truncate ${isPrice ? "text-emerald-400" : "text-slate-200"}`}
+    >
       {value}
     </span>
   </div>

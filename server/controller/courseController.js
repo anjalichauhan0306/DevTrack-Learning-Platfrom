@@ -301,7 +301,7 @@ export const getAllEnrolledStudents = async (req, res) => {
 
     for (const course of courses) {
       const price = Number(course.Price) || 0;
-      
+
       for (const student of course.enrolledStudents) {
         const id = student._id.toString();
 
@@ -313,12 +313,12 @@ export const getAllEnrolledStudents = async (req, res) => {
               email: student.email,
               photo: student.photoUrl,
             },
-            totalSpend: price, // first course price
+            totalSpend: price,
             courseCount: 1,
             enrolledCourses: [course.title],
             enrolledAt: student.createdAt,
             lastLogin: student.lastLogin || null,
-            progress: 0, 
+            progress: 0,
             rating: 0,
           });
         } else {
@@ -339,5 +339,3 @@ export const getAllEnrolledStudents = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-

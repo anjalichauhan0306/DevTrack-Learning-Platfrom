@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const lectureSlice = createSlice({
   name: "lecture",
   initialState: {
-        lectureData :[]
+    lectureData: [],
   },
   reducers: {
     setLectureData: (state, action) => {
@@ -12,5 +12,5 @@ const lectureSlice = createSlice({
   },
 });
 
-export const {setLectureData} = lectureSlice.actions;
+export const { setLectureData } = lectureSlice.actions;
 export default lectureSlice.reducer;

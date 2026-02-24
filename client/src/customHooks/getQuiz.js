@@ -10,13 +10,13 @@ const GetQuiz = () => {
   const { courseId } = useParams();
 
   useEffect(() => {
-    if (!courseId) return; // 👈 important check
+    if (!courseId) return;
 
     const getQuiz = async () => {
       try {
         const result = await axios.get(
           `${serverURL}/api/quiz/getquiz/${courseId}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         dispatch(setQuizData([result.data.quiz]));
@@ -28,7 +28,7 @@ const GetQuiz = () => {
     getQuiz();
   }, [courseId, dispatch]);
 
-  return null; // 👈 component kuch render nahi karega
+  return null;
 };
 
 export default GetQuiz;

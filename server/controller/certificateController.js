@@ -24,13 +24,13 @@ export const generateCertificate = async (req, res) => {
 
     const existing = await Certificate.findOne({ userId, courseId });
     if (existing) {
-      // If exists, just send the file
-      return res.download(existing.downloadUrl, `certificate-${existing.certificateId}.pdf`);
+      return res.download(
+        existing.downloadUrl,
+        `certificate-${existing.certificateId}.pdf`,
+      );
     }
-    
-
-    // Optional: skip eligibility check, direct generate
-    const certificateId = "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+    const certificateId =
+      "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
     const pdfDir = path.join("certificates");
     if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir);
     const pdfPath = path.join(pdfDir, `certificate-${certificateId}.pdf`);
@@ -38,24 +38,19 @@ export const generateCertificate = async (req, res) => {
     const doc = new PDFDocument({ layout: "landscape", size: "A4" });
     const writeStream = fs.createWriteStream(pdfPath);
     doc.pipe(writeStream);
-
-    // Fonts
     doc.registerFont("HeadingFont", path.join("assets", "playfair_font.ttf"));
     doc.registerFont(
-  "SignatureFont",
-  path.join("assets", "AlexBrush-Regular.ttf")
-);
+      "SignatureFont",
+      path.join("assets", "AlexBrush-Regular.ttf"),
+    );
 
-    // Background
     doc.image(path.join("assets", "certificate-bg.png"), 0, 0, {
       width: doc.page.width,
       height: doc.page.height,
     });
 
-    // Logo
     doc.image(path.join("assets", "logo.png"), 60, 50, { width: 120 });
 
-    // Certificate Text
     doc
       .font("HeadingFont")
       .fontSize(42)
@@ -70,19 +65,21 @@ export const generateCertificate = async (req, res) => {
       align: "center",
     });
     doc.moveDown();
-    doc.fontSize(18).fillColor("#374151").text(
-      `For successfully completing the course: ${course.title}`,
-      { align: "center" }
-    );
+    doc
+      .fontSize(18)
+      .fillColor("#374151")
+      .text(`For successfully completing the course: ${course.title}`, {
+        align: "center",
+      });
     doc.moveDown();
-    doc.fontSize(16).text(
-      `Score: ${score}/${totalQuestions} (${percentage.toFixed(0)}%)`,
-      { align: "center" }
-    );
+    doc
+      .fontSize(16)
+      .text(`Score: ${score}/${totalQuestions} (${percentage.toFixed(0)}%)`, {
+        align: "center",
+      });
 
-    // Footer
-doc.fontSize(14).text(`Certificate ID: ${certificateId}`, 500, 500);
-doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
+    doc.fontSize(14).text(`Certificate ID: ${certificateId}`, 500, 500);
+    doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
     doc.font("SignatureFont").fontSize(28).text("anjali Chauhan", 80, 450);
     doc.fontSize(12).text("anjali", 80, 480);
 
@@ -100,6 +97,8 @@ doc.fontSize(14).text(`Date: ${new Date().toDateString()}`, 80, 500);
     });
   } catch (err) {
     console.log("Certificate error:", err);
-    res.status(500).json({ message: "Certificate generation failed", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Certificate generation failed", error: err.message });
   }
 };

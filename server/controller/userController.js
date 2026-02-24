@@ -106,7 +106,6 @@ export const updateExamScore = async (req, res) => {
   }
 };
 
-
 export const sendContactMail = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -137,7 +136,6 @@ export const sendContactMail = async (req, res) => {
     });
 
     res.status(200).json({ success: true, message: "Email sent" });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });

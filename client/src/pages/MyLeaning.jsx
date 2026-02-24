@@ -3,58 +3,38 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiBook, FiArrowRight } from "react-icons/fi";
 import Navbar from "../component/Nav";
+import certificateTemplate from "/certificateTemp.png";
 
 const MyLearning = () => {
   const navigate = useNavigate();
 
   const { userData } = useSelector((state) => state.user || {});
   const { courseData } = useSelector((state) => state.course || {});
-
-  /* ================================
-     Progress Calculation (Optimized)
-  ================================= */
-
   const getProgress = (courseId) => {
     if (!courseId || !courseData || !userData) return 0;
-
     const course = courseData.find((c) => c._id === courseId);
     const totalLectures = course?.lectures?.length || 0;
-
     if (totalLectures === 0) return 0;
-
     const courseProgress = userData?.completedLectures?.find(
-      (c) => c.courseId === courseId
+      (c) => c.courseId === courseId,
     );
-
     const completedCount = courseProgress?.lectureIds?.length || 0;
-
-    return Math.min(
-      100,
-      Math.round((completedCount / totalLectures) * 100)
-    );
+    return Math.min(100, Math.round((completedCount / totalLectures) * 100));
   };
-
-  /* ================================
-     Derived Data (Memoized)
-  ================================= */
-
   const enrolledCourses = userData?.enrolledCourses || [];
 
-  const completedCourses = useMemo(() => {
-    return enrolledCourses.filter(
-      (course) => getProgress(course._id) === 100
-    );
+  const inProgressCourses = useMemo(() => {
+    return enrolledCourses.filter((course) => getProgress(course._id) < 100);
   }, [enrolledCourses, courseData, userData]);
 
-  /* ================================
-     UI
-  ================================= */
+  const completedCourses = useMemo(() => {
+    return enrolledCourses.filter((course) => getProgress(course._id) === 100);
+  }, [enrolledCourses, courseData, userData]);
 
   return (
     <div className="min-h-screen bg-[#050517] text-slate-200">
       <Navbar />
 
-      {/* ================= HEADER ================= */}
       <header className="relative pt-32 pb-24 px-4 overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-600/10 rounded-full blur-[100px]" />
@@ -69,43 +49,34 @@ const MyLearning = () => {
 
           <p className="text-slate-400 mt-3 text-lg font-medium">
             Welcome back,{" "}
-            <span className="text-white">
-              {userData?.name || "Learner"}
-            </span>{" "}
-            👋
+            <span className="text-white">{userData?.name || "Learner"}</span> 👋
             <br />
             Track your progress and continue where you left off.
           </p>
         </div>
       </header>
 
-      {/* ================= MAIN ================= */}
       <main className="max-w-6xl mx-auto px-5 pb-20">
-
-        {/* ================= IN PROGRESS ================= */}
         <div className="mb-16">
           <h2 className="text-xl font-black text-white uppercase tracking-widest mb-8 flex items-center gap-3">
             <span className="w-8 h-[2px] bg-indigo-500"></span> In Progress
           </h2>
 
-          {enrolledCourses.length > 0 ? (
+          {inProgressCourses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {enrolledCourses.map((course) => {
+              {inProgressCourses.map((course) => {
                 const progressPercent = getProgress(course._id);
                 const isCompleted = progressPercent === 100;
 
                 return (
                   <div
                     key={course._id}
-                    onClick={() =>
-                      navigate(`/viewlecture/${course._id}`)
-                    }
+                    onClick={() => navigate(`/viewlecture/${course._id}`)}
                     className="group relative bg-[#0f1120] rounded-[2.5rem] p-5 transition-all duration-500 hover:bg-[#161930] border border-white/5 hover:border-indigo-500/50 cursor-pointer overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-indigo-600/20 transition-all" />
 
                     <div className="flex flex-col h-full">
-                      {/* Thumbnail */}
                       <div className="relative w-full h-44 mb-6">
                         <img
                           src={course?.thumbnail}
@@ -117,7 +88,6 @@ const MyLearning = () => {
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className="flex-1 px-1">
                         <h3 className="text-xl font-black text-white leading-[1.2] mb-2 group-hover:text-indigo-300 transition-colors line-clamp-2">
                           {course?.title}
@@ -128,7 +98,6 @@ const MyLearning = () => {
                         </p>
                       </div>
 
-                      {/* Progress */}
                       <div className="flex items-center justify-between bg-white/5 rounded-3xl p-4 mt-auto">
                         <div className="relative flex items-center justify-center w-12 h-12">
                           <svg className="w-full h-full transform -rotate-90">
@@ -150,8 +119,7 @@ const MyLearning = () => {
                               fill="transparent"
                               strokeDasharray={125.6}
                               strokeDashoffset={
-                                125.6 -
-                                (125.6 * progressPercent) / 100
+                                125.6 - (125.6 * progressPercent) / 100
                               }
                               className={`${
                                 isCompleted
@@ -216,8 +184,6 @@ const MyLearning = () => {
             </div>
           )}
         </div>
-
-        {/* ================= ACHIEVEMENTS ================= */}
         {completedCourses.length > 0 && (
           <div className="mt-24">
             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-10 flex items-center gap-3">
@@ -232,7 +198,7 @@ const MyLearning = () => {
                   className="group relative h-64 rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl transition-all duration-500 hover:-translate-y-2"
                 >
                   <img
-                    src={course?.thumbnail}
+                    src={certificateTemplate}
                     className="absolute inset-0 w-full h-full object-cover blur-[2px] group-hover:blur-md transition-all duration-700 brightness-50 group-hover:brightness-[0.3]"
                     alt="Certificate"
                   />

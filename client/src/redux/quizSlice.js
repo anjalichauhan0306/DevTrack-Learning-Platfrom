@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const quizSlice = createSlice({
   name: "quiz",
   initialState: {
-        quizData :[]
+    quizData: [],
   },
   reducers: {
     setQuizData: (state, action) => {
@@ -12,5 +12,5 @@ const quizSlice = createSlice({
   },
 });
 
-export const {setQuizData} = quizSlice.actions;
+export const { setQuizData } = quizSlice.actions;
 export default quizSlice.reducer;

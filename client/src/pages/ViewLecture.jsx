@@ -29,48 +29,53 @@ const ViewLecture = () => {
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
   );
-  
 
   const videoRef = useRef(null);
   const [notes, setNotes] = useState("");
   const [quizScore, setQuizScore] = useState(0);
 
-const courseProgress = userData.completedLectures?.find(c => c.courseId === courseId);
-const coursePercent = courseProgress 
-  ? Math.round((courseProgress.lectureIds.length / (selectedCourse?.lectures?.length || 1)) * 100) 
-  : 0;
+  const courseProgress = userData.completedLectures?.find(
+    (c) => c.courseId === courseId,
+  );
+  const coursePercent = courseProgress
+    ? Math.round(
+        (courseProgress.lectureIds.length /
+          (selectedCourse?.lectures?.length || 1)) *
+          100,
+      )
+    : 0;
   const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
   const isCourseFinished = coursePercent === 100;
 
   const quizAttempts = quizData?.attempts?.length || 0;
   const isCertificateUnlocked =
-  isCourseFinished && 
-  quizData?.questions?.length > 0 && // quiz loaded
-  quizScore >= Math.ceil(quizData.questions.length * 0.7);
+    isCourseFinished &&
+    quizData?.questions?.length > 0 && // quiz loaded
+    quizScore >= Math.ceil(quizData.questions.length * 0.7);
 
   const handleTimeUpdate = async () => {
-  const video = videoRef.current;
-  if (!video || !selectedLecture) return;
-  const percent = (video.currentTime / video.duration) * 100;
-   if (percent > 90) { 
-    try {
-      const response = await axios.post(
-        `${serverURL}/api/user/updateprogress`,
-        {
-          courseId,
-          lectureId: selectedLecture._id,
-          totalLectures: selectedCourse.lectures.length,
-        },
-        { withCredentials: true },
-      );
-      dispatch(setUserData(response.data.user)); 
-    } catch (err) {
-      console.error("Failed to mark lecture completed", err);
+    const video = videoRef.current;
+    if (!video || !selectedLecture) return;
+    const percent = (video.currentTime / video.duration) * 100;
+    if (percent > 90) {
+      try {
+        const response = await axios.post(
+          `${serverURL}/api/user/updateprogress`,
+          {
+            courseId,
+            lectureId: selectedLecture._id,
+            totalLectures: selectedCourse.lectures.length,
+          },
+          { withCredentials: true },
+        );
+        dispatch(setUserData(response.data.user));
+      } catch (err) {
+        console.error("Failed to mark lecture completed", err);
+      }
     }
-  }
-};
-  
+  };
+
   const courseQuizAvailable = quizData?.questions?.length > 0;
 
   useEffect(() => {
@@ -102,16 +107,18 @@ const coursePercent = courseProgress
   }, [courseId, dispatch]);
 
   const downloadCertificate = async () => {
-
-    if(!isCertificateUnlocked) {
-      alert("Certificate not unlocked yet! Score at least 7/10 in the final exam to unlock.");
+    if (!isCertificateUnlocked) {
+      alert(
+        "Certificate not unlocked yet! Score at least 7/10 in the final exam to unlock.",
+      );
       return;
     }
 
     try {
       const response = await axios.post(
         `${serverURL}/api/course/certificate/${courseId}`,
-        { userId: userData._id  ,
+        {
+          userId: userData._id,
           score: quizScore,
           totalQuestions: quizData?.questions?.length || 0,
         },
@@ -129,9 +136,8 @@ const coursePercent = courseProgress
       link.click();
     } catch (error) {
       console.error("Certificate Download Error:", error);
-      }
+    }
   };
-
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -233,10 +239,12 @@ const coursePercent = courseProgress
 
                   <button
                     disabled={
-                      !isCourseFinished || quizAttempts >= 5 || !courseQuizAvailable
+                      !isCourseFinished ||
+                      quizAttempts >= 5 ||
+                      !courseQuizAvailable
                     }
                     onClick={() => {
-                      if(courseQuizAvailable) {
+                      if (courseQuizAvailable) {
                         navigate(`/quiz-attempt/${courseId}`);
                       }
                     }}
@@ -318,7 +326,7 @@ const coursePercent = courseProgress
                 const completed = userData.completedLectures
                   .find((c) => c.courseId === courseId)
                   ?.lectureIds.includes(lecture._id);
-                  const isActive = (lec) => selectedLecture?._id === lecture._id;
+                const isActive = (lec) => selectedLecture?._id === lecture._id;
                 return (
                   <button
                     key={index}

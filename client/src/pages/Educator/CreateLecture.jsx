@@ -128,9 +128,7 @@ const CreateLecture = () => {
   };
 
   const courseQuiz =
-  quizData && quizData.courseId?.toString() === courseId
-    ? quizData
-    : null;
+    quizData && quizData.courseId?.toString() === courseId ? quizData : null;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
@@ -165,10 +163,7 @@ const CreateLecture = () => {
           </div>
         </div>
       </header>
-
-      {/* --- MAIN CONTENT LAYOUT --- */}
       <main className="flex-1 flex flex-col lg:flex-row">
-        {/* LEFT PANEL: The Builder Tool */}
         <aside className="w-full lg:w-100 border-r border-slate-200 bg-white p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)]">
           <div className="mb-10">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100 mb-6 overflow-hidden border border-slate-100">
@@ -248,7 +243,6 @@ const CreateLecture = () => {
           </div>
         </aside>
 
-        {/* RIGHT PANEL: The Content List */}
         <section className="flex-1 p-6 lg:p-12">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">

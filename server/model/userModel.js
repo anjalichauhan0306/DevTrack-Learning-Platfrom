@@ -48,13 +48,13 @@ const userSchema = new mongoose.Schema(
     },
     completedLectures: [
       {
-        courseId: {type: mongoose.Schema.Types.ObjectId, ref: "Courses"},
-        lectureIds: [{type: mongoose.Schema.Types.ObjectId, ref: "Lecture"}],
-      }
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Courses" },
+        lectureIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lecture" }],
+      },
     ],
     examScores: [
       {
-        courseId: {type: mongoose.Schema.Types.ObjectId, ref: "Courses"},
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Courses" },
         score: Number,
       },
     ],

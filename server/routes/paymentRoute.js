@@ -7,5 +7,4 @@ paymentRouter.post("/create-checkout-session", createStripeCheckout);
 paymentRouter.post("/verifypayment",verifyCheckout)
 paymentRouter.post("/free-enroll", freeEnrollCourse);
 
-
 export default paymentRouter

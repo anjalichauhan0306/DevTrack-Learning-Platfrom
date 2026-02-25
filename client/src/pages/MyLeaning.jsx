@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiBook, FiArrowRight } from "react-icons/fi";
 import Navbar from "../component/Nav";
+import axios from 'axios';
+import { serverURL } from "../App";
 import certificateTemplate from "/certificateTemp.png";
 
 const MyLearning = () => {
@@ -30,6 +32,7 @@ const MyLearning = () => {
   const completedCourses = useMemo(() => {
     return enrolledCourses.filter((course) => getProgress(course._id) === 100);
   }, [enrolledCourses, courseData, userData]);
+
 
   return (
     <div className="min-h-screen bg-[#050517] text-slate-200">
@@ -216,7 +219,7 @@ const MyLearning = () => {
                       Course Certified
                     </p>
 
-                    <button className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-white text-black px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-emerald-500 hover:text-white">
+                    <button onClick={() => navigate(`/viewlecture/${course._id}`)} className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-white text-black px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-emerald-500 hover:text-white">
                       Download Certificate
                     </button>
                   </div>

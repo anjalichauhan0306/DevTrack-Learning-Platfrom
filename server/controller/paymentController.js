@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createStripeCheckout = async (req, res) => {
   try {
-    const { courseId, userId } = req.body;
-
+    const { courseId} = req.body;
+    const userId = req.userId; 
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -35,8 +35,8 @@ export const createStripeCheckout = async (req, res) => {
         courseId: courseId.toString(),
         userId: userId.toString(),
       },
-      success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5173/viewcourse/${courseId}`,
+      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/viewcourse/${courseId}`,
     });
 
     res.status(200).json({ url: session.url });
@@ -78,14 +78,14 @@ export const verifyCheckout = async (req, res) => {
 
     res.status(400).json({ message: "Payment not completed" });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Verification failed" });
   }
 };
 
 export const freeEnrollCourse = async (req, res) => {
   try {
-    const { courseId, userId } = req.body;
+    const { courseId } = req.body;
+    const userId = req.userId;
 
     const user = await User.findById(userId);
     const course = await Course.findById(courseId).populate("lectures");
@@ -114,7 +114,6 @@ export const freeEnrollCourse = async (req, res) => {
 
     res.status(200).json({ message: "Enrolled Successfully!" });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Server Error" });
   }
 };

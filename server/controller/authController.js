@@ -39,7 +39,7 @@ export const signUp = async (req, res) => {
     let token = await genToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -58,7 +58,7 @@ export const signUp = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(400).json({
@@ -77,7 +77,7 @@ export const login = async (req, res) => {
     let token = await genToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -176,13 +176,14 @@ export const resetPassword = async (req, res) => {
         message: "verify OTP before resetting password",
       });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (!password || password.length < 6) {
       return res.status(400).json({
         message: "Password must be at least 6 characters",
       });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     user.isOTPVerified = false;
 
@@ -200,7 +201,7 @@ export const resetPassword = async (req, res) => {
 export const googleAuth = async (req, res) => {
   try {
     const { name, email, role } = req.body;
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
     if (!user) {
       user = await User.create({
@@ -214,7 +215,7 @@ export const googleAuth = async (req, res) => {
     let token = await genToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });

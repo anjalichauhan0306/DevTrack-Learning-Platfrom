@@ -10,12 +10,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true
     },
     description: {
       type: String,
     },
     password: {
-      type: String,
+      type: String, 
+      select: false
     },
     role: {
       type: String,
@@ -36,10 +38,12 @@ const userSchema = new mongoose.Schema(
 
     resetPasswordOTP: {
       type: String,
+      select: false
     },
 
     otpExpiryTime: {
       type: Date,
+      select: false
     },
 
     isOTPVerified: {

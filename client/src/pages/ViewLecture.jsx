@@ -34,9 +34,8 @@ const ViewLecture = () => {
   const [notes, setNotes] = useState("");
   const [quizScore, setQuizScore] = useState(0);
 
-  const courseProgress = userData.completedLectures?.find(
-    (c) => c.courseId === courseId,
-  );
+  const courseProgress =
+    userData?.completedLectures?.find((c) => c.courseId === courseId) || null;
   const coursePercent = courseProgress
     ? Math.round(
         (courseProgress.lectureIds.length /
@@ -69,7 +68,7 @@ const ViewLecture = () => {
           },
           { withCredentials: true },
         );
-        dispatch(setUserData(response.data.user));
+        dispatch(setUserData(response.data));
       } catch (err) {
         console.error("Failed to mark lecture completed", err);
       }
@@ -107,13 +106,6 @@ const ViewLecture = () => {
   }, [courseId, dispatch]);
 
   const downloadCertificate = async () => {
-    if (!isCertificateUnlocked) {
-      alert(
-        "Certificate not unlocked yet! Score at least 7/10 in the final exam to unlock.",
-      );
-      return;
-    }
-
     try {
       const response = await axios.post(
         `${serverURL}/api/course/certificate/${courseId}`,
@@ -122,20 +114,21 @@ const ViewLecture = () => {
           score: quizScore,
           totalQuestions: quizData?.questions?.length || 0,
         },
-        {
-          withCredentials: true,
-          responseType: "blob",
-        },
+        { withCredentials: true, responseType: "blob" },
       );
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `certificate_${courseId}.pdf`);
+      link.setAttribute("download", "Certificate.pdf");
       document.body.appendChild(link);
       link.click();
+      link.remove();
     } catch (error) {
-      console.error("Certificate Download Error:", error);
+      console.error("Download Error:", error);
+      console.log(error);
+      alert("Download nahi ho paya!");
     }
   };
 
@@ -323,8 +316,8 @@ const ViewLecture = () => {
             </div>
             <div className="max-h-125 overflow-y-auto p-4 space-y-3">
               {selectedCourse?.lectures?.map((lecture, index) => {
-                const completed = userData.completedLectures
-                  .find((c) => c.courseId === courseId)
+                const completed = userData?.completedLectures
+                  ?.find((c) => c.courseId === courseId)
                   ?.lectureIds.includes(lecture._id);
                 const isActive = (lec) => selectedLecture?._id === lecture._id;
                 return (
@@ -358,24 +351,25 @@ const ViewLecture = () => {
           </div>
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <FiUser /> Your Instructor
+              <FiBookOpen /> Course Stats
             </h3>
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-700 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-100">
-                {creatorData?.name?.charAt(0) || "I"}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Total Lectures</span>
+                <span className="font-bold">{totalLectures}</span>
               </div>
-              <div>
-                <h4 className="font-bold text-gray-900">
-                  {creatorData?.name || "Instructor Name"}
-                </h4>
-                <p className="text-xs text-blue-600 font-semibold">
-                  Senior Course Mentor
-                </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Completed</span>
+                <span className="font-bold text-green-600">
+                  {completedLectures}
+                </span>
               </div>
-            </div>
-            <div className="mt-4 p-3 bg-blue-50 rounded-xl text-[11px] text-blue-700 leading-relaxed font-medium">
-              Professional mentor helping you master this course with
-              step-by-step guidance.
+              <div className="w-full bg-gray-100 h-2 rounded-full mt-2">
+                <div
+                  className="bg-green-500 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${coursePercent}%` }}
+                ></div>
+              </div>
             </div>
           </div>
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">

@@ -4,7 +4,6 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
-  FiArrowRight,
   FiInfo,
   FiRotateCcw,
   FiLogOut,
@@ -63,52 +62,27 @@ const QuizAttempt = () => {
   };
 
   const handleSubmit = async () => {
-    if (!quizData) return;
+  try {
+    const formattedAnswers = Object.entries(selectedOptions).map(([qIndex, optIndex]) => ({
+      questionIndex: Number(qIndex),
+      selectedAnswer: optIndex,
+    }));
 
-    let finalScore = 0;
-    quizData.questions.forEach((q, idx) => {
-      if (selectedOptions[idx] === q.correctAnswer) finalScore += 1;
-    });
+    const result = await axios.post(`${serverURL}/api/quiz/submit`, {
+      quizId: quizData._id,
+      answers: formattedAnswers,
+    }, { withCredentials: true });
 
-    const formattedAnswers = Object.entries(selectedOptions).map(
-      ([qIndex, optIndex]) => ({
-        questionIndex: Number(qIndex),
-        selectedAnswer: optIndex,
-      }),
-    );
-
-    const MAX_ATTEMPTS = 5;
-
-    try {
-      const result = await axios.post(
-        `${serverURL}/api/quiz/submit`,
-        {
-          quizId: quizData._id,
-          answers: formattedAnswers,
-          score: finalScore,
-        },
-        { withCredentials: true },
-      );
-      console.log("Submit Quiz Result:", result.data);
-      setScore(finalScore);
-      setPercentage(
-        totalQuestions ? Math.round((finalScore / totalQuestions) * 100) : 0,
-      );
-      setAttemptsLeft(
-        Math.max(0, MAX_ATTEMPTS - (quizData?.attempts?.length || 0)),
-      );
-      setIsSubmitted(true);
-      setShowConfirm(false);
-
-      if (result.data.quiz) dispatch(setQuizData(result.data.quiz));
-    } catch (err) {
-      toast.error(
-        err.response?.data?.message ||
-          "Failed to submit quiz. Please try again.",
-      );
-      console.error("Failed to submit quiz:", err);
-    }
-  };
+    setScore(result.data.score);
+    setPercentage(result.data.percentage);
+    setIsSubmitted(true);
+    setShowConfirm(false);
+    
+    if (result.data.quiz) dispatch(setQuizData(result.data.quiz));
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Submission failed");
+  }
+};
 
   if (!quizStarted) {
     return (
@@ -140,8 +114,8 @@ const QuizAttempt = () => {
             >
               <FiAlertTriangle /> Attempts Left:{" "}
               {quizData?.attempts
-                ? Math.max(0, 13 - quizData.attempts.length)
-                : 13}
+                ? Math.max(0, 5 - quizData.attempts.length)
+                : 5}
             </div>
           </div>
 

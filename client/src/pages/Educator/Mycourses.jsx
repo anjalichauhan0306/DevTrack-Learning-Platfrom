@@ -38,6 +38,8 @@ const MyCourses = () => {
     creatorCourses();
   }, [userData, dispatch]);
 
+
+
   return (
     <div className="p-4 md:p-8 bg-slate-900 min-h-screen text-slate-100">
       <Navbar />
@@ -80,9 +82,14 @@ const MyCourses = () => {
           </button>
         </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {creatorCourseData.map((course) => (
-            <div
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  {creatorCourseData.map((course) => {
+    const totalReviews = course.reviews?.length || 0;
+    const averageRating = totalReviews > 0
+      ? (course.reviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews).toFixed(1)
+      : "N/A";
+    return (
+    <div
               key={course._id}
               className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden flex flex-col h-full hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
             >
@@ -124,7 +131,7 @@ const MyCourses = () => {
                   <Stat
                     icon={<Star size={14} />}
                     label="Rating"
-                    value={course.rating || "N/A"}
+                    value={averageRating || "N/A"}
                   />
                   <Stat
                     icon={<CheckCircle size={14} />}
@@ -153,7 +160,8 @@ const MyCourses = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

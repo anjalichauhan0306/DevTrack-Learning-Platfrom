@@ -24,7 +24,6 @@ const PaymentSuccess = () => {
         .then(() => {
           toast.success("Enrollment Successful 🎉");
           navigate("/mylearning");
-          dispatch(setUserData(result.data))
         })
         .catch((error) => {
           toast.error(` ${error}. || "Unknown error"}`);

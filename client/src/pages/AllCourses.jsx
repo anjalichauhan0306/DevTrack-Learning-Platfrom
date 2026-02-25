@@ -4,11 +4,12 @@ import Navbar from "../component/Nav";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Card from "../component/Card";
-
+import axios from "axios";
+import { serverURL } from "../App";
 const CoursePage = () => {
   const navigate = useNavigate();
   const { courseData } = useSelector((state) => state.course);
-
+const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
   const [filterCourse, setFilteredCourse] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,7 +24,6 @@ const CoursePage = () => {
       setCategory((prev) => [...prev, e.target.value]);
     }
 
-    // mobile par select karte hi sidebar band
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -60,15 +60,17 @@ const CoursePage = () => {
             Knowledge
           </h1>
 
-          <div className="relative max-w-xl mx-auto group">
+          <div className="relative max-w-xl mx-auto group" onClick={() => navigate("/search")}> 
             <div className="relative flex items-center bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-1 transition-all">
               <div className="flex items-center flex-1 px-3">
                 <Search className="text-slate-400" size={18} />
                 <input
                   type="text"
                   placeholder="Search courses..."
+                  readOnly
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  
                   className="w-full bg-transparent border-none text-white outline-none py-2.5 px-2"
                 />
               </div>

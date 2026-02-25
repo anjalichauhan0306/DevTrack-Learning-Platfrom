@@ -10,7 +10,7 @@ const GetAllReviews = () => {
   useEffect(() => {
     const allReviews = async () => {
       try {
-        const result = await axios.get(serverURL + "/api/review/getreview", {
+        const result = await axios.get(serverURL + "/api/review/review", {
           withCredentials: true,
         });
         dispatch(setReviewData(result.data));

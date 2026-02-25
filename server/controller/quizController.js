@@ -1,7 +1,8 @@
 import { Quiz } from "../model/quizModel.js";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-import Course from "../model/courseModel.js";
+import Courses from "../model/courseModel.js";
+import User from "../model/userModel.js";
 
 dotenv.config();
 
@@ -21,11 +22,15 @@ export const generateQuiz = async (req, res) => {
     if (!courseId)
       return res.status(400).json({ message: "Course ID missing" });
 
-    const course = await Course.findById(courseId).populate("lectures quizzes");
+    const course =
+      await Courses.findById(courseId).populate("lectures quizzes");
 
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    const existQuiz = await Quiz.findOne({ userId, courseId });
+    const existQuiz = await Quiz.findOne({
+      userId,
+      courseId,
+    }).lean();
     if (existQuiz && existQuiz.questions?.length > 0) {
       return res.status(400).json({ message: "Quiz already generated" });
     }
@@ -93,7 +98,6 @@ No extra text.
       .status(201)
       .json({ message: "Final course quiz generated", quiz: newQuiz });
   } catch (error) {
-    console.error("Generate Quiz Error:", error);
     if (newQuiz) await Quiz.findByIdAndDelete(newQuiz._id);
     return res
       .status(500)
@@ -112,7 +116,6 @@ export const getQuizByCourseId = async (req, res) => {
       return res.status(400).json({ message: "Course ID missing" });
     }
 
-    // Find the quiz for this course
     const quiz = await Quiz.findOne({ courseId }).populate("questions");
 
     if (!quiz) {
@@ -121,13 +124,18 @@ export const getQuizByCourseId = async (req, res) => {
         .json({ message: `Quiz not found for this course ${courseId}` });
     }
 
+    const user = await User.findById(req.userId);
+    if(user.role === "Educator"){
+       return res.status(200).json({ quiz });
+    }
+
+    
     quiz.attempts = quiz.attempts.filter(
       (a) => a.userId.toString() === req.userId,
     );
 
     return res.status(200).json({ quiz });
   } catch (error) {
-    console.error("Get Quiz Error:", error);
     return res.status(500).json({ message: `Server error: ${error.message}` });
   }
 };
@@ -135,63 +143,65 @@ export const getQuizByCourseId = async (req, res) => {
 export const submitQuiz = async (req, res) => {
   try {
     const { quizId, answers } = req.body;
+    const userId = req.userId;
     const MAX_ATTEMPTS = 5;
-    if (!quizId || !answers)
-      return res.status(400).json({ message: "Missing data" });
+
+    if (!quizId || !answers) return res.status(400).json({ message: "Missing data" });
 
     const quiz = await Quiz.findById(quizId).populate("questions");
     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
-    let score = 0;
-    const total = quiz.questions.length;
-    answers.forEach((a) => {
-      const qIndex = a.questionIndex;
-      const selected = a.selectedAnswer;
+    const userAttempts = quiz.attempts.filter(a => a.userId.toString() === userId.toString());
 
-      if (
-        quiz.questions[qIndex].correctAnswer ===
-        quiz.questions[qIndex].options[selected]
-      ) {
-        score++;
-      }
-    });
-
-    if (quiz.attempts.length >= 5) {
-      const lastAttempt = quiz.attempts[quiz.attempts.length - 1];
-
+    if (userAttempts.length >= MAX_ATTEMPTS) {
+      const lastAttempt = userAttempts[userAttempts.length - 1];
       const now = new Date();
       const lastDate = new Date(lastAttempt.date);
-
       const diffHours = (now - lastDate) / (1000 * 60 * 60);
 
       if (diffHours < 24) {
         return res.status(400).json({
-          message:
-            "Maximum attempts reached. Please revise the course and try again after 24 hours.",
+          message: "Maximum attempts reached for today. Please try again after 24 hours.",
         });
-      } else {
-        quiz.attempts = [];
       }
     }
+    let score = 0;
+    const total = quiz.questions.length;
 
-    quiz.attempts = quiz.attempts || [];
-    quiz.attempts.push({ score, total, date: new Date(), userId: req.userId });
-    await quiz.save();
+    answers.forEach((a) => {
+      const qIndex = a.questionIndex;
+      const selected = a.selectedAnswer;
+
+      if (quiz.questions[qIndex] && quiz.questions[qIndex].options[selected] !== undefined) {
+        if (quiz.questions[qIndex].correctAnswer === quiz.questions[qIndex].options[selected]) {
+          score++;
+        }
+      }
+    });
 
     const percentage = Math.round((score / total) * 100);
+
+    const newAttempt = { 
+      score, 
+      total, 
+      date: new Date(), 
+      userId: userId 
+    };
+    
+    quiz.attempts.push(newAttempt);
+    await quiz.save();
+
+    const updatedUserAttempts = quiz.attempts.filter(a => a.userId.toString() === userId.toString());
 
     return res.status(200).json({
       message: "Quiz submitted successfully",
       score,
       total,
       percentage,
-      attemptsLeft: Math.max(0, MAX_ATTEMPTS - quiz.attempts.length),
-      quiz,
+      attemptsLeft: Math.max(0, MAX_ATTEMPTS - updatedUserAttempts.length),
+      quiz, 
     });
   } catch (error) {
-    console.error("Submit Quiz Error:", error);
-    return res
-      .status(500)
-      .json({ message: `Submission failed: ${error.message}` });
+    return res.status(500).json({ message: `Submission failed: ${error.message}` });
   }
 };

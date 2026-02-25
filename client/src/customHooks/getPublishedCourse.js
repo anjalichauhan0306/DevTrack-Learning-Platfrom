@@ -11,7 +11,7 @@ const GetPublishedCourse = () => {
   useEffect(() => {
     const getCourseData = async () => {
       try {
-        const result = await axios.get(serverURL + "/api/course/getpublished", {
+        const result = await axios.get(serverURL + "/api/course/published", {
           withCredentials: true,
         });
         dispatch(setCourseData(result.data));

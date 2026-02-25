@@ -5,8 +5,9 @@ let storage = multer.diskStorage({
     cb(null, "./public");
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
+  const uniqueName = Date.now() + "-" + file.originalname;
+  cb(null, uniqueName);
+},
 });
 
 const upload = multer({ storage: storage });

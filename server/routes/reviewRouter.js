@@ -5,6 +5,6 @@ import { createReview, getReviews } from "../controller/reviewController.js";
 const reviewRouter = express.Router();
 
 reviewRouter.post("/createreview", isAuth, createReview);
-reviewRouter.get("/getreview", getReviews);
+reviewRouter.get("/review", getReviews);
 
 export default reviewRouter;

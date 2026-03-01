@@ -53,7 +53,6 @@ const EditCourse = () => {
         { withCredentials: true },
       );
       setSelectedCourseData(result.data);
-      console.log(result.data);
     } catch (error) {
       console.log(error);
     }
@@ -120,7 +119,6 @@ const EditCourse = () => {
       toast.success("course Updated successfully");
     } catch (error) {
       setLoading(false);
-      console.log(error);
       toast.error(error.response?.data?.message || "Failed to update course");
     }
   };

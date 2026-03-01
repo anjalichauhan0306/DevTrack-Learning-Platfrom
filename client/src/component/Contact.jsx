@@ -15,6 +15,7 @@ import axios from "axios";
 import { serverURL } from "../App";
 import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ContactPage = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const ContactPage = () => {
       setFormData({ name: "", email: "", message: "" });
       setloading(false);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong !!")
       setloading(false);
     }
   };

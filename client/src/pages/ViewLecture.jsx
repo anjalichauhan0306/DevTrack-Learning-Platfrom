@@ -96,9 +96,7 @@ const ViewLecture = () => {
           setQuizScore(bestScore);
         }
         dispatch(setQuizData(quiz));
-        console.log(result.data);
       } catch (error) {
-        console.error("Error fetching quiz:", error);
         console.log("No quiz found");
       }
     };
@@ -127,8 +125,6 @@ const ViewLecture = () => {
       link.remove();
     } catch (error) {
       console.error("Download Error:", error);
-      console.log(error);
-      alert("Download nahi ho paya!");
     }
   };
 

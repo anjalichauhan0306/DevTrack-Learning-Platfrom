@@ -15,9 +15,8 @@ const GetPublishedCourse = () => {
           withCredentials: true,
         });
         dispatch(setCourseData(result.data));
-        console.log(result.data);
-      } catch (error) {
-        console.log(error);
+         } catch (error) {
+        console.log("published course Not found");
       }
     };
     getCourseData();

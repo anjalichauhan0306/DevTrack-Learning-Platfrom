@@ -125,7 +125,6 @@ const CourseDetailPage = () => {
       setIsEnrolled(true);
       toast.success(response.data.message || "Enrolled Successfully!");
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Enrollment failed");
     }
   };
@@ -140,7 +139,6 @@ const CourseDetailPage = () => {
       );
       toast.success("Review Added");
       setLoading(false);
-      console.log(result.data);
       setRating(0);
       setComment("");
     } catch (error) {

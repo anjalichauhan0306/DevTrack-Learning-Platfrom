@@ -23,13 +23,11 @@ const ForgotPassword = () => {
         { email },
         { withCredentials: true },
       );
-      console.log(result.data);
       setLoading(false);
       setStep(2);
       toast.success("OTP sent to your email");
     } catch (error) {
       setLoading(false);
-      console.log(error);
       toast.error("Failed to send OTP Please Try Again");
     }
   };
@@ -42,13 +40,11 @@ const ForgotPassword = () => {
         { email, otp },
         { withCredentials: true },
       );
-      console.log(result.data);
       setLoading(false);
       setStep(3);
       toast.success("OTP verified Successfully");
     } catch (error) {
       setLoading(false);
-      console.log(error);
       toast.error("OTP Verification Failed Please Try Again");
     }
   };
@@ -67,14 +63,11 @@ const ForgotPassword = () => {
         { email, password: newPassword },
         { withCredentials: true },
       );
-
-      console.log(result.data);
       setLoading(false);
       toast.success("Password reset successfully");
       navigate("/login");
     } catch (error) {
       setLoading(false);
-      console.log(error);
       toast.error("Password Reset Failed Please Try Again");
     }
   };

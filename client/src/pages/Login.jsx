@@ -33,7 +33,6 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       setLoading(false);
-      console.log(error);
       toast.error("Login Failed Please Try Again");
     }
   };

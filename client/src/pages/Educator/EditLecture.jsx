@@ -75,7 +75,6 @@ const EditLecture = () => {
       toast.success("Lecture updated successfully!");
       navigate(`/courses`);
       setLoading(false);
-      console.log(result.data);
     } catch (error) {
       setLoading(false);
       toast.error(error.response?.data?.message || "Update failed");

@@ -147,10 +147,27 @@ const CreateLecture = () => {
       setIsEditing(false);
     } catch (error) {
       toast.error("Update failed");
-      console.log(error);
     }
   }
 
+  const handleDeleteQuiz = async () => {
+    try {
+      console.log(editedQuiz._id)
+      const result = await axios.post(
+        `${serverURL}/api/quiz//deletequiz/${editedQuiz._id}`,
+        { questions: editedQuiz.questions },
+        { withCredentials: true }
+      );
+
+      dispatch(setQuizData(result.data.quiz));
+      toast.success("Quiz updated successfully!");
+      setShowPreview(false); 
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Update failed");
+      console.log(error);
+    }
+  }
   
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
@@ -299,7 +316,7 @@ const CreateLecture = () => {
                         {isEditing ? <><FiCheckCircle /> View Mode</> : <><FiEdit /> Edit Quiz</>}
                       </button>
                       <button
-                        onClick={() => { setShowPreview(false); setIsEditing(false); }}
+                        onClick={handleDeleteQuiz}
                         className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
                       >
                         <FiTrash2 size={20} />

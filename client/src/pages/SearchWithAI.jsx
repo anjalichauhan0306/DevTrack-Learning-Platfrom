@@ -82,7 +82,6 @@ const SearchWithAI = () => {
         speak("No courses found for your search.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("Search failed.");
     }
   };

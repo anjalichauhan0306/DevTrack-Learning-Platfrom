@@ -15,11 +15,9 @@ const GetCreatorCourse = () => {
         const result = await axios.get(serverURL + "/api/course/getcreator", {
           withCredentials: true,
         });
-
-        console.log(result.data);
-        dispatch(setCreatorCourseData(result.data));
+         dispatch(setCreatorCourseData(result.data));
       } catch (error) {
-        console.log(error);
+        console.log("can not get creator courses");
       }
     };
     creatorCourses();

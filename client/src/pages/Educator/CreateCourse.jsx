@@ -32,12 +32,10 @@ const CreateCourse = () => {
         formData,
         { withCredentials: true },
       );
-      console.log(result.data);
       setLoading(false);
       navigate("/courses");
       toast.success("Course Created !");
     } catch (error) {
-      console.log(error);
       setLoading(false);
       toast.error(error?.response?.data?.message || "Something went wrong");
     }

@@ -3,8 +3,6 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiBook, FiArrowRight } from "react-icons/fi";
 import Navbar from "../component/Nav";
-import axios from 'axios';
-import { serverURL } from "../App";
 import certificateTemplate from "/certificateTemp.png";
 
 const MyLearning = () => {

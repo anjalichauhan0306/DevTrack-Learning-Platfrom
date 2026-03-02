@@ -23,7 +23,7 @@ app.use(
   })
 );
 app.use(cors({
-     origin: [process.env.FRONTEND_URL],
+    origin: [process.env.FRONTEND_URL],
     credentials : true
 }));
 
@@ -39,8 +39,9 @@ app.get("/",(req,res) => {
 })
 app.use('/assets', express.static('assets'));
 
-db();
-app.listen(port , () => {
-    console.log(`server is running at http://localhost:${port}`);
-})
+db().then(() => {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+});
 

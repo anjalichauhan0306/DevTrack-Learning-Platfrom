@@ -5,7 +5,6 @@ import Card from "./Card";
 const CardPage = () => {
   const courseData = useSelector((state) => state.course?.courseData);
   const [popularCourses, setPopularCourses] = useState([]);
-  console.log(popularCourses);
   useEffect(() => {
     if (Array.isArray(courseData) && courseData.length > 0) {
       setPopularCourses(courseData?.slice(0, 6));

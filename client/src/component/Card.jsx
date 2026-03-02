@@ -25,8 +25,6 @@ const Card = ({
 
   const avgRating = calculateAvgReview(reviews);
 
-  console.log("Avg Rating :", avgRating);
-
   return (
     <div
       className="group bg-white rounded-2xl border border-slate-200/60 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500"

@@ -40,7 +40,7 @@ export const signUp = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -77,8 +77,8 @@ export const login = async (req, res) => {
     let token = await genToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production" ,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -144,38 +144,25 @@ export const verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
 
-    if (
-      !user ||
-      user.resetPasswordOTP !== otp ||
-      user.otpExpiryTime < Date.now()
-    ) {
-      return res.status(400).json({
-        message: "Invalid OTP or expired",
-      });
+    if (!user || !user.resetPasswordOTP) {
+      return res.status(400).json({ message: "OTP not requested or User not found" });
     }
-    
+
     const isValidOtp = await bcrypt.compare(otp, user.resetPasswordOTP);
+    const isExpired = Date.now() > user.otpExpiryTime;
 
-
-    if (!isValidOtp || user.otpExpiryTime < Date.now()) {
-      return res.status(400).json({
-        message: "Invalid or expired OTP",
-      });
+    if (!isValidOtp || isExpired) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
     user.isOTPVerified = true;
     user.resetPasswordOTP = undefined;
     user.otpExpiryTime = undefined;
-
     await user.save();
 
-    return res.status(200).json({
-      message: "OTP verified successfully",
-    });
+    return res.status(200).json({ message: "OTP verified successfully" });
   } catch (error) {
-    return res.status(500).json({
-      message: `Verify OTP Error ${error.message}`,
-    });
+    return res.status(500).json({ message: `Verify OTP Error: ${error.message}` });
   }
 };
 export const resetPassword = async (req, res) => {
@@ -228,7 +215,7 @@ export const googleAuth = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

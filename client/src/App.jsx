@@ -31,6 +31,12 @@ import GetAllReviews from "./customHooks/getAllReviews";
 import QuizAttempt from "./pages/quizAttempt";
 import MentorsList from "./pages/Mentor";
 import ContactSection from "./component/Contact";
+import  GetAllUser  from "./pages/admin/Educators";
+import AdminOverview from "./pages/admin/dashboard";
+import EducatorsPage from "./pages/admin/Educators";
+import LearnersManager from "./pages/admin/Learners";
+import CourseManager from "./pages/admin/Courses";
+
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -182,6 +188,12 @@ const App = () => {
           />
 
           <Route path="/contact" element={<ContactSection />} />
+          <Route path="/admin" element={<GetAllUser />} />
+          
+          <Route path="/admin/overview" element={<AdminOverview/>} />
+          <Route path="/admin/learners" element={<LearnersManager/>} />
+          <Route path="/admin/instructors" element={<EducatorsPage/>} />
+          <Route path="/admin/courses" element={<CourseManager/>} />
         </Routes>
       </Elements>
     </>

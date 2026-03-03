@@ -141,16 +141,22 @@ const Navbar = () => {
             Analytics
           </Link>
         </>
+      ) : role === "admin" ? (
+        <>
+          <Link to="/admin/overview" className="hover:text-indigo-600 transition">Overview</Link>
+          <Link to="/admin/learners" className="hover:text-indigo-600 transition">Learners</Link>
+          <Link to="/admin/instructors" className="hover:text-indigo-600 transition">Instructors</Link>
+          <Link to="/admin/courses" className="hover:text-indigo-600 transition">Courses</Link>
+        </>
       ) : null}
     </>
   );
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-100 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 w-full z-100 transition-all duration-300 ${scrolled
           ? "bg-[#0a0a23]/80 backdrop-blur-md border-b border-white/10 py-3"
           : "bg-transparent py-5"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">

@@ -1,30 +1,31 @@
 import express from "express";
-import {  getAdminAnalytics, getAdminCourses, getEducators, updateUserAccess } from "../controller/adminController.js";
-import isAdmin  from "../middleware/authRole.js";
+import {
+  getAdminAnalytics,
+  getAdminCourses,
+  getusers,
+  updateUserAccess,
+} from "../controller/adminController.js";
+
+import isAdmin from "../middleware/authRole.js";
 import isAuth from "../middleware/isAuth.js";
-const router = express.Router();
+import rateLimit from "express-rate-limit";
 
-router.get(
-  "/users",
-  isAuth,         
-  isAdmin,
-  getEducators
-);
+const adminRouter = express.Router();
 
-router.get(
-  "/analytics",
-  isAuth,         
-  isAdmin,
-  getAdminAnalytics
-);
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 100,
+  message: "Too many requests. Try again later.",
+});
 
-router.get(
-  "/courses",
-  isAuth,         
-  isAdmin,
-  getAdminCourses
-);
+adminRouter.use(isAuth, isAdmin, adminLimiter);
 
-router.patch("/user/:id",isAuth ,isAdmin , updateUserAccess);
+adminRouter.get("/users", getusers);
 
-export default router;
+adminRouter.get("/analytics", getAdminAnalytics);
+
+adminRouter.get("/courses", getAdminCourses);
+
+adminRouter.patch("/user/:id", updateUserAccess);
+
+export default adminRouter;

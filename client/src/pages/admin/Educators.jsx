@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Search, X, Users, Filter} from "lucide-react";
 import Navbar from "../../component/Nav";
@@ -57,6 +57,12 @@ const EducatorsPage = () => {
   }
 };
 
+  const filteredUsers = useMemo(() => {
+    return users.filter(u =>
+      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, searchTerm]);
 
   return (
     <div className="min-h-screen bg-[#0a0a23] text-slate-200 p-6 pt-28 font-sans">
@@ -101,9 +107,12 @@ const EducatorsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {(Array.isArray(users) ? users : []).filter(u =>
-                u.name.toLowerCase().includes(searchTerm.toLowerCase())
-              ).map(u => (
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-10 text-slate-500">Loading...</td>
+                </tr>
+              ) : filteredUsers.length > 0 ? (
+                filteredUsers.map(u => (
                 <tr key={u._id} className="hover:bg-white/2 transition-colors group">
                   <td className="p-5 flex items-center gap-4">
                     <div className="h-11 w-11 rounded-full bg-linear-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg ring-2 ring-white/5">
@@ -141,7 +150,12 @@ const EducatorsPage = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+              ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-10 text-slate-500">No educators found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

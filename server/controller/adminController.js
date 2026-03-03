@@ -2,7 +2,7 @@ import User from "../model/userModel.js";
 import Course from "../model/courseModel.js"
 
 
-export const getEducators = async (req, res) => {
+export const getusers = async (req, res) => {
   try {
     const educators = await User.aggregate([
       {
@@ -58,8 +58,8 @@ export const getEducators = async (req, res) => {
 export const getAdminCourses = async (req, res) => {
   try {
     const courses = await Course.find()
-      .populate("creator", "name") 
-      .sort({ createdAt: -1 });
+      .populate("creator", "name")
+      .sort({ createdAt: -1 })
     
     res.status(200).json(courses);
 
@@ -72,12 +72,12 @@ export const getAdminCourses = async (req, res) => {
 
 export const getAdminAnalytics = async (req, res) => {
   try {
+
     const totalUsers = await User.countDocuments();
     const totalStudents = await User.countDocuments({ role: "Student" });
     const totalEducators = await User.countDocuments({ role: "Educator" });
     const totalCourses = await Course.countDocuments();
 
-    // --- NEW: Signups Growth Logic (Last 7 Days) ---
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -89,42 +89,79 @@ export const getAdminAnalytics = async (req, res) => {
       },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          },
           count: { $sum: 1 }
         }
       },
       { $sort: { "_id": 1 } }
     ]);
 
-    // Format data for Recharts (e.g., { name: '2024-05-01', signups: 5 })
     const chartData = signupStats.map(stat => ({
       name: new Date(stat._id).toLocaleDateString('en-US', { weekday: 'short' }),
       signups: stat.count
     }));
 
-    // Revenue calculation (same as before)
-    const courses = await Course.find({}, 'enrolledStudents Price isPaid');
-    let totalRevenue = 0;
-    let totalEnrollments = 0;
-    courses.forEach(c => {
-      totalEnrollments += c.enrolledStudents?.length || 0;
-      if (c.isPaid) totalRevenue += (c.enrolledStudents?.length || 0) * (Number(c.Price) || 0);
-    });
+    const revenueData = await Course.aggregate([
+      {
+        $project: {
+          enrollments: {
+            $size: { $ifNull: ["$enrolledStudents", []] }
+          },
+          revenue: {
+            $cond: [
+              "$isPaid",
+              {
+                $multiply: [
+                  { $size: { $ifNull: ["$enrolledStudents", []] } },
+                  { $toDouble: "$Price" }
+                ]
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$revenue" },
+          totalEnrollments: { $sum: "$enrollments" }
+        }
+      }
+    ]);
+
+    const totalRevenue = revenueData[0]?.totalRevenue || 0;
+    const totalEnrollments = revenueData[0]?.totalEnrollments || 0;
 
     res.status(200).json({
-      totalUsers, totalStudents, totalEducators, totalCourses,
-      totalRevenue, totalEnrollments,
-      chartData // <--- Ye frontend ko pass karo
+      totalUsers,
+      totalStudents,
+      totalEducators,
+      totalCourses,
+      totalRevenue,
+      totalEnrollments,
+      chartData
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    console.error("Analytics error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 
+
 export const updateUserAccess = async (req, res) => {
   try {
+
+    if (req.user?.role !== "Admin") {
+  return res.status(403).json({ message: "Unauthorized" });
+}
+if (typeof req.body.isActive !== "boolean") {
+  return res.status(400).json({ message: "Invalid value" });
+}
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       { isActive: req.body.isActive },

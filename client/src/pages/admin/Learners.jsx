@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
-  Search, Filter, MoreHorizontal, UserX, UserCheck, 
+  Search,  UserX, UserCheck, 
   Eye, GraduationCap, Calendar, Mail, BarChart3, 
   CheckCircle2, X, ArrowUpRight
 } from 'lucide-react';
+import { useMemo } from "react";
 import Navbar from '../../component/Nav';
 import axios from 'axios';
 import { serverURL } from '../../App';
@@ -66,6 +67,12 @@ const activeUsersCount = students.filter(s => s.isActive).length;
       }, 0) / students.length).toFixed(1)
     : "0.0";
 
+    const filteredStudents = useMemo(() => {
+  return students.filter(s =>
+    s.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}, [students, searchTerm]);
+
   return (
     <div className="min-h-screen bg-[#0a0a23] text-slate-200 p-6 pt-28">
       <div className="max-w-7xl mx-auto">
@@ -120,41 +127,41 @@ const activeUsersCount = students.filter(s => s.isActive).length;
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {students.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase())).map((student) => {
-                  const coursesCount = student.enrolledCourses?.length || 0;
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map((student) => {
+                    const coursesCount = student.enrolledCourses?.length || 0;
                     const progress = coursesCount === 0 
                       ? "0%" 
                       : `${Math.min(100, coursesCount * 20)}%`;
-                return (
-                  <tr key={student._id} className="hover:bg-white/[0.02] transition-all group">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 rounded-full bg-gradient-to-tr from-slate-700 to-slate-900 border border-white/10 flex items-center justify-center font-bold text-indigo-400 group-hover:scale-110 transition-transform">
-                          {student.photoUrl ? <img src={student.photoUrl} alt="" className="size-full object-cover" /> : student.name.charAt(0)}
-                           </div>
-                        <div>
-                          <div className="font-bold text-slate-100">{student.name}</div>
-                          <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
-                            <Calendar size={10}/> Joined {new Date(student.createdAt).toLocaleDateString("en-GB")}
-                            
+                    return (
+                      <tr key={student._id} className="hover:bg-white/[0.02] transition-all group">
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-4">
+                            <div className="size-10 rounded-full bg-gradient-to-tr from-slate-700 to-slate-900 border border-white/10 flex items-center justify-center font-bold text-indigo-400 group-hover:scale-110 transition-transform">
+                              {student.photoUrl ? <img src={student.photoUrl} alt="" className="size-full object-cover" /> : student.name?.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-100">{student.name}</div>
+                              <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
+                                <Calendar size={10}/> Joined {new Date(student.createdAt).toLocaleDateString("en-GB")}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                      <span className="text-sm font-mono font-bold text-indigo-400 bg-indigo-500/5 px-3 py-1 rounded-lg border border-indigo-500/10">
-                      {coursesCount} {coursesCount === 1 ? 'Course' : 'Courses'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                       <div className="flex flex-col items-center gap-1">
-                         <span className="text-xs font-bold text-slate-300">{progress}</span>
-                         <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500" style={{width: progress}} />
-                         </div>
-                       </div>
-                    </td>
-                    <td className="px-6 py-5">
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                          <span className="text-sm font-mono font-bold text-indigo-400 bg-indigo-500/5 px-3 py-1 rounded-lg border border-indigo-500/10">
+                          {coursesCount} {coursesCount === 1 ? 'Course' : 'Courses'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-xs font-bold text-slate-300">{progress}</span>
+                            <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-full bg-indigo-500" style={{width: progress}} />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
                           <button 
                             onClick={() => toggleStatus(student._id, student.isActive)}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-black tracking-widest uppercase transition-all ${
@@ -166,15 +173,26 @@ const activeUsersCount = students.filter(s => s.isActive).length;
                             {student.isActive ? 'Active' : 'Blocked'}
                           </button>
                         </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => setSelectedStudent(student)} className="p-2.5 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition shadow-sm">
-                          <Eye size={18} />
-                        </button>
-                      </div>
+                        <td className="px-6 py-5 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => setSelectedStudent(student)} className="p-2.5 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition shadow-sm">
+                              <Eye size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="text-center py-10 text-slate-500"
+                    >
+                      No learners found.
                     </td>
                   </tr>
-                )})}
+                )}
               </tbody>
             </table>
           </div>

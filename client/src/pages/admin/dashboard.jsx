@@ -35,15 +35,14 @@ const AdminDashboard = () => {
     { name: 'Educators', value: analytics?.totalEducators || 0, color: '#10b981' },
   ];
 
-  const hasData = (analytics?.totalStudents + analytics?.totalEducators) > 0;
-
+  const hasData = (analytics?.totalStudents || 0) + (analytics?.totalEducators || 0) > 0;
+  const formatCurrency = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value);
   return (
     <div className="bg-[#0a0a23] min-h-screen pt-28 pb-12 font-sans text-slate-200">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-6 space-y-10">
-        
-        {/* Header Section */}
+
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight italic">System <span className="text-indigo-500">Analytics</span></h1>
@@ -51,59 +50,54 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* 1. Stats Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard icon={<Users />} label="Total Users" value={analytics?.totalUsers} color="indigo" />
           <StatCard icon={<BookOpen />} label="Courses" value={analytics?.totalCourses} color="amber" />
           <StatCard icon={<UserCheck />} label="Enrollments" value={analytics?.totalEnrollments} color="emerald" />
-          <StatCard icon={<DollarSign />} label="Total Revenue" value={`₹${analytics?.totalRevenue?.toLocaleString()}`} color="rose" />
+          <StatCard icon={<DollarSign />} label="Total Revenue" value={formatCurrency(analytics?.totalRevenue || 0)} color="rose" />
         </div>
 
-        {/* 2. Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Main Growth Area Chart */}
-          <div className="lg:col-span-2 bg-[#161636]/40 border border-white/10 rounded-[2rem] p-8 backdrop-blur-md">
+          <div className="lg:col-span-2 bg-[#161636]/40 border border-white/10 rounded-4xl p-8 backdrop-blur-md">
             <h3 className="text-base font-bold text-white mb-8 flex items-center gap-2">
-               <TrendingUp className="text-indigo-400" size={18} /> Platform Growth (Weekly)
+              <TrendingUp className="text-indigo-400" size={18} /> Platform Growth (Weekly)
             </h3>
-            <div className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-80 w-full min-w-0">
+              <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={analytics?.chartData?.length > 0 ? analytics.chartData : defaultChartData}>
                   <defs>
                     <linearGradient id="colorInd" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 11, fontWeight: 600}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 11}} />
-                  <Tooltip contentStyle={{backgroundColor: '#161636', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px'}} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 11 }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#161636', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} />
                   <Area type="monotone" dataKey="signups" stroke="#6366f1" strokeWidth={4} fill="url(#colorInd)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* User Distribution Pie Chart */}
-          <div className="bg-[#161636]/40 border border-white/10 rounded-[2rem] p-8 backdrop-blur-md">
+          <div className="bg-[#161636]/40 border border-white/10 rounded-4xl p-8 backdrop-blur-md">
             <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-8 text-center">User Split</h3>
-            <div className="h-64 w-full">
+            <div className="h-64 w-full min-w-0">
               {hasData ? (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
-                    <Pie 
-                       data={pieData} 
-                       innerRadius={65} 
-                       outerRadius={85} 
-                       paddingAngle={10} 
-                       dataKey="value" 
-                       stroke="none"
+                    <Pie
+                      data={pieData}
+                      innerRadius={65}
+                      outerRadius={85}
+                      paddingAngle={10}
+                      dataKey="value"
+                      stroke="none"
                     >
                       {pieData.map((e, i) => <Cell key={i} fill={e.color} cornerRadius={10} />)}
                     </Pie>
-                    <Tooltip contentStyle={{backgroundColor: '#161636', border: 'none', borderRadius: '8px'}} />
+                    <Tooltip contentStyle={{ backgroundColor: '#161636', border: 'none', borderRadius: '8px' }} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
@@ -113,13 +107,12 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-            
-            {/* Legend */}
+
             <div className="mt-8 space-y-3">
               {pieData.map(item => (
                 <div key={item.name} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div>
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-xs font-bold text-slate-400">{item.name}</span>
                   </div>
                   <span className="text-sm font-black text-white">{item.value}</span>
@@ -143,13 +136,13 @@ const StatCard = ({ icon, label, value, color }) => {
   };
 
   return (
-    <div className="bg-[#161636]/60 border border-white/10 p-6 rounded-[1.5rem] backdrop-blur-sm group hover:border-white/20 transition-all">
+    <div className="bg-[#161636]/60 border border-white/10 p-6 rounded-3xl backdrop-blur-sm group hover:border-white/20 transition-all">
       <div className="flex items-center gap-4">
         <div className={`p-4 rounded-2xl border ${themes[color]}`}>
           {React.cloneElement(icon, { size: 24 })}
         </div>
         <div>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.1em]">{label}</p>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
           <h2 className="text-2xl font-black text-white mt-1">{value || 0}</h2>
         </div>
       </div>
@@ -158,7 +151,7 @@ const StatCard = ({ icon, label, value, color }) => {
 };
 
 const defaultChartData = [
-  { name: 'Mon', signups: 0 }, { name: 'Tue', signups: 0 }, 
+  { name: 'Mon', signups: 0 }, { name: 'Tue', signups: 0 },
   { name: 'Wed', signups: 0 }, { name: 'Thu', signups: 0 },
   { name: 'Fri', signups: 0 }, { name: 'Sat', signups: 0 }, { name: 'Sun', signups: 0 }
 ];

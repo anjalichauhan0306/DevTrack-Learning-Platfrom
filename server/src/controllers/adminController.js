@@ -1,5 +1,5 @@
-import User from "../model/userModel.js";
-import Course from "../model/courseModel.js"
+import User from "../models/userModel.js";
+import Course from "../models/courseModel.js"
 
 
 export const getusers = async (req, res) => {

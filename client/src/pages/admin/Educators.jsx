@@ -163,7 +163,7 @@ const EducatorsPage = () => {
         {selectedEducator && (
           <>
             <div
-              className="fixed inset-0 bg-[#050510]/80 backdrop-blur-md z-[110] transition-opacity duration-300"
+              className="fixed inset-0 bg-[#050510]/80 backdrop-blur-md z-110 transition-opacity duration-300"
               onClick={() => setSelectedEducator(null)}
             />
             <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-[#0f111a] border border-white/10 z-120 rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
@@ -249,7 +249,7 @@ const EducatorsPage = () => {
                 </div>
               </div>
               <div className="p-10 bg-[#141622]/50 border-t border-white/5 flex gap-4">
-                <button className="flex-[0.4] py-4 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-[1.5rem] font-bold text-xs transition-all border border-white/10">
+                <button className="flex-[0.4] py-4 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-3xl font-bold text-xs transition-all border border-white/10">
                   Reset PW
                 </button>
                 <button
@@ -257,7 +257,7 @@ const EducatorsPage = () => {
                     selectedEducator._id,
                     selectedEducator.isActive
                   )}
-                  className={`flex-1 py-4 rounded-[1.5rem] font-bold text-sm transition-all active:scale-95 shadow-xl ${selectedEducator.isActive
+                  className={`flex-1 py-4 rounded-3xl font-bold text-sm transition-all active:scale-95 shadow-xl ${selectedEducator.isActive
                     ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white'
                     : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-500/20'
                     }`}

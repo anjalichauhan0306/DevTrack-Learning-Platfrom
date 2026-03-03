@@ -94,10 +94,10 @@ const CourseManager = () => {
                             {loading ? (
                                 <tr><td colSpan="5" className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-indigo-500" /></td></tr>
                             ) : filteredCourses.map((course) => (
-                                <tr key={course._id} className="hover:bg-white/[0.02] transition-colors group">
+                                <tr key={course._id} className="hover:bg-white/2 transition-colors group">
                                     <td className="px-6 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="size-14 rounded-xl bg-slate-800 border border-white/10 overflow-hidden flex-shrink-0">
+                                            <div className="size-14 rounded-xl bg-slate-800 border border-white/10 overflow-hidden shrink-0">
                                                 {course.thumbnail ? <img src={course.thumbnail} alt="" className="size-full object-cover" /> : <div className="size-full flex items-center justify-center text-indigo-500"><Layers size={20} /></div>}
                                             </div>
                                             <div>

@@ -4,10 +4,10 @@ import {
   getAdminCourses,
   getusers,
   updateUserAccess,
-} from "../controller/adminController.js";
+} from "../controllers/adminController.js";
 
-import isAdmin from "../middleware/authRole.js";
-import isAuth from "../middleware/isAuth.js";
+import isAdmin from "../middlewares/authRole.js";
+import isAuth from "../middlewares/isAuth.js";
 import rateLimit from "express-rate-limit";
 
 const adminRouter = express.Router();

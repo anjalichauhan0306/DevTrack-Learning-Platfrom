@@ -134,10 +134,10 @@ const activeUsersCount = students.filter(s => s.isActive).length;
                       ? "0%" 
                       : `${Math.min(100, coursesCount * 20)}%`;
                     return (
-                      <tr key={student._id} className="hover:bg-white/[0.02] transition-all group">
+                      <tr key={student._id} className="hover:bg-white/2 transition-all group">
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-4">
-                            <div className="size-10 rounded-full bg-gradient-to-tr from-slate-700 to-slate-900 border border-white/10 flex items-center justify-center font-bold text-indigo-400 group-hover:scale-110 transition-transform">
+                            <div className="size-10 rounded-full bg-linear-to-tr from-slate-700 to-slate-900 border border-white/10 flex items-center justify-center font-bold text-indigo-400 group-hover:scale-110 transition-transform">
                               {student.photoUrl ? <img src={student.photoUrl} alt="" className="size-full object-cover" /> : student.name?.charAt(0)}
                             </div>
                             <div>
@@ -198,21 +198,18 @@ const activeUsersCount = students.filter(s => s.isActive).length;
           </div>
         </div>
       </div>
-      {/* --- Student Detail Side Drawer --- */}
       {selectedStudent && (
-        <div className="fixed inset-0 z-[150] flex justify-end">
+        <div className="fixed inset-0 z-150 flex justify-end">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setSelectedStudent(null)} />
           
           <div className="relative w-full max-w-md bg-[#0d0d2b] border-l border-white/10 h-full flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-right duration-500">
             
-            {/* Top Header Section */}
-            <div className="relative h-32 bg-gradient-to-r from-indigo-600 to-indigo-900 w-full">
+            <div className="relative h-32 bg-linear-to-r from-indigo-600 to-indigo-900 w-full">
                <button onClick={() => setSelectedStudent(null)} className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full transition text-white z-10">
                  <X size={20}/>
                </button>
             </div>
 
-            {/* Profile Info Card */}
             <div className="px-8 -mt-12 relative flex flex-col items-center">
               <div className="size-24 rounded-2xl bg-[#161636] border-4 border-[#0d0d2b] flex items-center justify-center text-4xl font-black text-white shadow-xl overflow-hidden">
                 {selectedStudent.photoUrl ? (
@@ -230,10 +227,8 @@ const activeUsersCount = students.filter(s => s.isActive).length;
               </div>
             </div>
 
-            {/* Stats Grid */}
             <div className="p-8 space-y-8 flex-1 overflow-y-auto">
               
-              {/* Core Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/5 border border-white/10 p-4 rounded-2xl backdrop-blur-sm group hover:border-indigo-500/50 transition-colors">
                   <div className="flex justify-between items-start mb-2">
@@ -257,20 +252,18 @@ const activeUsersCount = students.filter(s => s.isActive).length;
                 </div>
               </div>
 
-              {/* Bio/Description Section */}
               <div className="space-y-3">
                 <h3 className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <div className="h-[1px] w-4 bg-indigo-500" /> Bio & About
+                  <div className="h-px w-4 bg-indigo-500" /> Bio & About
                 </h3>
-                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl italic text-slate-400 text-sm leading-relaxed">
+                <div className="bg-white/3 border border-white/5 p-4 rounded-2xl italic text-slate-400 text-sm leading-relaxed">
                   {selectedStudent.description || "No bio information provided by the student yet."}
                 </div>
               </div>
 
-              {/* Course Progress Breakdown */}
               <div className="space-y-4">
                 <h3 className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <div className="h-[1px] w-4 bg-indigo-500" /> Learning Progress
+                  <div className="h-px w-4 bg-indigo-500" /> Learning Progress
                 </h3>
                 
                 <div className="space-y-3">
@@ -283,7 +276,6 @@ const activeUsersCount = students.filter(s => s.isActive).length;
                        {selectedStudent.completedLectures?.reduce((acc, curr) => acc + curr.lectureIds.length, 0) || 0}
                     </p>
                   </div>
-                  {/* Visual Progress Bar */}
                   <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-1000" 
@@ -294,11 +286,10 @@ const activeUsersCount = students.filter(s => s.isActive).length;
               </div>
             </div>
 
-            {/* Bottom Actions Section */}
-            <div className="p-8 border-t border-white/5 bg-white/[0.02] flex gap-3">
+            <div className="p-8 border-t border-white/5 bg-white/2 flex gap-3">
               <button 
                 onClick={() => toggleStatus(selectedStudent._id, selectedStudent.isActive)}
-                className={`flex-[2] py-4 rounded-xl font-black text-xs tracking-widest transition-all flex items-center justify-center gap-2 ${
+                className={`flex-2 py-4 rounded-xl font-black text-xs tracking-widest transition-all flex items-center justify-center gap-2 ${
                   selectedStudent.isActive 
                   ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white' 
                   : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white shadow-[0_0_20px_rgba(16,185,129,0.1)]'

@@ -55,6 +55,21 @@ export const getEducators = async (req, res) => {
 };
 
 
+export const getAdminCourses = async (req, res) => {
+  try {
+    const courses = await Course.find()
+      .populate("creator", "name") 
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(courses);
+
+  } catch (error) {
+    console.error("Error fetching admin courses:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 export const getAdminAnalytics = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -62,35 +77,44 @@ export const getAdminAnalytics = async (req, res) => {
     const totalEducators = await User.countDocuments({ role: "Educator" });
     const totalCourses = await Course.countDocuments();
 
-    const revenueData = await Course.aggregate([
+    // --- NEW: Signups Growth Logic (Last 7 Days) ---
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const signupStats = await User.aggregate([
       {
-        $project: {
-          studentCount: { $size: { $ifNull: ["$enrolledStudents", []] } },
-          price: { $ifNull: ["$Price", 0] }
-        }
-      },
-      {
-        $project: {
-          revenue: { $multiply: ["$studentCount", "$price"] },
-          studentCount: 1
+        $match: {
+          createdAt: { $gte: sevenDaysAgo }
         }
       },
       {
         $group: {
-          _id: null,
-          totalRevenue: { $sum: "$revenue" },
-          totalEnrollments: { $sum: "$studentCount" }
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
         }
-      }
+      },
+      { $sort: { "_id": 1 } }
     ]);
 
-    res.json({
-      totalUsers,
-      totalStudents,
-      totalEducators,
-      totalCourses,
-      totalRevenue: revenueData[0]?.totalRevenue || 0,
-      totalEnrollments: revenueData[0]?.totalEnrollments || 0,
+    // Format data for Recharts (e.g., { name: '2024-05-01', signups: 5 })
+    const chartData = signupStats.map(stat => ({
+      name: new Date(stat._id).toLocaleDateString('en-US', { weekday: 'short' }),
+      signups: stat.count
+    }));
+
+    // Revenue calculation (same as before)
+    const courses = await Course.find({}, 'enrolledStudents Price isPaid');
+    let totalRevenue = 0;
+    let totalEnrollments = 0;
+    courses.forEach(c => {
+      totalEnrollments += c.enrolledStudents?.length || 0;
+      if (c.isPaid) totalRevenue += (c.enrolledStudents?.length || 0) * (Number(c.Price) || 0);
+    });
+
+    res.status(200).json({
+      totalUsers, totalStudents, totalEducators, totalCourses,
+      totalRevenue, totalEnrollments,
+      chartData // <--- Ye frontend ko pass karo
     });
 
   } catch (error) {

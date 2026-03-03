@@ -17,14 +17,16 @@ const EducatorsPage = () => {
 
       const educators = result.data.filter(
         user => user.role === "Educator");
+        setLoading(false)
       setUsers(educators);
     } catch (error) {
       console.log(error);
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    getEducator().finally(() => setLoading(false));
+    getEducator()
   }, []);
 
   const toggleStatus = async (id, currentStatus) => {
@@ -55,7 +57,6 @@ const EducatorsPage = () => {
   }
 };
 
-  if (loading) return <div className="text-center text-white mt-20">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-[#0a0a23] text-slate-200 p-6 pt-28 font-sans">
@@ -120,16 +121,17 @@ const EducatorsPage = () => {
                   })}</td>
                   <td className="p-5 text-center font-medium text-slate-300">{u.role}</td>
                   <td className="p-5 text-center">
-                    <button
-                      onClick={() => toggleStatus(u._id, u.isActive)}
-                      className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold uppercase tracking-tighter transition ${u.isActive
-                        ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10'
-                        : 'bg-slate-500/5 border-slate-500/20 text-slate-500 hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/20'
-                        }`}
-                    >
-                      {u.isActive ? 'Active' : 'Inactive'}
-                    </button>
-                  </td>
+                        <button
+                          onClick={() => toggleStatus(u._id, u.isActive)}
+                          className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold uppercase transition-all ${
+                            u.isActive
+                              ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10'
+                              : 'bg-rose-500/5 border-rose-500/20 text-rose-500 hover:bg-rose-500/10'
+                          }`}
+                        >
+                          {u.isActive ? 'Active' : 'Inactive'}
+                        </button>
+                      </td>
                   <td className="p-5 text-right">
                     <button
                       onClick={() => setSelectedEducator(u)}

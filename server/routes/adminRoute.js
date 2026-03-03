@@ -1,5 +1,5 @@
 import express from "express";
-import {  getAdminAnalytics, getEducators, updateUserAccess } from "../controller/adminController.js";
+import {  getAdminAnalytics, getAdminCourses, getEducators, updateUserAccess } from "../controller/adminController.js";
 import isAdmin  from "../middleware/authRole.js";
 import isAuth from "../middleware/isAuth.js";
 const router = express.Router();
@@ -16,6 +16,13 @@ router.get(
   isAuth,         
   isAdmin,
   getAdminAnalytics
+);
+
+router.get(
+  "/courses",
+  isAuth,         
+  isAdmin,
+  getAdminCourses
 );
 
 router.patch("/user/:id",isAuth ,isAdmin , updateUserAccess);

@@ -143,23 +143,22 @@ export const verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user || !user.resetPasswordOTP) {
+    if (!user || !user.resetPasswordOTP || user.otpExpiryTime < Date.now() ) {
       return res.status(400).json({ message: "OTP not requested or User not found" });
     }
 
-    const isValidOtp = await bcrypt.compare(otp, user.resetPasswordOTP);
-    const isExpired = Date.now() > user.otpExpiryTime;
-
-    if (!isValidOtp || isExpired) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    if(user.resetPasswordOTP != otp){
+      return res.status(400).json({ message: "OTP not requested is Not valid" });
     }
 
     user.isOTPVerified = true;
     user.resetPasswordOTP = undefined;
     user.otpExpiryTime = undefined;
+
     await user.save();
 
     return res.status(200).json({ message: "OTP verified successfully" });
+
   } catch (error) {
     return res.status(500).json({ message: `Verify OTP Error: ${error.message}` });
   }
@@ -181,10 +180,8 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    if (user.resetPasswordOTP !== otp || isExpired) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
-    }
-    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
     user.isOTPVerified = false;
 
     await user.save();

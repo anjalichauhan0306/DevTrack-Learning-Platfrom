@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice.js";
 import { auth, provider } from "../utils/firebase.js";
 import { signInWithPopup } from "firebase/auth";
+import { googleAuth,loginUser } from "../api/authApi.js";
 
 const Login = () => {
   const [show, setShow] = useState(false);

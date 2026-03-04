@@ -119,9 +119,8 @@ export const sendOtp = async (req, res) => {
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-    const hashedOtp = await bcrypt.hash(otp,10)
 
-    user.resetPasswordOTP = hashedOtp;
+    user.resetPasswordOTP = otp;
     user.otpExpiryTime = Date.now() + 5 * 60 * 1000;
     user.isOTPVerified = false;
 
@@ -182,8 +181,10 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
+    if (user.resetPasswordOTP !== otp || isExpired) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+    
     user.isOTPVerified = false;
 
     await user.save();

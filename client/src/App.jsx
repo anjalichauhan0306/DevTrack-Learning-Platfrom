@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
@@ -23,7 +23,7 @@ import EditLecture from "./pages/Educator/EditLecture";
 import ViewCourse from "./pages/ViewCourse";
 import ScrollToTop from "./component/ScrollToTop";
 import MyLearning from "./pages/MyLeaning";
-export const serverURL = "http://localhost:5000";
+export const serverURL = "https://devtrack-cla8.onrender.com";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import PaymentSuccess from "./component/paymentSuccess";
@@ -45,6 +45,7 @@ const App = () => {
   GetCreatorCourse();
   GetPublishedCourse();
   GetAllReviews();
+  
   const { userData } = useSelector((state) => state.user);
 
   return (

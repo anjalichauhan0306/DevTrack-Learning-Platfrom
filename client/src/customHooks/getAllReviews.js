@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { serverURL } from "../App";
-import { linkWithCredential } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setReviewData } from "../redux/reviewSlice";
 import axios from "axios";

@@ -15,7 +15,6 @@ const GetCurrentUser = () => {
         });
         dispatch(setUserData(result.data));
       } catch (error) {
-        console.log("current user not found");
         dispatch(setUserData(null));
       }
     };

@@ -24,6 +24,7 @@ const ForgotPassword = () => {
         { withCredentials: true },
       );
       setLoading(false);
+      console.log("OTP Response:", result.data); // Console check karo
       setStep(2);
       toast.success("OTP sent to your email");
     } catch (error) {

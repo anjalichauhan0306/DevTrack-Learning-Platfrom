@@ -11,6 +11,13 @@ const GetCreatorCourse = () => {
 
   useEffect(() => {
     const creatorCourses = async () => {
+      const token = localStorage.getItem('token');  
+            
+            if (!token) {
+              dispatch(setCreatorCourseData(null));
+              return; 
+            }
+
       try {
         const result = await axios.get(serverURL + "/api/course/getcreator", {
           withCredentials: true,

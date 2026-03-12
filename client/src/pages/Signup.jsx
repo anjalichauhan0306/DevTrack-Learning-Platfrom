@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import logo from "../assets/logo.png";
 import google from "../assets/google.jpg";
 import {
@@ -9,13 +9,12 @@ import {
 } from "react-icons/io5";
 import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { serverURL } from "../App";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { signInWithPopup } from "firebase/auth";
 import { setUserData } from "../redux/userSlice.js";
 import { auth, provider } from "../utils/firebase.js";
+import { signupUser, googleAuth } from "../api/authApi.js";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -29,11 +28,7 @@ const Signup = () => {
   const handleSignUp = async () => {
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + "/api/auth/signup",
-        { name, email, password, role },
-        { withCredentials: true },
-      );
+      const result = await signupUser({ name, email, password, role });
       setLoading(false);
       dispatch(setUserData(result.data.user));
       toast.success("Signup Successful");
@@ -48,14 +43,12 @@ const Signup = () => {
     try {
       const response = await signInWithPopup(auth, provider);
       let user = response.user;
-      let name = user.displayName;
-      let email = user.email;
 
-      const result = await axios.post(
-        serverURL + "/api/auth/googleauth",
-        { name, email, role },
-        { withCredentials: true },
-      );
+      const result = await googleAuth({
+        name: user.displayName,
+        email: user.email,
+        role,
+      });
 
       dispatch(setUserData(result.data));
       navigate("/");

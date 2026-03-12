@@ -4,8 +4,7 @@ import {
     Layers, CheckSquare, Loader2
 } from 'lucide-react';
 import Navbar from '../../component/Nav';
-import axios from 'axios';
-import { serverURL } from '../../App';
+import { getAllCourseByAdmin } from '../../api/adminAPI';
 
 const CourseManager = () => {
     const [courses, setCourses] = useState([]);
@@ -16,7 +15,7 @@ const CourseManager = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const res = await axios.get(`${serverURL}/api/admin/courses`, { withCredentials: true });
+                const res = await getAllCourseByAdmin();
                 setCourses(res.data.courses || res.data);
             } catch (err) {
                 console.error("Fetch error", err);

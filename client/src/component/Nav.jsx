@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../assets/logo.png";
-import axios from "axios";
-import { serverURL } from "../App";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Bell,
@@ -15,6 +13,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserData } from "../redux/userSlice";
+import { logoutUser } from "../api/authApi";
 
 const Navbar = () => {
   const { userData } = useSelector((state) => state.user);
@@ -36,9 +35,10 @@ const Navbar = () => {
 
   const handleLogOut = async () => {
     try {
-      await axios.post(serverURL + "/api/auth/logout", {
-        withCredentials: true,
-      });
+      // await axios.post(serverURL + "/api/auth/logout", {
+      //   withCredentials: true,
+      // });
+      logoutUser()
       dispatch(setUserData(null));
       toast.success("Logged out successfully");
       navigate("/");
@@ -46,6 +46,7 @@ const Navbar = () => {
       toast.error(error.response?.data?.message || "Logout failed");
     }
   };
+
   const NavLinks = () => (
     <>
       {!isLoggedIn ? (
@@ -143,20 +144,41 @@ const Navbar = () => {
         </>
       ) : role === "admin" ? (
         <>
-          <Link to="/admin/overview" className="hover:text-indigo-600 transition">Overview</Link>
-          <Link to="/admin/learners" className="hover:text-indigo-600 transition">Learners</Link>
-          <Link to="/admin/instructors" className="hover:text-indigo-600 transition">Instructors</Link>
-          <Link to="/admin/courses" className="hover:text-indigo-600 transition">Courses</Link>
+          <Link
+            to="/admin/overview"
+            className="hover:text-indigo-600 transition"
+          >
+            Overview
+          </Link>
+          <Link
+            to="/admin/learners"
+            className="hover:text-indigo-600 transition"
+          >
+            Learners
+          </Link>
+          <Link
+            to="/admin/instructors"
+            className="hover:text-indigo-600 transition"
+          >
+            Instructors
+          </Link>
+          <Link
+            to="/admin/courses"
+            className="hover:text-indigo-600 transition"
+          >
+            Courses
+          </Link>
         </>
       ) : null}
     </>
   );
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-100 transition-all duration-300 ${scrolled
+      className={`fixed top-0 left-0 w-full z-100 transition-all duration-300 ${
+        scrolled
           ? "bg-[#0a0a23]/80 backdrop-blur-md border-b border-white/10 py-3"
           : "bg-transparent py-5"
-        }`}
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">

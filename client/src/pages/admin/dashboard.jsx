@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, UserCheck, DollarSign, TrendingUp, Loader2, PieChart as PieIcon } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Navbar from '../../component/Nav';
-import axios from 'axios';
-import { serverURL } from '../../App';
+import { analyticsByAdmin } from '../../api/adminAPI';
 
 const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -12,7 +11,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`${serverURL}/api/admin/analytics`, { withCredentials: true });
+        const res = await analyticsByAdmin();
         setAnalytics(res.data);
       } catch (err) {
         console.error("Fetch error", err);

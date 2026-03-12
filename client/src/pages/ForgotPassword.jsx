@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import logo from "../assets/logo.png";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { serverURL } from "../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { verifyOtpApi , sendOtpApi , resetPasswordApi } from "../api/authApi";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -18,13 +17,9 @@ const ForgotPassword = () => {
   const sendOtp = async () => {
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + "/api/auth/sendotp",
-        { email },
-        { withCredentials: true },
-      );
+      const result = await sendOtpApi({email})
       setLoading(false);
-      console.log("OTP Response:", result.data); // Console check karo
+      console.log("OTP Response:", result.data); 
       setStep(2);
       toast.success("OTP sent to your email");
     } catch (error) {
@@ -36,11 +31,7 @@ const ForgotPassword = () => {
   const verifyOtp = async () => {
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + "/api/auth/verifyotp",
-        { email, otp },
-        { withCredentials: true },
-      );
+      const result = await verifyOtpApi({ email, otp });
       setLoading(false);
       setStep(3);
       toast.success("OTP verified Successfully");
@@ -59,11 +50,7 @@ const ForgotPassword = () => {
         return;
       }
 
-      const result = await axios.post(
-        serverURL + "/api/auth/resetpassword",
-        { email, password: newPassword },
-        { withCredentials: true },
-      );
+      const result = await resetPasswordApi({ email, password: newPassword });
       setLoading(false);
       toast.success("Password reset successfully");
       navigate("/login");
@@ -76,10 +63,8 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-indigo-50/30 p-4">
-      {/* Main Card */}
       {step === 1 && (
         <div className="w-full max-w-105 bg-white rounded-4xl shadow-xl shadow-indigo-100/50 border border-indigo-50 p-10">
-          {/* Logo & Header */}
           <div className="flex flex-col items-center mb-10">
             <div className="flex items-center gap-2 mb-8">
               <div className="bg-indigo-900 p-2 rounded-xl shadow-lg shadow-indigo-200">
@@ -99,7 +84,6 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 block ml-1">
@@ -127,7 +111,6 @@ const ForgotPassword = () => {
             </button>
           </form>
 
-          {/* Footer */}
           <div className="mt-10 text-center">
             <button
               onClick={() => navigate("/login")}
@@ -140,11 +123,9 @@ const ForgotPassword = () => {
         </div>
       )}
 
-      {/* Step 2: OTP Verification Form */}
 
       {step === 2 && (
         <div className="w-full max-w-105 bg-white rounded-4xl shadow-xl shadow-indigo-100/50 border border-indigo-50 p-10">
-          {/* Logo & Header */}
           <div className="flex flex-col items-center mb-10">
             <div className="flex items-center gap-2 mb-8">
               <div className="bg-indigo-900 p-2 rounded-xl shadow-lg shadow-indigo-200">
@@ -163,7 +144,6 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-2">
               <label
@@ -199,7 +179,6 @@ const ForgotPassword = () => {
             </button>
           </form>
 
-          {/* Footer */}
           <div className="mt-10 text-center">
             <button
               onClick={() => navigate("/login")}
@@ -212,11 +191,9 @@ const ForgotPassword = () => {
         </div>
       )}
 
-      {/* Step 3: Reset Password Form */}
 
       {step === 3 && (
         <div className="w-full max-w-120 bg-white rounded-4xl shadow-xl shadow-indigo-100/50 border border-indigo-50 p-10">
-          {/* Logo & Header */}
           <div className="flex flex-col items-center mb-10">
             <div className="flex items-center gap-2 mb-8">
               <div className="bg-indigo-900 p-2 rounded-xl shadow-lg shadow-indigo-200">
@@ -235,9 +212,7 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-            {/* New Password */}
             <div className="space-y-2">
               <label
                 htmlFor="newPassword"
@@ -262,7 +237,6 @@ const ForgotPassword = () => {
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div className="space-y-2">
               <label
                 htmlFor="confirmPassword"
@@ -287,7 +261,6 @@ const ForgotPassword = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               onClick={resetPassword}
@@ -304,7 +277,6 @@ const ForgotPassword = () => {
             </button>
           </form>
 
-          {/* Footer */}
           <div className="mt-10 text-center">
             <button
               onClick={() => navigate("/login")}

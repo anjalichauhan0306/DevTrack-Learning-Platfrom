@@ -1,8 +1,6 @@
-import axios, { toFormData } from "axios";
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { serverURL } from "../App";
 import {
   FiArrowLeft,
   FiPlayCircle,
@@ -16,6 +14,8 @@ import {
 import { setQuizData } from "../redux/quizSlice";
 import { setUserData } from "../redux/userSlice";
 import { toast } from "react-toastify";
+import { downloadCertificateAPI, markLectureComplete } from "../api/courseApi";
+import { getQuizByCourse } from "../api/quizAPI";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
@@ -26,7 +26,6 @@ const ViewLecture = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const selectedCourse = courseData?.find((course) => course._id === courseId);
-  const [creatorData, setCreatorData] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null,
   );
@@ -37,7 +36,7 @@ const ViewLecture = () => {
 
   const courseProgress =
     userData?.completedLectures?.find(
-      (c) => c.courseId?.toString() === courseId?.toString()
+      (c) => c.courseId?.toString() === courseId?.toString(),
     ) || null;
 
   const coursePercent = courseProgress
@@ -54,30 +53,8 @@ const ViewLecture = () => {
   const quizAttempts = quizData?.attempts?.length || 0;
   const isCertificateUnlocked =
     isCourseFinished &&
-    quizData?.questions?.length > 0 && // quiz loaded
+    quizData?.questions?.length > 0 &&
     quizScore >= Math.ceil(quizData.questions.length * 0.7);
-
-  // const handleTimeUpdate = async () => {
-  //   const video = videoRef.current;
-  //   if (!video || !selectedLecture) return;
-  //   const percent = (video.currentTime / video.duration) * 100;
-  //   if (percent > 90) {
-  //     try {
-  //       const response = await axios.post(
-  //         `${serverURL}/api/user/updateprogress`,
-  //         {
-  //           courseId,
-  //           lectureId: selectedLecture._id,
-  //           totalLectures: selectedCourse.lectures.length,
-  //         },
-  //         { withCredentials: true },
-  //       );
-  //       dispatch(setUserData(response.data));
-  //     } catch (err) {
-  //       console.error("Failed to mark lecture completed", err);
-  //     }
-  //   }
-  // };
 
   const handleTimeUpdate = async () => {
     const video = videoRef.current;
@@ -89,15 +66,11 @@ const ViewLecture = () => {
       setIsMarked(true);
 
       try {
-        const response = await axios.post(
-          `${serverURL}/api/user/updateprogress`,
-          {
-            courseId,
-            lectureId: selectedLecture._id,
-            totalLectures: selectedCourse.lectures.length,
-          },
-          { withCredentials: true }
-        );
+        const response = await markLectureComplete({
+          courseId,
+          lectureId: selectedLecture._id,
+          totalLectures: selectedCourse.lectures.length,
+        });
 
         dispatch(setUserData(response.data));
         toast.success("Lecture completed ✅");
@@ -118,10 +91,7 @@ const ViewLecture = () => {
 
     const getQuiz = async () => {
       try {
-        const result = await axios.get(
-          `${serverURL}/api/quiz/getquiz/${courseId}`,
-          { withCredentials: true },
-        );
+        const result = await getQuizByCourse(courseId);
         const quiz = result.data.quiz;
 
         if (quiz) {
@@ -141,15 +111,11 @@ const ViewLecture = () => {
 
   const downloadCertificate = async () => {
     try {
-      const response = await axios.post(
-        `${serverURL}/api/course/certificate/${courseId}`,
-        {
-          userId: userData._id,
-          score: quizScore,
-          totalQuestions: quizData?.questions?.length || 0,
-        },
-        { withCredentials: true, responseType: "blob" },
-      );
+      const response = await downloadCertificateAPI({
+        userId: userData._id,
+        score: quizScore,
+        totalQuestions: quizData?.questions?.length || 0,
+      });
 
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
@@ -166,7 +132,6 @@ const ViewLecture = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
-      {/* HEADER */}
       <header className="bg-white  sticky top-0 z-30 px-6 py-4 shadow-sm">
         <div className="max-w-400 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">

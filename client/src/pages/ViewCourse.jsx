@@ -5,11 +5,18 @@ import { FiArrowLeft, FiLock, FiPlay, FiStar } from "react-icons/fi";
 import axios from "axios";
 import { serverURL } from "../App.jsx";
 import emy from "../assets/empty.jpg";
-import {  setSelectedCourse } from "../redux/courseSliec";
+import { setSelectedCourse } from "../redux/courseSliec";
 import Card from "../component/Card.jsx";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
 import { setUserData } from "../redux/userSlice.js";
+import {
+  enrollFreeCourse,
+  enrollPaidCourse,
+  getCreator,
+  submitReview,
+  verifyPaymentSession,
+} from "../api/courseApi.js";
 
 const CourseDetailPage = () => {
   const navigate = useNavigate();
@@ -27,41 +34,41 @@ const CourseDetailPage = () => {
   const [comment, setComment] = useState("");
 
   const fetchCourseData = () => {
-  if (courseData && courseData.length > 0) {
-    const course = courseData.find((c) => c._id === courseId);
-    if (course) {
-      dispatch(setSelectedCourse(course));
+    if (courseData && courseData.length > 0) {
+      const course = courseData.find((c) => c._id === courseId);
+      if (course) {
+        dispatch(setSelectedCourse(course));
+      }
     }
-  }
-};
+  };
 
- const checkEnrollment = () => {
-  const verify = userData?.enrolledCourses?.some(
-    (c) =>
-      (typeof c === "string" ? c : c._id).toString() === courseId?.toString()
-  );
+  const checkEnrollment = () => {
+    if (userData?.role === "Educator") {
+      setIsEnrolled(false);
+      return;
+    }
+    const verify = userData?.enrolledCourses?.some(
+      (c) =>
+        (typeof c === "string" ? c : c._id).toString() === courseId?.toString(),
+    );
 
-  setIsEnrolled(verify); // important fix
-};
+    setIsEnrolled(verify);
+  };
 
-useEffect(() => {
-  fetchCourseData();
-}, [courseData, courseId]);
+  useEffect(() => {
+    fetchCourseData();
+  }, [courseData, courseId]);
 
-useEffect(() => {
-  if (userData && courseId) {
-    checkEnrollment();
-  }
-}, [userData, courseId]);
+  useEffect(() => {
+    if (userData && courseId) {
+      checkEnrollment();
+    }
+  }, [userData, courseId]);
   useEffect(() => {
     const handleCreator = async () => {
       if (selectedCourse?.creator) {
         try {
-          const result = await axios.post(
-            serverURL + "/api/course/creator",
-            { userId: selectedCourse?.creator },
-            { withCredentials: true },
-          );
+          const result = await getCreator({ userId: selectedCourse?.creator });
           setCreatorData(result.data);
         } catch (error) {
           console.log(error);
@@ -71,28 +78,24 @@ useEffect(() => {
     handleCreator();
   }, [selectedCourse]);
 
-useEffect(() => {
-  if (selectedCourse && courseData.length > 0) {
-    const creatorCourse = courseData.filter(
-      (course) =>
-        course.creator?.toString() === selectedCourse.creator?.toString() &&
-        course._id?.toString() !== courseId?.toString()
-    );
+  useEffect(() => {
+    if (selectedCourse && courseData.length > 0) {
+      const creatorCourse = courseData.filter(
+        (course) =>
+          course.creator?.toString() === selectedCourse.creator?.toString() &&
+          course._id?.toString() !== courseId?.toString(),
+      );
 
-    setCreatorCourses(creatorCourse);
-  }
-}, [selectedCourse, courseData]);
+      setCreatorCourses(creatorCourse);
+    }
+  }, [selectedCourse, courseData]);
 
   const handleEnroll = async () => {
     try {
-      const { data } = await axios.post(
-        serverURL + "/api/payment/create-checkout-session",
-        {
-          courseId,
-          userId: userData._id,
-        },
-        { withCredentials: true },
-      );
+      const { data } = await enrollPaidCourse({
+        courseId,
+        userId: userData._id,
+      });
 
       window.location.href = data.url;
     } catch (error) {
@@ -101,14 +104,11 @@ useEffect(() => {
   };
 
   useEffect(() => {
-   const sessionId = new URLSearchParams(window.location.search).get("session_id");
+    const sessionId = new URLSearchParams(window.location.search).get(
+      "session_id",
+    );
     if (sessionId) {
-      axios
-        .post(
-          serverURL + "/api/payment/verify-checkout",
-          { sessionId },
-          { withCredentials: true },
-        )
+      verifyPaymentSession({ sessionId })
         .then((result) => {
           toast.success("Enrollment Successful 🎉");
           dispatch(setUserData(result.data));
@@ -121,11 +121,7 @@ useEffect(() => {
 
   const enrollFree = async (userId, courseId) => {
     try {
-      const response = await axios.post(
-        serverURL + `/api/payment/free-enroll`,
-        { courseId, userId },
-        { withCredentials: true },
-      );
+      const response = await enrollFreeCourse({ courseId, userId });
       setIsEnrolled(true);
       toast.success(response.data.message || "Enrolled Successfully!");
       dispatch(setUserData(response.data));
@@ -137,11 +133,7 @@ useEffect(() => {
   const handleReview = async () => {
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + "/api/review/createreview",
-        { rating, comment, courseId },
-        { withCredentials: true },
-      );
+      const result = await submitReview({ rating, comment, courseId });
       toast.success("Review Added");
       setLoading(false);
       setRating(0);
@@ -166,7 +158,6 @@ useEffect(() => {
 
   const avgRating = calculateAvgReview(selectedCourse?.reviews);
 
-  
   return (
     <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-8 space-y-8">
       <div
@@ -177,7 +168,7 @@ useEffect(() => {
         <span className="font-medium">Back to Courses</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="rounded-xl overflow-hidden h-[280px] shadow">
+        <div className="rounded-xl overflow-hidden h-70 shadow">
           {selectedCourse?.thumbnail ? (
             <img
               src={selectedCourse.thumbnail}
@@ -216,29 +207,28 @@ useEffect(() => {
             <li>10+ hours of video content</li>
             <li>Lifetime access to course</li>
           </ul>
-
-          {isEnrolled ? (
-            <button
-              className="bg-green-600 text-white px-6 py-3 rounded-xl w-full md:w-auto"
-              onClick={() => navigate(`/viewlecture/${courseId}`)}
-            >
-              {" "}
-              Watch Now
-            </button>
-          ) : (
-            <button
-              className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition w-full md:w-auto"
-              onClick={() => {
-                if (!selectedCourse?.isPaid) {
-                  enrollFree(userData._id, courseId);
-                } else {
-                  handleEnroll();
-                }
-              }}
-            >
-              {selectedCourse?.isPaid ? "Enroll Now" : "Enroll Free"}
-            </button>
-          )}
+          {userData?.role !== "Educator" &&
+            (isEnrolled ? (
+              <button
+                className="bg-green-600 text-white px-6 py-3 rounded-xl w-full md:w-auto"
+                onClick={() => navigate(`/viewlecture/${courseId}`)}
+              >
+                Watch Now
+              </button>
+            ) : (
+              <button
+                className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition w-full md:w-auto"
+                onClick={() => {
+                  if (!selectedCourse?.isPaid) {
+                    enrollFree(userData._id, courseId);
+                  } else {
+                    handleEnroll();
+                  }
+                }}
+              >
+                {selectedCourse?.isPaid ? "Enroll Now" : "Enroll Free"}
+              </button>
+            ))}
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

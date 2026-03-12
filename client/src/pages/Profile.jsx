@@ -10,12 +10,11 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { serverURL } from "../App";
 import { setUserData } from "../redux/userSlice.js";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { loginUser, updateProfile } from "../api/authApi.js";
 
 const Profile = () => {
   const { userData } = useSelector((state) => state.user);
@@ -57,11 +56,8 @@ const Profile = () => {
         formData.append("photoUrl", selectedFile);
       }
 
-      const result = await axios.post(`${serverURL}/api/user/profile`, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      dispatch(setUserData(result.data.user));
+      const result = await updateProfile(formData);
+      dispatch(setUserData(result.data));
       toast.success("Profile Updated Successfully");
       setIsEditing(false);
       setSelectedFile(null);
@@ -74,7 +70,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
       try {
-        await axios.post(serverURL + "/api/auth/logout", { withCredentials: true });
+        await loginUser()
         dispatch(setUserData(null));
         toast.success("Logged out successfully");
         navigate("/");
@@ -106,7 +102,7 @@ const Profile = () => {
 
       <main className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-8">    
       <aside className="lg:col-span-4 space-y-6">
-          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-8 flex flex-col items-center text-center">
+          <div className="bg-white rounded-4xl border border-slate-200 shadow-sm p-8 flex flex-col items-center text-center">
             <div className="relative group mb-6">
               <div className="w-32 h-32 rounded-full p-1 bg-white ring-2 ring-indigo-50 overflow-hidden shadow-inner">
                 {previewUrl ? (
@@ -153,7 +149,7 @@ const Profile = () => {
         </aside>
 
         <div className="lg:col-span-8">
-          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-4xl border border-slate-200 shadow-sm overflow-hidden">
             
             <div className="px-8 py-7 border-b border-slate-50 flex justify-between items-center bg-white">
               <div>

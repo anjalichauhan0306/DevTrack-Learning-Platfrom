@@ -55,7 +55,7 @@ const MentorsList = () => {
           </p>
         </div>
       </div>
-      <main className="flex-grow -mt-20 px-6 pb-20">
+      <main className="grow -mt-20 px-6 pb-20">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {creators.map((mentor) => (
@@ -92,7 +92,7 @@ const MentorsList = () => {
                       </p>
                     </div>
                   </div>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-8 line-clamp-3 px-2 min-h-[60px]">
+                  <p className="text-gray-500 text-sm leading-relaxed mb-8 line-clamp-3 px-2 min-h-15">
                     {mentor.description || "No description provided."}
                   </p>
                   <div className="grid grid-cols-2 w-full bg-gray-50 rounded-3xl p-4 gap-4 items-center">

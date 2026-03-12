@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
 import { Search, X, Users, Filter} from "lucide-react";
 import Navbar from "../../component/Nav";
-import { serverURL } from "../../App";
+import { AllUsersByAdmin, blockUser } from "../../api/adminAPI";
 
 const EducatorsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,8 +12,7 @@ const EducatorsPage = () => {
   const getEducator = async () => {
     setLoading(true)
     try {
-      const result = await axios.get(serverURL + "/api/admin/users", { withCredentials: true })
-
+      const result = await AllUsersByAdmin();
       const educators = result.data.filter(
         user => user.role === "Educator");
         setLoading(false)
@@ -31,11 +29,7 @@ const EducatorsPage = () => {
 
   const toggleStatus = async (id, currentStatus) => {
   try {
-    const res = await axios.post(
-      `${serverURL}/api/admin/user/${id}`,
-      { isActive: !currentStatus },
-      { withCredentials: true }
-    );
+    const res = await blockUser(id, !currentStatus);
 
     setUsers(prev =>
       prev.map(u =>

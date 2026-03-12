@@ -9,17 +9,15 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { serverURL } from "../App";
-import axios from "axios";
 import { setQuizData } from "../redux/quizSlice";
 import { toast } from "react-toastify";
+import { getQuizByCourse, submitQuiz } from "../api/quizAPI";
 
 const QuizAttempt = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { quizData } = useSelector((state) => state.quiz);
-  // const [attemptsLeft, setAttemptsLeft] = useState(5);
   const [quizStarted, setQuizStarted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -38,10 +36,7 @@ const QuizAttempt = () => {
 
     const getQuiz = async () => {
       try {
-        const result = await axios.get(
-          `${serverURL}/api/quiz/getquiz/${courseId}`,
-          { withCredentials: true },
-        );
+        const result = await getQuizByCourse(courseId);
         dispatch(setQuizData(result.data.quiz));
       } catch (error) {
         console.log(`No quiz found for course ID: ${error}`);
@@ -66,16 +61,14 @@ const QuizAttempt = () => {
 
   const handleSubmit = async () => {
     try {
-      const formattedAnswers = Object.entries(selectedOptions).map(([qIndex, optIndex]) => ({
-        questionIndex: Number(qIndex),
-        selectedAnswer: optIndex,
-      }));
+      const formattedAnswers = Object.entries(selectedOptions).map(
+        ([qIndex, optIndex]) => ({
+          questionIndex: Number(qIndex),
+          selectedAnswer: optIndex,
+        }),
+      );
 
-      const result = await axios.post(`${serverURL}/api/quiz/submit`, {
-        quizId: quizData._id,
-        answers: formattedAnswers,
-      }, { withCredentials: true });
-
+      const result = await submitQuiz(quizData._id, formattedAnswers);
       setScore(result.data.score);
       setPercentage(result.data.percentage);
       setIsSubmitted(true);
@@ -115,8 +108,7 @@ const QuizAttempt = () => {
             <div
               className={`p-4 rounded-2xl flex items-center gap-3 border ${attemptsLeft > 0 ? "bg-orange-50 border-orange-100 text-orange-600" : "bg-red-50 border-red-100 text-red-600"}`}
             >
-              <FiAlertTriangle /> Attempts Left:{" "}
-              {attemptsLeft}
+              <FiAlertTriangle /> Attempts Left: {attemptsLeft}
             </div>
           </div>
 
@@ -253,10 +245,11 @@ const QuizAttempt = () => {
                   <button
                     key={optIndex}
                     onClick={() => handleOptionSelect(qIndex, optIndex)}
-                    className={`w-full p-4 rounded-2xl text-left text-sm font-bold border-2 transition-all flex items-center justify-between ${selectedOptions[qIndex] === optIndex
+                    className={`w-full p-4 rounded-2xl text-left text-sm font-bold border-2 transition-all flex items-center justify-between ${
+                      selectedOptions[qIndex] === optIndex
                         ? "bg-indigo-600 border-indigo-600 text-white shadow-lg"
                         : "bg-gray-50 border-transparent text-gray-500 hover:border-indigo-200"
-                      }`}
+                    }`}
                   >
                     {opt}
                     <div

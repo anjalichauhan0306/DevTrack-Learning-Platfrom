@@ -3,11 +3,10 @@ import { serverURL } from '../App';
 
 const axiosInstance = axios.create({
   baseURL: "https://devtrack-cla8.onrender.com/api",
-  timeout: 10000, 
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials : true
 });
 
 axiosInstance.interceptors.request.use(
@@ -16,25 +15,20 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    console.error('API Error:', error.response || error.message);
+    if (error.response?.status === 401) {
       console.log('Session expired, logging out...');
       localStorage.removeItem('token');
-      window.location.href = '/login'; 
+      window.location.href = '/login';
     }
-    
     return Promise.reject(error);
   }
 );

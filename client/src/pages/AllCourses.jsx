@@ -11,7 +11,6 @@ const CoursePage = () => {
   const [filterCourse, setFilteredCourse] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Sidebar toggle state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleCategory = (e) => {

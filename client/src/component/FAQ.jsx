@@ -49,7 +49,7 @@ const FAQ = () => {
                     {faq.question}
                   </h4>
 
-                  <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <div className="shrink-0 w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
                     <FiPlus className="group-hover:hidden w-4 h-4" />
                     <FiMinus className="hidden group-hover:block w-4 h-4" />
                   </div>

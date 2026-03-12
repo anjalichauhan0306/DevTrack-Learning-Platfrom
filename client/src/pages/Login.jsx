@@ -5,13 +5,11 @@ import { IoEye, IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import axios from "axios";
-import { serverURL } from "../App";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice.js";
 import { auth, provider } from "../utils/firebase.js";
 import { signInWithPopup } from "firebase/auth";
-import { googleAuth,loginUser } from "../api/authApi.js";
+import { googleAuth, loginUser } from "../api/authApi.js";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -23,12 +21,9 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + "/api/auth/login",
-        { email, password },
-        { withCredentials: true },
-      );
-      dispatch(setUserData(result.data.user));
+      const result = await loginUser(
+        { email, password });
+      dispatch(setUserData(result.data));
       setLoading(false);
       toast.success("Login Successfully");
       navigate("/");
@@ -46,13 +41,13 @@ const Login = () => {
       let email = user.email;
       let role = "";
 
-      const result = await axios.post(
-        serverURL + "/api/auth/googleauth",
-        { name, email, role },
-        { withCredentials: true },
-      );
+      const result = await googleAuth({
+        name: user.displayName,
+        email: user.email,
+        role,
+      });
 
-      dispatch(setUserData(result.data.user));
+      dispatch(setUserData(result.data));
       navigate("/");
       toast.success("Google login Successful");
     } catch (error) {
@@ -163,7 +158,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right Side */}
         <div className="hidden md:flex md:w-[45%] bg-[#020617] relative flex-col items-center justify-center p-12 overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 via-transparent to-purple-600/20" />
 

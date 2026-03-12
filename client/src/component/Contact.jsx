@@ -71,7 +71,7 @@ const ContactPage = () => {
         </span>
       </button>
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
       <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-6 relative z-10">
         <div className="lg:col-span-5 space-y-6">
@@ -100,7 +100,7 @@ const ContactPage = () => {
               <div className="grid grid-cols-1 gap-3">
                 <div
                   onClick={copyEmail}
-                  className="group cursor-pointer flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-indigo-500/30 transition-all"
+                  className="group cursor-pointer flex items-center gap-4 p-4 rounded-2xl bg-white/2 border border-white/5 hover:border-indigo-500/30 transition-all"
                 >
                   <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white transition-colors">
                     <Mail size={18} />
@@ -123,7 +123,7 @@ const ContactPage = () => {
                   )}
                 </div>
 
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/2 border border-white/5">
                   <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400">
                     <MapPin size={18} />
                   </div>
@@ -182,7 +182,7 @@ const ContactPage = () => {
                     onChange={handleChange}
                     value={formData.name}
                     placeholder="John Doe"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                    className="w-full bg-white/3 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -195,7 +195,7 @@ const ContactPage = () => {
                     value={formData.email}
                     type="email"
                     placeholder="john@company.com"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                    className="w-full bg-white/3 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -210,7 +210,7 @@ const ContactPage = () => {
                   onChange={handleChange}
                   value={formData.message}
                   placeholder="Tell me what you're working on..."
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none resize-none"
+                  className="w-full bg-white/3 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none resize-none"
                 />
               </div>
               <button

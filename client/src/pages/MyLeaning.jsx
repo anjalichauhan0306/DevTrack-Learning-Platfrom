@@ -74,7 +74,7 @@ const MyLearning = () => {
       <main className="max-w-6xl mx-auto px-5 pb-20">
         <div className="mb-16">
           <h2 className="text-xl font-black text-white uppercase tracking-widest mb-8 flex items-center gap-3">
-            <span className="w-8 h-[2px] bg-indigo-500"></span> In Progress
+            <span className="w-8 h-0.5 bg-indigo-500"></span> In Progress
           </h2>
 
           {inProgressCourses.length > 0 ? (
@@ -95,7 +95,7 @@ const MyLearning = () => {
                         <img
                           src={course?.thumbnail}
                           alt={course?.title}
-                          className="w-full h-full object-cover rounded-[2rem] brightness-90 group-hover:brightness-110 transition-all duration-700"
+                          className="w-full h-full object-cover rounded-4xl brightness-90 group-hover:brightness-110 transition-all duration-700"
                         />
                         <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-[10px] font-black px-4 py-2 rounded-2xl shadow-xl border-4 border-[#0f1120]">
                           {course?.level?.toUpperCase()}
@@ -181,7 +181,7 @@ const MyLearning = () => {
               })}
             </div>
           ) : (
-            <div className="text-center py-24 bg-[#0f0f2d] rounded-[2rem] border border-white/5 border-dashed">
+            <div className="text-center py-24 bg-[#0f0f2d] rounded-4xl border border-white/5 border-dashed">
               <div className="bg-indigo-500/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FiBook className="text-indigo-500 text-3xl" />
               </div>
@@ -196,7 +196,7 @@ const MyLearning = () => {
 
               <button
                 onClick={() => navigate("/")}
-                className="mt-8 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-10 py-3.5 rounded-2xl font-bold hover:shadow-[0_10px_20px_rgba(79,70,229,0.3)] transition-all"
+                className="mt-8 bg-linear-to-r from-indigo-600 to-indigo-500 text-white px-10 py-3.5 rounded-2xl font-bold hover:shadow-[0_10px_20px_rgba(79,70,229,0.3)] transition-all"
               >
                 Explore Catalog
               </button>
@@ -206,7 +206,7 @@ const MyLearning = () => {
         {completedCourses.length > 0 && (
           <div className="mt-24">
             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-10 flex items-center gap-3">
-              <span className="w-8 h-[2px] bg-emerald-500"></span>
+              <span className="w-8 h-0.5 bg-emerald-500"></span>
               Achievements
             </h2>
 

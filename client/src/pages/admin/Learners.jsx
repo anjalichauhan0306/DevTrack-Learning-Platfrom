@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 import { useMemo } from "react";
 import Navbar from '../../component/Nav';
-import axios from 'axios';
-import { serverURL } from '../../App';
+import { AllUsersByAdmin, blockUser } from '../../api/adminAPI';
 
 const LearnersManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,7 +15,7 @@ const LearnersManager = () => {
 
   const getStudnet = async () => {
     try {
-      const result = await axios.get(serverURL + "/api/admin/users",{withCredentials:true})
+      const result = await AllUsersByAdmin();
       const educators = result.data.filter(
         user => user.role === "Student");
       setStudents(educators);
@@ -30,24 +29,15 @@ const LearnersManager = () => {
     }, []);
 
 
-  // 2. Toggle Status (Syncing both list and drawer)
   const toggleStatus = async (id, currentStatus) => {
     try {
-      const res = await axios.patch(
-        `${serverURL}/api/admin/user/${id}`,
-        { isActive: !currentStatus },
-        { withCredentials: true }
-      );
-
-      const updatedUser = res.data.user || res.data; // Handles different API response structures
-
-      // Update the main list
+      const res = await blockUser(id, !currentStatus);
+      const updatedUser = res.data.user || res.data; 
       setStudents(prev =>
         prev.map(s => s._id === id ? { ...s, isActive: updatedUser.isActive } : s)
       );
 
-      // CRITICAL FIX: Update the drawer data immediately
-      if (selectedStudent?._id === id) {
+     if (selectedStudent?._id === id) {
         setSelectedStudent(prev => ({
           ...prev,
           isActive: updatedUser.isActive

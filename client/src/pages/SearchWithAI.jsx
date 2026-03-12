@@ -4,12 +4,11 @@ import {
   RiSearchLine,
   RiCompass3Line,
   RiArrowLeftLine,
-} from "react-icons/ri"; // Using standard RI icons
+} from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { serverURL } from "../App";
 import start from "../assets/start.mp3";
+import { searchCourses } from "../api/courseApi";
 
 const SearchWithAI = () => {
   const startSound = new Audio(start);
@@ -19,7 +18,6 @@ const SearchWithAI = () => {
   const recognitionRef = useRef(null);
   const [listening, setListening] = useState(false);
 
-  // --- Logic Preserved ---
   function speak(message) {
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = "en-IN";
@@ -70,10 +68,8 @@ const SearchWithAI = () => {
   const handleRecommendation = async (query) => {
     if (!query) return;
     try {
-      const result = await axios.post(
-        `${serverURL}/api/course/search`,
+      const result = await searchCourses(
         { input: query },
-        { withCredentials: true },
       );
       setRecommendations(result.data);
       if (result.data.length > 0) {
@@ -105,11 +101,11 @@ const SearchWithAI = () => {
 
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.4)] ${listening ? "animate-pulse" : ""}`}
+              className={`p-2 rounded-xl bg-linear-to-br from-purple-500 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.4)] ${listening ? "animate-pulse" : ""}`}
             >
               <RiMicAiFill className="text-white text-xl" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+            <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-white to-gray-500">
               AI Vision
             </h1>
           </div>
@@ -119,7 +115,7 @@ const SearchWithAI = () => {
         <div className="flex flex-col items-center mb-20">
           <div className="w-full max-w-3xl relative group">
             <div
-              className={`absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 ${listening ? "opacity-70 animate-pulse" : ""}`}
+              className={`absolute -inset-1 bg-linear-to-r from-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 ${listening ? "opacity-70 animate-pulse" : ""}`}
             ></div>
 
             <div className="relative flex items-center bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 shadow-2xl">
@@ -149,11 +145,10 @@ const SearchWithAI = () => {
                 </button>
                 <button
                   onClick={handleSearch}
-                  className={`relative overflow-hidden group p-4 rounded-xl transition-all active:scale-95 ${
-                    listening
+                  className={`relative overflow-hidden group p-4 rounded-xl transition-all active:scale-95 ${listening
                       ? "bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]"
                       : "bg-white text-black"
-                  }`}
+                    }`}
                 >
                   <RiMicAiFill
                     size={24}
@@ -184,7 +179,7 @@ const SearchWithAI = () => {
           )}
         </div>
 
-        <div className="min-h-[400px]">
+        <div className="min-h-100">
           {listening ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="flex gap-1 items-end h-12 mb-6">

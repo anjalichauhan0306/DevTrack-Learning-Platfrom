@@ -101,6 +101,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     value={password}
                     type={show ? "text" : "password"}
+                    autoComplete="current-password"
                     placeholder="••••••••"
                     className="w-full h-11 px-5 rounded-2xl border-2 border-gray-100 bg-gray-50/50 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all"
                   />

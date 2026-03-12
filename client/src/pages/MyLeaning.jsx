@@ -7,30 +7,44 @@ import certificateTemplate from "/certificateTemp.png";
 
 const MyLearning = () => {
   const navigate = useNavigate();
-
   const { userData } = useSelector((state) => state.user || {});
   const { courseData } = useSelector((state) => state.course || {});
+
   const getProgress = (courseId) => {
     if (!courseId || !courseData || !userData) return 0;
     const course = courseData.find((c) => c._id === courseId);
     const totalLectures = course?.lectures?.length || 0;
     if (totalLectures === 0) return 0;
+
     const courseProgress = userData?.completedLectures?.find(
-      (c) => c.courseId === courseId,
+      (c) => c.courseId === courseId
     );
     const completedCount = courseProgress?.lectureIds?.length || 0;
     return Math.min(100, Math.round((completedCount / totalLectures) * 100));
   };
+
   const enrolledCourses = userData?.enrolledCourses || [];
 
-  const inProgressCourses = useMemo(() => {
-    return enrolledCourses.filter((course) => getProgress(course._id) < 100);
-  }, [enrolledCourses, courseData, userData]);
+  const isQuizPassed = (courseId) => {
+    const exam = userData?.examScores?.find((e) => e.courseId === courseId);
+    return exam && exam.score > 7;
+  };
 
-  const completedCourses = useMemo(() => {
-    return enrolledCourses.filter((course) => getProgress(course._id) === 100);
-  }, [enrolledCourses, courseData, userData]);
+  const inProgressCourses = useMemo(
+    () =>
+      enrolledCourses.filter(
+        (course) => getProgress(course._id) < 100 || !isQuizPassed(course._id)
+      ),
+    [enrolledCourses, courseData, userData]
+  );
 
+  const completedCourses = useMemo(
+    () =>
+      enrolledCourses.filter(
+        (course) => getProgress(course._id) === 100 && isQuizPassed(course._id)
+      ),
+    [enrolledCourses, courseData, userData]
+  );
 
   return (
     <div className="min-h-screen bg-[#050517] text-slate-200">
@@ -68,7 +82,6 @@ const MyLearning = () => {
               {inProgressCourses.map((course) => {
                 const progressPercent = getProgress(course._id);
                 const isCompleted = progressPercent === 100;
-
                 return (
                   <div
                     key={course._id}
@@ -122,11 +135,10 @@ const MyLearning = () => {
                               strokeDashoffset={
                                 125.6 - (125.6 * progressPercent) / 100
                               }
-                              className={`${
-                                isCompleted
+                              className={`${isCompleted
                                   ? "text-emerald-500"
                                   : "text-indigo-500"
-                              } transition-all duration-1000 ease-out`}
+                                } transition-all duration-1000 ease-out`}
                             />
                           </svg>
 
@@ -136,7 +148,13 @@ const MyLearning = () => {
                         </div>
 
                         <div className="flex flex-col items-end">
-                          {isCompleted ? (
+                          {progressPercent === 100 && !isQuizPassed(course._id) ? (
+                            <button
+                              className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tight shadow-lg shadow-indigo-500/20"
+                            >
+                              Attempt Quiz
+                            </button>
+                          ) : progressPercent === 100 && isQuizPassed(course._id) ? (
                             <button className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tight shadow-lg shadow-emerald-500/20">
                               Claim Certificate
                             </button>

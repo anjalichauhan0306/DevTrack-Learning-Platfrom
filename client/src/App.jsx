@@ -36,6 +36,7 @@ import AdminOverview from "./pages/admin/dashboard";
 import EducatorsPage from "./pages/admin/Educators";
 import LearnersManager from "./pages/admin/Learners";
 import CourseManager from "./pages/admin/Courses";
+import About from "./component/About";
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -189,6 +190,7 @@ const App = () => {
           />
 
           <Route path="/contact" element={<ContactSection />} />
+          <Route path="/about" element={<About />} />
           <Route path="/admin" element={<GetAllUser />} />
           
           <Route path="/admin/overview" element={<AdminOverview/>} />

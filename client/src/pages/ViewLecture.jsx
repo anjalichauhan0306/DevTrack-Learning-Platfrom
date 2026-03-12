@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { toFormData } from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { setQuizData } from "../redux/quizSlice";
 import { setUserData } from "../redux/userSlice";
+import { toast } from "react-toastify";
 
 const ViewLecture = () => {
   const { courseId } = useParams();
@@ -35,13 +36,16 @@ const ViewLecture = () => {
   const [quizScore, setQuizScore] = useState(0);
 
   const courseProgress =
-    userData?.completedLectures?.find((c) => c.courseId === courseId) || null;
+    userData?.completedLectures?.find(
+      (c) => c.courseId?.toString() === courseId?.toString()
+    ) || null;
+
   const coursePercent = courseProgress
     ? Math.round(
-        (courseProgress.lectureIds.length /
-          (selectedCourse?.lectures?.length || 1)) *
-          100,
-      )
+      (courseProgress.lectureIds.length /
+        (selectedCourse?.lectures?.length || 1)) *
+      100,
+    )
     : 0;
   const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
@@ -53,11 +57,37 @@ const ViewLecture = () => {
     quizData?.questions?.length > 0 && // quiz loaded
     quizScore >= Math.ceil(quizData.questions.length * 0.7);
 
+  // const handleTimeUpdate = async () => {
+  //   const video = videoRef.current;
+  //   if (!video || !selectedLecture) return;
+  //   const percent = (video.currentTime / video.duration) * 100;
+  //   if (percent > 90) {
+  //     try {
+  //       const response = await axios.post(
+  //         `${serverURL}/api/user/updateprogress`,
+  //         {
+  //           courseId,
+  //           lectureId: selectedLecture._id,
+  //           totalLectures: selectedCourse.lectures.length,
+  //         },
+  //         { withCredentials: true },
+  //       );
+  //       dispatch(setUserData(response.data));
+  //     } catch (err) {
+  //       console.error("Failed to mark lecture completed", err);
+  //     }
+  //   }
+  // };
+
   const handleTimeUpdate = async () => {
     const video = videoRef.current;
-    if (!video || !selectedLecture) return;
+    if (!video || !selectedLecture || isMarked) return;
+
     const percent = (video.currentTime / video.duration) * 100;
+
     if (percent > 90) {
+      setIsMarked(true);
+
       try {
         const response = await axios.post(
           `${serverURL}/api/user/updateprogress`,
@@ -66,14 +96,20 @@ const ViewLecture = () => {
             lectureId: selectedLecture._id,
             totalLectures: selectedCourse.lectures.length,
           },
-          { withCredentials: true },
+          { withCredentials: true }
         );
+
         dispatch(setUserData(response.data));
+        toast.success("Lecture completed ✅");
       } catch (err) {
         console.error("Failed to mark lecture completed", err);
       }
     }
   };
+
+  useEffect(() => {
+    setIsMarked(false);
+  }, [selectedLecture]);
 
   const courseQuizAvailable = quizData?.questions?.length > 0;
 
@@ -237,15 +273,14 @@ const ViewLecture = () => {
                         navigate(`/quiz-attempt/${courseId}`);
                       }
                     }}
-                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                      !isCourseFinished
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${!isCourseFinished
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : quizAttempts >= 5
                           ? "bg-red-100 text-red-500 cursor-not-allowed"
                           : !courseQuizAvailable
                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                             : "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-1"
-                    }`}
+                      }`}
                   >
                     {!isCourseFinished
                       ? "Complete Course First"
@@ -287,11 +322,10 @@ const ViewLecture = () => {
                   <button
                     disabled={!isCertificateUnlocked}
                     onClick={downloadCertificate}
-                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                      isCertificateUnlocked
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${isCertificateUnlocked
                         ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:-translate-y-1"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
-                    }`}
+                      }`}
                   >
                     {isCertificateUnlocked ? "Download Certificate" : "Locked"}
                   </button>
@@ -320,20 +354,21 @@ const ViewLecture = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedLecture(lecture)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
-                      isActive(lecture)
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "hover:bg-gray-50 bg-white border border-gray-100"
-                    }`}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all
+${completed
+                        ? "bg-green-500 text-white shadow-md"
+                        : isActive(lecture)
+                          ? "bg-blue-600 text-white shadow-lg"
+                          : "hover:bg-gray-50 bg-white border border-gray-100"
+                      }`}
                   >
                     <div
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        isActive(lecture)
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive(lecture)
                           ? "bg-white/20"
                           : completed
                             ? "bg-green-500 text-white"
                             : "bg-gray-100 text-gray-400"
-                      }`}
+                        }`}
                     >
                       {completed ? "✓" : index + 1}
                     </div>

@@ -4,12 +4,9 @@ import Navbar from "../component/Nav";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Card from "../component/Card";
-import axios from "axios";
-import { serverURL } from "../App";
 const CoursePage = () => {
   const navigate = useNavigate();
   const { courseData } = useSelector((state) => state.course);
-const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
   const [filterCourse, setFilteredCourse] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

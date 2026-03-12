@@ -9,13 +9,6 @@ const GetCurrentUser = () => {
   const dispatch = useDispatch();
   return useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token');  
-      
-      if (!token) {
-        dispatch(setUserData(null));
-        return; 
-      }
-
       try {
         const result = await axios.get(serverURL + "/api/user/getcurrentuser", {
           withCredentials: true,

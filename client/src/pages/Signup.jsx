@@ -35,7 +35,7 @@ const Signup = () => {
         { withCredentials: true },
       );
       setLoading(false);
-      dispatch(setUserData(result.data));
+      dispatch(setUserData(result.data.user));
       toast.success("Signup Successful");
       navigate("/");
     } catch (error) {
@@ -144,6 +144,7 @@ const Signup = () => {
                   type={show ? "text" : "password"}
                   className="w-full h-11 px-5 rounded-2xl border-2 border-gray-100 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50/50"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

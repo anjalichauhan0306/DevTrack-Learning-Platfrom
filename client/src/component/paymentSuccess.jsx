@@ -23,6 +23,7 @@ const PaymentSuccess = () => {
         )
         .then(() => {
           toast.success("Enrollment Successful 🎉");
+          dispatch(setUserData(result.data));
           navigate("/mylearning");
         })
         .catch((error) => {

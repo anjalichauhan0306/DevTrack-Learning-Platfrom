@@ -6,6 +6,8 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true, 
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
   auth: {
     user: process.env.USER_EMAIL,
     pass: process.env.USER_PASSWORD,
@@ -31,7 +33,7 @@ const sendMail = async (to, otp) => {
     console.log("Email sent successfully to:", to);
   } catch (error) {
     console.error("Nodemailer Error:", error);
-    throw new Error("Email sending failed"); // Ye error backend controller ke catch block mein jayega
+    throw new Error("Email sending failed"); 
   }
 };
 

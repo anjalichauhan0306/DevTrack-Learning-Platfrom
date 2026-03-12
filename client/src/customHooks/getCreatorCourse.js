@@ -9,26 +9,19 @@ const GetCreatorCourse = () => {
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.user);
 
-  useEffect(() => {
+  return useEffect(() => {
     const creatorCourses = async () => {
-      const token = localStorage.getItem('token');  
-            
-            if (!token) {
-              dispatch(setCreatorCourseData(null));
-              return; 
-            }
-
       try {
         const result = await axios.get(serverURL + "/api/course/getcreator", {
           withCredentials: true,
         });
-         dispatch(setCreatorCourseData(result.data));
+        dispatch(setCreatorCourseData(result.data));
       } catch (error) {
         console.log("can not get creator courses");
       }
     };
     creatorCourses();
-  }, [userData]);
+  }, []);
 };
 
 export default GetCreatorCourse;

@@ -19,7 +19,7 @@ const QuizAttempt = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { quizData } = useSelector((state) => state.quiz);
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
+  // const [attemptsLeft, setAttemptsLeft] = useState(5);
   const [quizStarted, setQuizStarted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -29,7 +29,10 @@ const QuizAttempt = () => {
   const [selectedOptions, setSelectedOptions] = useState({});
 
   const totalQuestions = quizData?.questions?.length || 0;
-
+  const MAX_ATTEMPTS = 5;
+  const attemptsLeft = quizData?.attempts
+    ? Math.max(0, MAX_ATTEMPTS - quizData.attempts.length)
+    : MAX_ATTEMPTS;
   useEffect(() => {
     if (!courseId) return;
 
@@ -62,27 +65,27 @@ const QuizAttempt = () => {
   };
 
   const handleSubmit = async () => {
-  try {
-    const formattedAnswers = Object.entries(selectedOptions).map(([qIndex, optIndex]) => ({
-      questionIndex: Number(qIndex),
-      selectedAnswer: optIndex,
-    }));
+    try {
+      const formattedAnswers = Object.entries(selectedOptions).map(([qIndex, optIndex]) => ({
+        questionIndex: Number(qIndex),
+        selectedAnswer: optIndex,
+      }));
 
-    const result = await axios.post(`${serverURL}/api/quiz/submit`, {
-      quizId: quizData._id,
-      answers: formattedAnswers,
-    }, { withCredentials: true });
+      const result = await axios.post(`${serverURL}/api/quiz/submit`, {
+        quizId: quizData._id,
+        answers: formattedAnswers,
+      }, { withCredentials: true });
 
-    setScore(result.data.score);
-    setPercentage(result.data.percentage);
-    setIsSubmitted(true);
-    setShowConfirm(false);
-    
-    if (result.data.quiz) dispatch(setQuizData(result.data.quiz));
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Submission failed");
-  }
-};
+      setScore(result.data.score);
+      setPercentage(result.data.percentage);
+      setIsSubmitted(true);
+      setShowConfirm(false);
+
+      if (result.data.quiz) dispatch(setQuizData(result.data.quiz));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Submission failed");
+    }
+  };
 
   if (!quizStarted) {
     return (
@@ -113,9 +116,7 @@ const QuizAttempt = () => {
               className={`p-4 rounded-2xl flex items-center gap-3 border ${attemptsLeft > 0 ? "bg-orange-50 border-orange-100 text-orange-600" : "bg-red-50 border-red-100 text-red-600"}`}
             >
               <FiAlertTriangle /> Attempts Left:{" "}
-              {quizData?.attempts
-                ? Math.max(0, 5 - quizData.attempts.length)
-                : 5}
+              {attemptsLeft}
             </div>
           </div>
 
@@ -252,11 +253,10 @@ const QuizAttempt = () => {
                   <button
                     key={optIndex}
                     onClick={() => handleOptionSelect(qIndex, optIndex)}
-                    className={`w-full p-4 rounded-2xl text-left text-sm font-bold border-2 transition-all flex items-center justify-between ${
-                      selectedOptions[qIndex] === optIndex
+                    className={`w-full p-4 rounded-2xl text-left text-sm font-bold border-2 transition-all flex items-center justify-between ${selectedOptions[qIndex] === optIndex
                         ? "bg-indigo-600 border-indigo-600 text-white shadow-lg"
                         : "bg-gray-50 border-transparent text-gray-500 hover:border-indigo-200"
-                    }`}
+                      }`}
                   >
                     {opt}
                     <div

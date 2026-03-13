@@ -64,6 +64,7 @@ const CourseDetailPage = () => {
       checkEnrollment();
     }
   }, [userData, courseId]);
+  
   useEffect(() => {
     const handleCreator = async () => {
       if (selectedCourse?.creator) {

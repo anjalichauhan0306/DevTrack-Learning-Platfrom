@@ -4,6 +4,8 @@ import { serverURL } from "../../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { setCourseData } from "../../redux/courseSliec";
+import { createCourse } from "../../api/courseApi";
 
 const CreateCourse = () => {
   const [title, setTitle] = useState("");
@@ -27,13 +29,10 @@ const CreateCourse = () => {
       formData.append("level", level);
       formData.append("thumbnail", thumbnail);
 
-      const result = await axios.post(
-        serverURL + "/api/course/create",
-        formData,
-        { withCredentials: true },
-      );
+      const result = await createCourse(formData);
       setLoading(false);
       navigate("/courses");
+      setCourseData(result.data);
       toast.success("Course Created !");
     } catch (error) {
       setLoading(false);

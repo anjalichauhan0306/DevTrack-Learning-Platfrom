@@ -1,86 +1,49 @@
-import axios from "axios";
-import { serverURL } from "../App";
 import axiosInstance from "./axiosInstance";
 
-export const searchCourses = async (query) => {
-  try {
-    const res = await axios.post(
-      `${serverURL}/api/course/search`,
-      { input: query },
-      { withCredentials: true }
-    );
-    return res.data;
-  } catch (error) {
-    console.error("Search API failed:", error);
-    throw error;
-  }
-};
+export const searchCourses = (query) =>
+  axiosInstance.post("/course/search", { input: query });
 
+export const getCreator = (creatorId) =>
+  axiosInstance.post("/course/creator", { userId: creatorId });
 
-// Fetch creator details
-export const getCreator = async (creatorId) => {
-  const res = await axios.post(
-    `${serverURL}/api/course/creator`,
-    { userId: creatorId },
-    { withCredentials: true }
-  );
-  return res.data;
-};
+export const enrollPaidCourse = (courseId, userId) =>
+  axiosInstance.post("/payment/create-checkout-session", { courseId, userId });
 
-// Enroll in paid course
-export const enrollPaidCourse = async (courseId, userId) => {
-  const res = await axios.post(
-    `${serverURL}/api/payment/create-checkout-session`,
-    { courseId, userId },
-    { withCredentials: true }
-  );
-  return res.data; // contains redirect URL
-};
+export const verifyPaymentSession = (sessionId) =>
+  axiosInstance.post("/payment/verify-checkout", { sessionId });
 
-// Verify payment session
-export const verifyPaymentSession = async (sessionId) => {
-  const res = await axios.post(
-    `${serverURL}/api/payment/verify-checkout`,
-    { sessionId },
-    { withCredentials: true }
-  );
-  return res.data;
-};
+export const enrollFreeCourse = (courseId, userId) =>
+  axiosInstance.post("/payment/free-enroll", { courseId, userId });
 
-// Enroll free course
-export const enrollFreeCourse = async (courseId, userId) => {
-  const res = await axios.post(
-    `${serverURL}/api/payment/free-enroll`,
-    { courseId, userId },
-    { withCredentials: true }
-  );
-  return res.data;
-};
+export const submitReview = (courseId, rating, comment) =>
+  axiosInstance.post("/review/createreview", { courseId, rating, comment });
 
-// Submit a review
-export const submitReview = async (courseId, rating, comment) => {
-  const res = await axios.post(
-    `${serverURL}/api/review/createreview`,
-    { courseId, rating, comment },
-    { withCredentials: true }
-  );
-  return res.data;
-};
-
-export const downloadCertificateAPI = async (courseId, userId, score, totalQuestions) => {
-  const res = await axios.post(
-    `${serverURL}/api/course/certificate/${courseId}`,
+export const downloadCertificateAPI = (courseId, userId, score, totalQuestions) =>
+  axiosInstance.post(
+    `/course/certificate/${courseId}`,
     { userId, score, totalQuestions },
-    { withCredentials: true, responseType: "blob" }
+    { responseType: "blob" }
   );
-  return res.data; 
-};
 
-export const markLectureComplete = async (courseId, lectureId, totalLectures) => {
-  const res = await axios.post(
-    `${serverURL}/api/user/updateprogress`,
-    { courseId, lectureId, totalLectures },
-    { withCredentials: true }
-  );
-  return res.data; 
-};
+export const markLectureComplete = (courseId, lectureId, totalLectures) =>
+  axiosInstance.post("/user/updateprogress", {
+    courseId,
+    lectureId,
+    totalLectures,
+  });
+
+export const createCourse = (data) =>
+  axiosInstance.post("/course/create", data);
+
+export const createLecture = (courseId, lectureTitle) =>
+  axiosInstance.post(`/course/createlecture/${courseId}`, { lectureTitle });
+
+export const deleteLecture = (lectureId) =>
+  axiosInstance.delete(`/course/deletelecture/${lectureId}`);
+
+export const getCourseLectures = (courseId) =>
+  axiosInstance.get(`/course/courselecture/${courseId}`);
+
+export const getEnrolled = () =>
+  axiosInstance.get(`/course/getenrolled`).then(res => res.data)
+

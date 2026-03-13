@@ -4,11 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { setLectureData } from "../../redux/lectureSliece";
 import img from "../../assets/logo.png";
-import { serverURL } from "../../App";
 import { toast } from "react-toastify";
 import { FiAward } from "react-icons/fi";
 import { setQuizData } from "../../redux/quizSlice";
-import axios from "axios";
 import {
   FiArrowLeft,
   FiPlus,
@@ -17,6 +15,8 @@ import {
   FiCheckCircle,
   FiEdit,
 } from "react-icons/fi";
+import { createLecture, deleteLecture, getCourseLectures } from "../../api/courseApi";
+import { deleteQuiz, generateQuiz, updateQuiz } from "../../api/quizAPI";
 
 const CreateLecture = () => {
   const { quizData } = useSelector((state) => state.quiz);
@@ -38,11 +38,7 @@ const CreateLecture = () => {
     setLoading(true);
 
     try {
-      const result = await axios.post(
-        `${serverURL}/api/course/createlecture/${courseId}`,
-        { lectureTitle },
-        { withCredentials: true },
-      );
+      const result = await createLecture(courseId,lectureTitle)
       dispatch(setLectureData([...lectureData, result.data.lecture]));
       toast.success("Lecture added! 🎉");
       setLectureTitle("");
@@ -56,10 +52,7 @@ const CreateLecture = () => {
   const removeLecture = async (lectureId) => {
     setLoading(true);
     try {
-      const result = await axios.delete(
-        serverURL + `/api/course/deletelecture/${lectureId}`,
-        { withCredentials: true },
-      );
+      const result = await deleteLecture(lectureId)
       setLoading(false);
       const filterCourse = lectureData.filter((c) => c._id !== lectureId);
       dispatch(setLectureData(filterCourse));
@@ -72,10 +65,7 @@ const CreateLecture = () => {
   useEffect(() => {
     const getCourseLecture = async () => {
       try {
-        const result = await axios.get(
-          `${serverURL}/api/course/courselecture/${courseId}`,
-          { withCredentials: true },
-        );
+        const result = await getCourseLectures(courseId);
         dispatch(setLectureData(result.data.lectures));
       } catch (error) {
         toast.error(
@@ -91,10 +81,7 @@ const CreateLecture = () => {
 
     const getQuiz = async () => {
       try {
-        const result = await axios.get(
-          `${serverURL}/api/quiz/getquiz/${courseId}`,
-          { withCredentials: true },
-        );
+        const result = await getQuiz(courseId);
         dispatch(setQuizData(result.data.quiz));
       } catch (error) {
         toast.error(
@@ -109,11 +96,7 @@ const CreateLecture = () => {
     setQuizLoading(true);
 
     try {
-      const result = await axios.post(
-        serverURL + `/api/quiz/generatequiz/${courseId}`,
-        {},
-        { withCredentials: true },
-      );
+      const result = await generateQuiz(courseId)
       dispatch(setQuizData(result.data.quiz));
       toast.success("AI Final Exam Generated Successfully 🎓✨");
       setShowPreview(true);
@@ -136,12 +119,7 @@ const CreateLecture = () => {
   const handleEditQuiz = async () => {
     try {
       console.log(editedQuiz._id)
-      const result = await axios.post(
-        `${serverURL}/api/quiz/updatequiz/${editedQuiz._id}`,
-        { questions: editedQuiz.questions },
-        { withCredentials: true }
-      );
-
+      const result = await updateQuiz(editedQuiz._id ,  editedQuiz.questions);
       dispatch(setQuizData(result.data.quiz));
       toast.success("Quiz updated successfully!");
       setIsEditing(false);
@@ -153,12 +131,7 @@ const CreateLecture = () => {
   const handleDeleteQuiz = async () => {
     try {
       console.log(editedQuiz._id)
-      const result = await axios.post(
-        `${serverURL}/api/quiz//deletequiz/${editedQuiz._id}`,
-        { questions: editedQuiz.questions },
-        { withCredentials: true }
-      );
-
+      const result = await deleteQuiz(editedQuiz._id);
       dispatch(setQuizData(result.data.quiz));
       toast.success("Quiz updated successfully!");
       setShowPreview(false); 

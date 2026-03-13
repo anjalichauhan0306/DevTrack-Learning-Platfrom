@@ -12,6 +12,7 @@ import Navbar from "../../component/Nav.jsx";
 import axios from "axios";
 import { serverURL } from "../../App.jsx";
 import { useSelector } from "react-redux";
+import { getEnrolled } from "../../api/courseApi.js";
 
 const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,9 +23,7 @@ const StudentsPage = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const result = await axios.get(serverURL + "/api/course/getenrolled", {
-        withCredentials: true,
-      });
+      const result = await getEnrolled()
       setStudents(result.data);
     } catch (error) {
       console.error("Error fetching students:", error);

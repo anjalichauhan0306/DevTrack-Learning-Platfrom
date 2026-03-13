@@ -1,49 +1,14 @@
-import axios from "axios";
 import axiosInstance from "./axiosInstance";
-import { serverURL } from "../App";
 
-export const getAllCourseByAdmin =  async () => {
-    try {
-        const result = await axiosInstance.get(serverURL + "/admin/courses" , {withCredentials:true});
-        return result.data;
-    } catch (error) {
-        console.log(error);
-    }
-}
+export const getAllCourseByAdmin = () =>
+  axiosInstance.get("/admin/courses").then(res => res.data);
 
-export const analyticsByAdmin =  async () => {
-    try {
-        const result = await axiosInstance.get(serverURL + "/admin/analytics" , {withCredentials:true});
-        return result.data;
-    } catch (error) {
-        console.log(error);
-    }
-}
+export const analyticsByAdmin = () =>
+  axiosInstance.get("/admin/analytics").then(res => res.data);
 
+export const AllUsersByAdmin = () =>
+  axiosInstance.get("/admin/users").then(res => res.data);
 
-export const AllUsersByAdmin =  async () => {
-    try {
-        const result = await axiosInstance.get(serverURL + "/admin/users" , {withCredentials:true});
-        return result.data;
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-export const blockUser = async (userId, isActive) => {
-  try {
-    const response = await axios.patch(
-      `${serverURL}/api/admin/user/${userId}`,
-      { isActive },
-      { withCredentials: true }
-    );
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: "Failed to update status" };
-  }
-};
-
-
-
-
-
+export const blockUser = (userId, isActive) =>
+  axiosInstance.patch(`/admin/user/${userId}`, { isActive })
+  .then(res => res.data);

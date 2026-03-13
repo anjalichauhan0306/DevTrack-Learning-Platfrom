@@ -6,7 +6,6 @@ import {
   Star,
   TrendingUp,
   ArrowUpRight,
-  Award,
 } from "lucide-react";
 import {
   BarChart,
@@ -25,14 +24,12 @@ const Analytics = () => {
   const { userData } = useSelector((state) => state.user);
   const { creatorCourseData } = useSelector((state) => state.course);
 
-  // 1. Prepare Summary Data
   const summaryStats = useMemo(() => {
     const totalCourses = creatorCourseData?.length || 0;
 
     const studentSet = new Set();
     creatorCourseData?.forEach((course) => {
       course.enrolledStudents?.forEach((student) => {
-        // Assuming student is an object with _id, else just use student
         studentSet.add(student._id?.toString() || student);
       });
     });
@@ -144,7 +141,7 @@ const Analytics = () => {
                   <span className="text-indigo-400 font-black text-xl">
                     {creatorCourseData?.length || 0}
                   </span>
-
+ 
                   <span className="text-slate-500 text-[9px] font-bold uppercase">
                     Total Courses
                   </span>

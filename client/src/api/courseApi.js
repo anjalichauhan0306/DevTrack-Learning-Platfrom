@@ -35,6 +35,11 @@ export const markLectureComplete = (courseId, lectureId, totalLectures) =>
 export const createCourse = (data) =>
   axiosInstance.post("/course/create", data);
 
+export const deleteCourse = (courseId) =>
+  axiosInstance.delete(`/course/delete/${courseId}`, { withCredentials: true })
+    .then(res => res.data);
+
+
 export const createLecture = (courseId, lectureTitle) =>
   axiosInstance.post(`/course/createlecture/${courseId}`, { lectureTitle });
 
@@ -47,3 +52,23 @@ export const getCourseLectures = (courseId) =>
 export const getEnrolled = () =>
   axiosInstance.get(`/course/getenrolled`).then(res => res.data)
 
+export const updateLecture = (courseId, lectureId, formData, onUploadProgress) =>
+  axiosInstance.post(
+    `/course/editlecture/${courseId}/${lectureId}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress,
+    }
+  ).then(res => res.data);
+
+
+  export const updateCourse = (courseId, formData) =>
+  axiosInstance.post(
+    `/course/editcourse/${courseId}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    }
+  ).then(res => res.data);

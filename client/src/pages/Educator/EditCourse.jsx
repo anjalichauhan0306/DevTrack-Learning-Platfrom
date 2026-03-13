@@ -20,6 +20,7 @@ import { ClipLoader } from "react-spinners";
 import { useDispatch } from "react-redux";
 import { setCourseData } from "../../redux/courseSliec";
 import { useSelector } from "react-redux";
+import { deleteCourse, updateCourse } from "../../api/courseApi";
 
 const EditCourse = () => {
   const thumbRef = useRef();
@@ -91,16 +92,9 @@ const EditCourse = () => {
     formData.append("thumbnail", BackendImage);
 
     try {
-      const result = await axios.post(
-        serverURL + `/api/course/editcourse/${courseId}`,
-        formData,
-        { withCredentials: true },
-      );
-      console.log(result.data);
-
+      const result = await updateCourse(courseId, formData);
       setLoading(false);
       navigate("/courses");
-
       const updateData = result.data;
       if (updateData.isPublished) {
         const updateCourse = courseData.map((c) =>
@@ -132,9 +126,7 @@ const EditCourse = () => {
       return;
 
     try {
-      await axios.delete(serverURL + `/api/course/delete/${courseId}`, {
-        withCredentials: true,
-      });
+      await deleteCourse(courseId)
       toast.success("Course deleted!");
       navigate("/courses");
       const filterCourse = courseData.filter((c) => c._id !== courseId);

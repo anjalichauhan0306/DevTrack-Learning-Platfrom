@@ -18,6 +18,7 @@ import {
 } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { setLectureData } from "../../redux/lectureSliece.js";
+import { updateLecture } from "../../api/courseApi.js";
 
 const EditLecture = () => {
   const { courseId, lectureId } = useParams();
@@ -61,16 +62,9 @@ const EditLecture = () => {
 
     setLoading(true);
     try {
-      const result = await axios.post(
-        serverURL + `/api/course/editlecture/${courseId}/${lectureId}`,
-        formData,
-        {
-          withCredentials: true,
-          onUploadProgress: (p) =>
-            setUploadProgress(Math.round((p.loaded * 100) / p.total)),
-        },
-      );
-
+      const result = await updateLecture(courseId, lectureId, formData, (p) =>
+      setUploadProgress(Math.round((p.loaded * 100) / p.total))
+    );
       dispatch(setLectureData([...lectureData, result.data]));
       toast.success("Lecture updated successfully!");
       navigate(`/courses`);

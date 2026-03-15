@@ -9,7 +9,6 @@ import {
   FiLock,
   FiCheckCircle,
   FiFileText,
-  FiUser,
 } from "react-icons/fi";
 import { setQuizData } from "../redux/quizSlice";
 import { setUserData } from "../redux/userSlice";
@@ -34,6 +33,10 @@ const ViewLecture = () => {
   const [notes, setNotes] = useState("");
   const [quizScore, setQuizScore] = useState(0);
 
+  const lectureCompleted = userData?.completedLectures
+    ?.find((c) => c.courseId === courseId)
+    ?.lectureIds.includes(selectedLecture?._id);
+
   const courseProgress =
     userData?.completedLectures?.find(
       (c) => c.courseId?.toString() === courseId?.toString(),
@@ -46,11 +49,12 @@ const ViewLecture = () => {
       100,
     )
     : 0;
+
   const completedLectures = courseProgress?.lectureIds?.length || 0;
   const totalLectures = selectedCourse?.lectures?.length || 0;
   const isCourseFinished = coursePercent === 100;
 
-  const quizAttempts = quizData?.attempts?.length || 0;
+  const quizAttempts = quizData?.attempts?.length ?? 0;
   const isCertificateUnlocked =
     isCourseFinished &&
     quizData?.questions?.length > 0 &&
@@ -58,7 +62,7 @@ const ViewLecture = () => {
 
   const handleTimeUpdate = async () => {
     const video = videoRef.current;
-    if (!video || !selectedLecture || isMarked) return;
+    if (!video || !selectedLecture || isMarked || lectureCompleted) return;
 
     const percent = (video.currentTime / video.duration) * 100;
 
@@ -66,11 +70,11 @@ const ViewLecture = () => {
       setIsMarked(true);
 
       try {
-        const response = await markLectureComplete({
+        const response = await markLectureComplete(
           courseId,
-          lectureId: selectedLecture._id,
-          totalLectures: selectedCourse.lectures.length,
-        });
+          selectedLecture._id,
+          selectedCourse.lectures.length,
+        );
 
         dispatch(setUserData(response.data));
         toast.success("Lecture completed ✅");
@@ -81,8 +85,8 @@ const ViewLecture = () => {
   };
 
   useEffect(() => {
-    setIsMarked(false);
-  }, [selectedLecture]);
+    setIsMarked(lectureCompleted ? true : false);
+  }, [selectedLecture, userData]);
 
   const courseQuizAvailable = quizData?.questions?.length > 0;
 
@@ -92,7 +96,7 @@ const ViewLecture = () => {
     const getQuiz = async () => {
       try {
         const result = await getQuizByCourse(courseId);
-        const quiz = result.data.quiz;
+        const quiz = result.quiz;
 
         if (quiz) {
           const attempts = quiz.attempts || [];
@@ -111,20 +115,29 @@ const ViewLecture = () => {
 
   const downloadCertificate = async () => {
     try {
-      const response = await downloadCertificateAPI({
-        userId: userData._id,
-        score: quizScore,
-        totalQuestions: quizData?.questions?.length || 0,
-      });
+      const response = await downloadCertificateAPI(
+        courseId,
+        userData._id,
+        quizScore,
+        quizData?.questions?.length || 0,
+      );
 
       const blob = new Blob([response.data], { type: "application/pdf" });
+
       const url = window.URL.createObjectURL(blob);
+
       const link = document.createElement("a");
+
       link.href = url;
+
       link.setAttribute("download", "Certificate.pdf");
+
       document.body.appendChild(link);
+
       link.click();
+
       link.remove();
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Download Error:", error);
     }
@@ -136,7 +149,7 @@ const ViewLecture = () => {
         <div className="max-w-400 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/mylearning")}
               className="p-2 hover:bg-gray-100 rounded-xl transition-all"
             >
               <FiArrowLeft className="text-xl" />
@@ -239,12 +252,12 @@ const ViewLecture = () => {
                       }
                     }}
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${!isCourseFinished
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : quizAttempts >= 5
-                          ? "bg-red-100 text-red-500 cursor-not-allowed"
-                          : !courseQuizAvailable
-                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            : "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-1"
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : quizAttempts >= 5
+                        ? "bg-red-100 text-red-500 cursor-not-allowed"
+                        : !courseQuizAvailable
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-1"
                       }`}
                   >
                     {!isCourseFinished
@@ -288,8 +301,8 @@ const ViewLecture = () => {
                     disabled={!isCertificateUnlocked}
                     onClick={downloadCertificate}
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${isCertificateUnlocked
-                        ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:-translate-y-1"
-                        : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:-translate-y-1"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
                       }`}
                   >
                     {isCertificateUnlocked ? "Download Certificate" : "Locked"}
@@ -329,10 +342,10 @@ ${completed
                   >
                     <div
                       className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive(lecture)
-                          ? "bg-white/20"
-                          : completed
-                            ? "bg-green-500 text-white"
-                            : "bg-gray-100 text-gray-400"
+                        ? "bg-white/20"
+                        : completed
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-100 text-gray-400"
                         }`}
                     >
                       {completed ? "✓" : index + 1}

@@ -24,9 +24,14 @@ const Login = () => {
       const result = await loginUser(
         { email, password });
       dispatch(setUserData(result.data));
+      console.log(result.data);
+      if (result.data.role === "admin") {
+        navigate("/overview");
+      } else {
+        navigate("/");
+      }
       setLoading(false);
       toast.success("Login Successfully");
-      navigate("/");
     } catch (error) {
       setLoading(false);
       toast.error("Login Failed Please Try Again");

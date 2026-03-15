@@ -25,24 +25,15 @@ const MyLearning = () => {
 
   const enrolledCourses = userData?.enrolledCourses || [];
 
-  const isQuizPassed = (courseId) => {
-    const exam = userData?.examScores?.find((e) => e.courseId === courseId);
-    return exam && exam.score > 7;
-  };
-
+  // Courses with less than 100% progress are in progress
   const inProgressCourses = useMemo(
-    () =>
-      enrolledCourses.filter(
-        (course) => getProgress(course._id) < 100 || !isQuizPassed(course._id)
-      ),
+    () => enrolledCourses.filter((course) => getProgress(course._id) < 100),
     [enrolledCourses, courseData, userData]
   );
 
+  // Courses with 100% progress are completed
   const completedCourses = useMemo(
-    () =>
-      enrolledCourses.filter(
-        (course) => getProgress(course._id) === 100 && isQuizPassed(course._id)
-      ),
+    () => enrolledCourses.filter((course) => getProgress(course._id) === 100),
     [enrolledCourses, courseData, userData]
   );
 
@@ -148,31 +139,19 @@ const MyLearning = () => {
                         </div>
 
                         <div className="flex flex-col items-end">
-                          {progressPercent === 100 && !isQuizPassed(course._id) ? (
-                            <button
-                              className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tight shadow-lg shadow-indigo-500/20"
-                            >
-                              Attempt Quiz
-                            </button>
-                          ) : progressPercent === 100 && isQuizPassed(course._id) ? (
-                            <button className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tight shadow-lg shadow-emerald-500/20">
-                              Claim Certificate
-                            </button>
-                          ) : (
-                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">
-                                  Lectures
-                                </p>
-                                <p className="text-sm font-bold text-slate-200">
-                                  {course?.lectures?.length || 0} Total
-                                </p>
-                              </div>
-                              <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all">
-                                <FiArrowRight size={20} />
-                              </div>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">
+                                Lectures
+                              </p>
+                              <p className="text-sm font-bold text-slate-200">
+                                {course?.lectures?.length || 0} Total
+                              </p>
                             </div>
-                          )}
+                            <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all">
+                              <FiArrowRight size={20} />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -235,7 +214,10 @@ const MyLearning = () => {
                       Course Certified
                     </p>
 
-                    <button onClick={() => navigate(`/viewlecture/${course._id}`)} className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-white text-black px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-emerald-500 hover:text-white">
+                    <button
+                      onClick={() => navigate(`/viewlecture/${course._id}`)}
+                      className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-white text-black px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-emerald-500 hover:text-white"
+                    >
                       Download Certificate
                     </button>
                   </div>

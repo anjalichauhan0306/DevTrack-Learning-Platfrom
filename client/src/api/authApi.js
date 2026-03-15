@@ -24,4 +24,4 @@ export const resetPasswordApi = (email, password) =>
 export const updateProfile = (formData) =>
   axiosInstance.post("/user/profile", formData, {
     headers: { "Content-Type": "multipart/form-data" },
-  }).then(res => res.data);
+  })

@@ -16,7 +16,7 @@ const LearnersManager = () => {
   const getStudnet = async () => {
     try {
       const result = await AllUsersByAdmin();
-      const educators = result.data.filter(
+      const educators = result.filter(
         user => user.role === "Student");
       setStudents(educators);
     } catch (error) {

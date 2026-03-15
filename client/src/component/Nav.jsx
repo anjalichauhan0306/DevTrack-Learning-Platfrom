@@ -35,10 +35,8 @@ const Navbar = () => {
 
   const handleLogOut = async () => {
     try {
-      // await axios.post(serverURL + "/api/auth/logout", {
-      //   withCredentials: true,
-      // });
-      logoutUser()
+     await logoutUser()
+      localStorage.removeItem("token");
       dispatch(setUserData(null));
       toast.success("Logged out successfully");
       navigate("/");
@@ -90,21 +88,18 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            onClick={() => navigate("/allcourses")}
             className="hover:text-indigo-600 transition"
             to="/allcourses"
           >
             Explore Courses
           </Link>
           <Link
-            onClick={() => navigate("/mentors")}
             className="hover:text-indigo-600 transition"
             to="/mentors"
           >
             Mentors
           </Link>
           <Link
-            onClick={() => navigate("/mylearning")}
             className="hover:text-indigo-600 transition"
             to="/mylearning"
           >
@@ -114,28 +109,24 @@ const Navbar = () => {
       ) : role === "Educator" ? (
         <>
           <Link
-            onClick={() => navigate("/")}
             className="hover:text-indigo-600 transition"
             to="/"
           >
             Home
           </Link>
           <Link
-            onClick={() => navigate("/courses")}
             className="hover:text-indigo-600 transition"
             to="/courses"
           >
             My Courses
           </Link>
           <Link
-            onClick={() => navigate("/students")}
             className="hover:text-indigo-600 transition"
             to="/students"
           >
             Students
           </Link>
           <Link
-            onClick={() => navigate("/analytics")}
             className="hover:text-indigo-600 transition"
             to="/analytics"
           >

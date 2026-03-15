@@ -13,7 +13,7 @@ const EducatorsPage = () => {
     setLoading(true)
     try {
       const result = await AllUsersByAdmin();
-      const educators = result.data.filter(
+      const educators = result.filter(
         user => user.role === "Educator");
         setLoading(false)
       setUsers(educators);

@@ -77,10 +77,10 @@ const Analytics = () => {
 
   const sortedCourses = creatorCourseData
     ? [...creatorCourseData].sort((a, b) => {
-        return (
-          (b.enrolledStudents?.length || 0) - (a.enrolledStudents?.length || 0)
-        );
-      })
+      return (
+        (b.enrolledStudents?.length || 0) - (a.enrolledStudents?.length || 0)
+      );
+    })
     : [];
 
   const popularCourses = sortedCourses.slice(0, 4);
@@ -141,7 +141,7 @@ const Analytics = () => {
                   <span className="text-indigo-400 font-black text-xl">
                     {creatorCourseData?.length || 0}
                   </span>
- 
+
                   <span className="text-slate-500 text-[9px] font-bold uppercase">
                     Total Courses
                   </span>
@@ -177,7 +177,6 @@ const Analytics = () => {
       </div>
 
       <main className="max-w-7xl mx-auto px-6 md:px-10 -mt-20">
-        {/* Bento Summary Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {summaryStats.map((item, i) => (
             <div
@@ -204,7 +203,6 @@ const Analytics = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Chart 1: Enrollments */}
           <div className="lg:col-span-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
             <h3 className="text-xl font-bold text-slate-900 mb-8">
               Enrollment Analytics
@@ -249,7 +247,6 @@ const Analytics = () => {
             </div>
           </div>
 
-          {/* Chart 2: Lectures (Progress) */}
           <div className="lg:col-span-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
             <h3 className="text-xl font-bold text-slate-900 mb-8">
               Course Content (Lectures)
@@ -258,7 +255,6 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={lectureData}>
                   {" "}
-                  {/* Data fixed: lectureData use kiya */}
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
@@ -285,7 +281,6 @@ const Analytics = () => {
                     barSize={35}
                   >
                     {" "}
-                    {/* dataKey fixed: lectures use kiya */}
                     {lectureData?.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
@@ -298,7 +293,6 @@ const Analytics = () => {
             </div>
           </div>
 
-          {/* Table Section */}
           <div className="lg:col-span-12 mt-4">
             <h3 className="text-xl font-bold text-slate-800 mb-6 px-4">
               Most Popular Courses
@@ -310,7 +304,6 @@ const Analytics = () => {
                   className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all"
                 >
                   <div className="flex items-center gap-4">
-                    {/* Rank Circle */}
                     <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
                       #{idx + 1}
                     </div>

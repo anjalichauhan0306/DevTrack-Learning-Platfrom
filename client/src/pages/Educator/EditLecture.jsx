@@ -57,25 +57,30 @@ const EditLecture = () => {
   formData.append("description", description);
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
-    if (!lectureTitle.trim()) return toast.error("Title is required");
+  e.preventDefault();
+  if (!lectureTitle.trim()) return toast.error("Title is required");
 
-    setLoading(true);
-    try {
-      const result = await updateLecture(courseId, lectureId, formData, (p) =>
+  setLoading(true);
+
+  const formData = new FormData();
+  formData.append("lectureTitle", lectureTitle);
+  if (videoUrl) formData.append("videoUrl", videoUrl);
+  formData.append("isPreviewFree", isPreviewFree);
+  formData.append("description", description);
+
+  try {
+    const result = await updateLecture(courseId, lectureId, formData, (p) =>
       setUploadProgress(Math.round((p.loaded * 100) / p.total))
     );
-      dispatch(setLectureData([...lectureData, result.data]));
-      toast.success("Lecture updated successfully!");
-      navigate(`/courses`);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      toast.error(error.response?.data?.message || "Update failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    dispatch(setLectureData([...lectureData, result.data]));
+    toast.success("Lecture updated successfully!");
+    navigate(`/courses`);
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Update failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     if (selectedLecture) {

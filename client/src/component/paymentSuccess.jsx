@@ -12,25 +12,29 @@ const PaymentSuccess = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+  const verifyPayment = async () => {
     const sessionId = new URLSearchParams(location.search).get("session_id");
 
-    if (sessionId) {
-      const result = axios
-        .post(
-          serverURL + "/api/payment/verifypayment",
-          { sessionId },
-          { withCredentials: true },
-        )
-        .then(() => {
-          toast.success("Enrollment Successful 🎉");
-          dispatch(setUserData(result.data));
-          navigate("/mylearning");
-        })
-        .catch((error) => {
-          toast.error(` ${error}. || "Unknown error"}`);
-        });
+    if (!sessionId) return;
+
+    try {
+      const res = await axios.post(
+        serverURL + "/api/payment/verifypayment",
+        { sessionId },
+        { withCredentials: true }
+      );
+      console.log(res.data); 
+      dispatch(setUserData(res.data.user));
+
+      toast.success("Enrollment Successful 🎉");
+      navigate("/mylearning");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Unknown error");
     }
-  }, []);
+  };
+
+  verifyPayment();
+}, []);
 
   return <h2 className="text-center mt-20">Processing Payment...</h2>;
 };

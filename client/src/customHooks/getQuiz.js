@@ -19,7 +19,7 @@ const GetQuiz = () => {
           { withCredentials: true },
         );
 
-        dispatch(setQuizData([result.data.quiz]));
+        dispatch(setQuizData(result.quiz));
       } catch (error) {
         console.log("Quiz not found");
       }

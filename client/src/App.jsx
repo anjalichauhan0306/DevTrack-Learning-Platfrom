@@ -37,6 +37,7 @@ import EducatorsPage from "./pages/admin/Educators";
 import LearnersManager from "./pages/admin/Learners";
 import CourseManager from "./pages/admin/Courses";
 import About from "./component/About";
+import GetQuiz from "./customHooks/getQuiz";
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -46,7 +47,6 @@ const App = () => {
   GetCreatorCourse();
   GetPublishedCourse();
   GetAllReviews();
-  
   const { userData } = useSelector((state) => state.user);
 
   return (
@@ -79,7 +79,7 @@ const App = () => {
 
           <Route
             path="/allcourses"
-            element={!userData ? <Navigate to="/login" /> : <AllCourses />}
+            element={<AllCourses />}
           />
 
           <Route

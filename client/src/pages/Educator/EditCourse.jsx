@@ -1,16 +1,13 @@
 import {
   ArrowLeft,
-  Edit3Icon,
   Save,
-  X,
   Rocket,
   Trash2,
   IndianRupee,
-  Layers,
   Info,
   CameraIcon,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import empty from "../../assets/empty.jpg";
 import axios from "axios";
@@ -32,11 +29,11 @@ const EditCourse = () => {
   const dispatch = useDispatch();
   const { courseData } = useSelector((state) => state.course);
   const [title, setTitle] = useState("");
+  const [Price, setPrice] = useState(0);
   const [subTitle, setSubTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("");
-  const [Price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
   const [frontedImage, setFrontedImage] = useState(empty);
   const [BackendImage, setBackendImage] = useState(null);
@@ -66,7 +63,7 @@ const EditCourse = () => {
       setDescription(selectCourseData.description || "");
       setLevel(selectCourseData.level || "");
       setCategory(selectCourseData.category || "");
-      setPrice(selectCourseData.Price || "");
+      setPrice(selectCourseData.Price || 0);
       setIsPaid(selectCourseData.isPaid);
       setIsPublished(selectCourseData.isPublished);
       setFrontedImage(selectCourseData.thumbnail || empty);
@@ -78,7 +75,9 @@ const EditCourse = () => {
   }, []);
 
   const handleEditCourse = async () => {
+  try {
     setLoading(true);
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("subTitle", subTitle);
@@ -87,35 +86,32 @@ const EditCourse = () => {
     formData.append("category", category);
     formData.append("isPaid", isPaid);
     formData.append("isPublished", isPublished);
-
     formData.append("Price", isPaid ? Price : 0);
-    formData.append("thumbnail", BackendImage);
 
-    try {
-      const result = await updateCourse(courseId, formData);
-      setLoading(false);
-      navigate("/courses");
-      const updateData = result.data;
-      if (updateData.isPublished) {
-        const updateCourse = courseData.map((c) =>
-          c._id === courseId ? updateData : c,
-        );
-
-        if (!courseData.some((c) => c._id === courseId)) {
-          updateCourse.push(updateData);
-        }
-        dispatch(setCourseData(updateCourse));
-      } else {
-        const filterCourse = courseData.filter((c) => c._id !== courseId);
-        dispatch(filterCourse);
-      }
-
-      toast.success("course Updated successfully");
-    } catch (error) {
-      setLoading(false);
-      toast.error(error.response?.data?.message || "Failed to update course");
+    if (BackendImage) {
+      formData.append("thumbnail", BackendImage);
     }
-  };
+
+    const result = await updateCourse(courseId, formData);
+
+    const updateData = result.data;
+
+    const updatedCourses = courseData.map((c) =>
+      c._id === courseId ? updateData : c
+    );
+
+    dispatch(setCourseData(updatedCourses));
+
+    toast.success("Course Updated successfully");
+    navigate(`/courses`);
+
+  } catch (error) {
+    console.log(error);
+    toast.error(error?.response?.data?.message || "Failed to update course");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDeleteCourse = async () => {
     if (
@@ -302,13 +298,12 @@ const EditCourse = () => {
                     <input
                       type="number"
                       disabled={!isPaid}
-                      onChange={(e) => setPrice(e.target.value)}
+                       onChange={(e) => setPrice(Number(e.target.value))}
                       value={Price}
-                      className={`w-full pl-8 pr-4 py-3 rounded-xl border transition-all outline-none font-bold ${
-                        isPaid
+                      className={`w-full pl-8 pr-4 py-3 rounded-xl border transition-all outline-none font-bold ${isPaid
                           ? "border-indigo-300 bg-white text-slate-700 focus:ring-4 focus:ring-indigo-100"
                           : "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
-                      }`}
+                        }`}
                       placeholder={isPaid ? "499" : "0"}
                     />
                   </div>
@@ -368,11 +363,10 @@ const EditCourse = () => {
               <h2 className="font-bold text-slate-800 mb-2">Status Control</h2>
               <button
                 onClick={() => setIsPublished(!isPublished)}
-                className={`w-full py-3 rounded-xl font-bold transition-all border ${
-                  isPublished
+                className={`w-full py-3 rounded-xl font-bold transition-all border ${isPublished
                     ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
                     : "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-                }`}
+                  }`}
               >
                 {isPublished ? "Unpublish Course" : "Publish Course"}
               </button>

@@ -12,7 +12,6 @@ import Navbar from "../../component/Nav.jsx";
 import axios from "axios";
 import { serverURL } from "../../App.jsx";
 import { useSelector } from "react-redux";
-import { getEnrolled } from "../../api/courseApi.js";
 
 const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,7 +22,9 @@ const StudentsPage = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const result = await getEnrolled()
+      const result = await axios.get(serverURL + "/api/course/getenrolled", {
+        withCredentials: true,
+      });
       setStudents(result.data);
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -168,7 +169,7 @@ const StudentsPage = () => {
                     Tier Status
                   </th>
                   <th className="px-8 py-6 text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] text-right">
-                    Performance
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -180,7 +181,7 @@ const StudentsPage = () => {
                       key={index}
                       className="hover:bg-indigo-50/30 transition-all group"
                     >
-                      <td className="px-8 py-7">
+                      <td className="px-7 py-7">
                         <div className="flex items-center gap-4">
                           <div className="relative">
                             <img
@@ -188,18 +189,17 @@ const StudentsPage = () => {
                                 student.user?.photo ||
                                 `https://ui-avatars.com/api/?name=${student.user?.name}&background=6366f1&color=fff`
                               }
-                              className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform"
+                              className="w-10 h-10 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform"
                               alt="profile"
                             />
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
                           </div>
                           <div>
-                            <div className="text-sm font-black text-slate-800 leading-tight mb-1">
+                            <div className="text-sm font-black text-slate-800">
                               {student.user?.name}
                             </div>
-                            <div className="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-                              <Mail size={12} className="text-slate-300" />{" "}
-                              {student.user?.email}
+                            <div title={student.user?.email} className="text-[10px] text-slate-400">
+                              {student.user?.email.slice(0, 12)}...
                             </div>
                           </div>
                         </div>
@@ -228,13 +228,13 @@ const StudentsPage = () => {
                           <span className="text-[11px] font-bold uppercase tracking-tight">
                             {student.enrolledAt
                               ? new Date(student.enrolledAt).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  },
-                                )
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )
                               : "—"}
                           </span>
                         </div>
@@ -249,22 +249,12 @@ const StudentsPage = () => {
                       </td>
 
                       <td className="px-8 py-7 text-right">
-                        <div className="flex items-center justify-end gap-0.5 mb-1.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={12}
-                              className={
-                                star <= (student.rating || 4)
-                                  ? "fill-amber-400 text-amber-400"
-                                  : "text-slate-200"
-                              }
-                            />
-                          ))}
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-medium italic opacity-70 group-hover:opacity-100 transition-opacity">
-                          "Student feedback summary..."
-                        </div>
+                        <button
+                          onClick={() => window.open(`mailto:${student.user?.email}`, "_blank")}
+                          className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition"
+                        >
+                          <Mail size={12} /> Contact
+                        </button>
                       </td>
                     </tr>
                   );

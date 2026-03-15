@@ -73,7 +73,13 @@ export const verifyCheckout = async (req, res) => {
         await course.save();
       }
 
-      return res.status(200).json({ message: "Enrollment successful" });
+      // 🔥 updated user fetch
+      const updatedUser = await User.findById(userId).populate("enrolledCourses");
+
+      return res.status(200).json({
+        message: "Enrollment successful",
+        user: updatedUser,
+      });
     }
 
     res.status(400).json({ message: "Payment not completed" });
@@ -81,7 +87,6 @@ export const verifyCheckout = async (req, res) => {
     res.status(500).json({ message: "Verification failed" });
   }
 };
-
 export const freeEnrollCourse = async (req, res) => {
   try {
     const { courseId } = req.body;

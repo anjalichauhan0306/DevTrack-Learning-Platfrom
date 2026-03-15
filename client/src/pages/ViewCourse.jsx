@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiLock, FiPlay, FiStar } from "react-icons/fi";
-import axios from "axios";
-import { serverURL } from "../App.jsx";
 import emy from "../assets/empty.jpg";
 import { setSelectedCourse } from "../redux/courseSliec";
 import Card from "../component/Card.jsx";
@@ -25,7 +23,6 @@ const CourseDetailPage = () => {
   const dispatch = useDispatch();
   const [creatorData, setCreatorData] = useState(null);
   const { courseData, selectedCourse } = useSelector((state) => state.course);
-
   const [creatorCourses, setCreatorCourses] = useState(null);
   const [selectedLecture, setSelectedLecture] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -51,7 +48,6 @@ const CourseDetailPage = () => {
       (c) =>
         (typeof c === "string" ? c : c._id).toString() === courseId?.toString(),
     );
-
     setIsEnrolled(verify);
   };
 
@@ -64,12 +60,13 @@ const CourseDetailPage = () => {
       checkEnrollment();
     }
   }, [userData, courseId]);
-  
+
   useEffect(() => {
     const handleCreator = async () => {
       if (selectedCourse?.creator) {
+        const cId = selectedCourse.creator._id || selectedCourse.creator;
         try {
-          const result = await getCreator({ userId: selectedCourse?.creator });
+          const result = await getCreator(cId);
           setCreatorData(result.data);
         } catch (error) {
           console.log(error);
@@ -83,21 +80,21 @@ const CourseDetailPage = () => {
     if (selectedCourse && courseData.length > 0) {
       const creatorCourse = courseData.filter(
         (course) =>
-          course.creator?.toString() === selectedCourse.creator?.toString() &&
-          course._id?.toString() !== courseId?.toString(),
+          (course.creator?._id || course.creator)?.toString() ===
+            (
+              selectedCourse.creator?._id || selectedCourse.creator
+            )?.toString() && course._id?.toString() !== courseId?.toString(),
       );
-
       setCreatorCourses(creatorCourse);
     }
   }, [selectedCourse, courseData]);
 
   const handleEnroll = async () => {
     try {
-      const { data } = await enrollPaidCourse({
+      const { data } = await enrollPaidCourse(
         courseId,
-        userId: userData._id,
-      });
-
+        userData._id,
+      );
       window.location.href = data.url;
     } catch (error) {
       toast.error("Payment Failed");
@@ -109,7 +106,7 @@ const CourseDetailPage = () => {
       "session_id",
     );
     if (sessionId) {
-      verifyPaymentSession({ sessionId })
+      verifyPaymentSession(sessionId )
         .then((result) => {
           toast.success("Enrollment Successful 🎉");
           dispatch(setUserData(result.data));
@@ -122,9 +119,10 @@ const CourseDetailPage = () => {
 
   const enrollFree = async (userId, courseId) => {
     try {
-      const response = await enrollFreeCourse({ courseId, userId });
+      const response = await enrollFreeCourse(courseId, userId);
       setIsEnrolled(true);
       toast.success(response.data.message || "Enrolled Successfully!");
+      navigate("/mylearning")
       dispatch(setUserData(response.data));
     } catch (error) {
       toast.error(error.response?.data?.message || "Enrollment failed");
@@ -134,7 +132,7 @@ const CourseDetailPage = () => {
   const handleReview = async () => {
     setLoading(true);
     try {
-      const result = await submitReview({ rating, comment, courseId });
+      const result = await submitReview( rating, comment, courseId );
       toast.success("Review Added");
       setLoading(false);
       setRating(0);
@@ -151,9 +149,7 @@ const CourseDetailPage = () => {
     if (!reviews || reviews.length === 0) {
       return 0;
     }
-
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-
     return (total / reviews.length).toFixed(1);
   };
 

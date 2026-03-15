@@ -58,6 +58,7 @@ export const updateLecture = (courseId, lectureId, formData, onUploadProgress) =
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
+       timeout: 0,
       onUploadProgress,
     }
   ).then(res => res.data);
@@ -69,6 +70,7 @@ export const updateLecture = (courseId, lectureId, formData, onUploadProgress) =
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 0,
       withCredentials: true,
     }
   ).then(res => res.data);

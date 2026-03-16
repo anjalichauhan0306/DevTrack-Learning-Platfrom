@@ -30,7 +30,7 @@ const Signup = () => {
     try {
       const result = await signupUser({ name, email, password, role });
       setLoading(false);
-      dispatch(setUserData(result.data.user));
+      dispatch(setUserData(result.data));
       toast.success("Signup Successful");
       navigate("/");
     } catch (error) {

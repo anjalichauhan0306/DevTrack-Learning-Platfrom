@@ -37,7 +37,6 @@ import EducatorsPage from "./pages/admin/Educators";
 import LearnersManager from "./pages/admin/Learners";
 import CourseManager from "./pages/admin/Courses";
 import About from "./component/About";
-import GetQuiz from "./customHooks/getQuiz";
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);

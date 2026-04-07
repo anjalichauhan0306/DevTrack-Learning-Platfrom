@@ -86,8 +86,6 @@ DevTrack is an AI-powered Learning Management System (LMS) designed to provide a
 
 🚀 Installation & Setup
 
-# Clone the repository
-git clone https://github.com/your-username/devtrack.git
 
 # Navigate to project folder
 cd devtrack

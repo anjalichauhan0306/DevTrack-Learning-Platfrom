@@ -105,13 +105,10 @@ npm run dev
 - Payment gateway for premium courses
 - Mobile app (React Native / Flutter)
 
----
 
 👨‍💻 Author
 
 Anjali Chauhan
-
----
 
 ⭐ If you like this project
 
